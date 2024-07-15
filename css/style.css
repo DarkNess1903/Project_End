@@ -1,0 +1,248 @@
+/* style.css */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+}
+
+#navbar, #footer {
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.container {
+    padding: 20px;
+}
+
+.project {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.project img {
+    max-width: 45%;
+    border: 1px solid #ccc;
+}
+
+.project-details {
+    max-width: 50%;
+}
+
+.objective, .product {
+    margin-bottom: 20px;
+}
+
+.contact {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.contact div {
+    max-width: 30%;
+}
+
+.banner {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 80px; /* Adjust the margin-top value based on your navbar height */
+}
+
+.banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.logo {
+    flex: 1;
+}
+
+.logo img {
+    width: 100px; /* Adjust as needed */
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    flex: 2;
+    justify-content: left;
+}
+
+.nav-links li {
+    margin: 0 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-size: 21px;
+}
+
+.menu-toggle {
+    display: none;
+    cursor: pointer;
+}
+
+.cart {
+    margin-right: 225px; /* ปรับขนาดของ margin ตามที่ต้องการ */
+}
+
+.cart a {
+    color: #333; /* สีของไอคอนหรือรูปภาพ */
+    text-decoration: none; /* ไม่ให้มี underline ใต้ข้อความ */
+    font-size: 20px; /* ขนาดของไอคอนหรือรูปภาพ */
+}
+
+.cart a:hover {
+    color: #FF5733; /* สีของไอคอนหรือรูปภาพเมื่อ hover */
+}
+
+.cart-table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-table th, .cart-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-table th {
+    background-color: #f1f1f1;
+}
+
+.cart-table td img {
+    width: 50px;
+    height: auto;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.cart-summary {
+    width: 80%;
+    margin: 20px auto;
+    padding: 10px;
+    text-align: right;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background-color: #218838;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-control button {
+    background-color: #ddd;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.quantity-control button:hover {
+    background-color: #ccc;
+}
+
+.quantity-control span {
+    margin: 0 10px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.order-form {
+    width: 50%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-group input[type="file"] {
+    padding: 3px;
+}
+
+#bank-details img {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button[type="submit"]:hover {
+    background-color: #218838;
+}
