@@ -25,9 +25,10 @@
         </div>
     </div>
 
-    <table>
+    <table class="cart-table">
         <thead>
             <tr>
+                <th><input type="checkbox"></th>
                 <th>สินค้า</th>
                 <th>ราคาต่อชิ้น</th>
                 <th>จำนวน</th>
@@ -35,11 +36,49 @@
                 <th>ลบสินค้า</th>
             </tr>
         </thead>
-        <tbody id="cart-items"></tbody>
+        <tbody id="cart-items">
+            <!-- ตัวอย่างข้อมูลสินค้าที่มีอยู่ในตะกร้า -->
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><img src="path/to/image1.png" alt="Rice"> ข้าว</td>
+                <td>50</td>
+                <td class="quantity-control">
+                    <button onclick="decreaseQuantity(0)">-</button>
+                    <span>2</span>
+                    <button onclick="increaseQuantity(0)">+</button>
+                </td>
+                <td>100</td>
+                <td><a href="#" onclick="removeFromCart(0)">ลบ</a></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><img src="path/to/image2.png" alt="Corn"> ข้าวโพด</td>
+                <td>120</td>
+                <td class="quantity-control">
+                    <button onclick="decreaseQuantity(1)">-</button>
+                    <span>1</span>
+                    <button onclick="increaseQuantity(1)">+</button>
+                </td>
+                <td>120</td>
+                <td><a href="#" onclick="removeFromCart(1)">ลบ</a></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox"></td>
+                <td><img src="path/to/image3.png" alt="Shoes"> รองเท้า</td>
+                <td>40</td>
+                <td class="quantity-control">
+                    <button onclick="decreaseQuantity(2)">-</button>
+                    <span>1</span>
+                    <button onclick="increaseQuantity(2)">+</button>
+                </td>
+                <td>40</td>
+                <td><a href="#" onclick="removeFromCart(2)">ลบ</a></td>
+            </tr>
+        </tbody>
     </table>
 
     <div class="cart-summary">
-        ราคารวม <span id="total-price">0</span> $
+        ราคารวม <span id="total-price">260</span> $
         <button class="checkout-button" onclick="checkout()">สั่งสินค้า</button>
     </div>
 
@@ -70,18 +109,11 @@
             loadFooter();
         };
 
-        let cart = [];
-
-        function addToCart(product, price) {
-            const itemIndex = cart.findIndex(item => item.product === product);
-            if (itemIndex > -1) {
-                cart[itemIndex].quantity += 1;
-                cart[itemIndex].totalPrice += price;
-            } else {
-                cart.push({ product, price, quantity: 1, totalPrice: price });
-            }
-            displayCart();
-        }
+        let cart = [
+            { product: 'ข้าว', price: 50, quantity: 2, totalPrice: 100 },
+            { product: 'ข้าวโพด', price: 120, quantity: 1, totalPrice: 120 },
+            { product: 'รองเท้า', price: 40, quantity: 1, totalPrice: 40 },
+        ];
 
         function displayCart() {
             const cartItems = document.getElementById('cart-items');
@@ -92,7 +124,8 @@
             cart.forEach((item, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${item.product}</td>
+                    <td><input type="checkbox"></td>
+                    <td><img src="path/to/image${index + 1}.png" alt="${item.product}"> ${item.product}</td>
                     <td>${item.price}</td>
                     <td class="quantity-control">
                         <button onclick="decreaseQuantity(${index})">-</button>
@@ -100,7 +133,7 @@
                         <button onclick="increaseQuantity(${index})">+</button>
                     </td>
                     <td>${item.totalPrice}</td>
-                    <td><button onclick="removeFromCart(${index})">ลบ</button></td>
+                    <td><a href="#" onclick="removeFromCart(${index})">ลบ</a></td>
                 `;
                 cartItems.appendChild(row);
                 totalPrice += item.totalPrice;
@@ -135,6 +168,8 @@
             cart = [];
             displayCart();
         }
+
+        displayCart();
     </script>
 
     <div id="footer"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก footer.html -->
