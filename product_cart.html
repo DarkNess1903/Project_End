@@ -32,6 +32,8 @@
     </style>
 </head>
 <body>
+    <div id="navbar"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก topnavbar.html -->
+
     <h1>Shopping Cart</h1>
     <div id="products">
         <div class="product">
@@ -67,6 +69,19 @@
     </div>
 
     <script>
+        // Function to load the navbar from topnavbar.html
+        function loadNavbar() {
+            fetch('topnavbar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading navbar:', error));
+        }
+
+        // Load the navbar when the page loads
+        window.onload = loadNavbar;
+
         let cart = [];
 
         function addToCart(product, price) {

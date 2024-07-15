@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="navbar"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก topnavbar.html -->
+
     <h1>Products</h1>
     <div class="product-list" id="product-list">
         <!-- Product cards will be added here by JavaScript -->
@@ -30,6 +32,21 @@
         ราคารวม <span id="total-price">0</span> $
         <button class="checkout-button" onclick="checkout()">สั่งสินค้า</button>
     </div>
+
+    <script>
+        // Function to load the navbar from topnavbar.html
+        function loadNavbar() {
+            fetch('topnavbar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading navbar:', error));
+        }
+
+        // Load the navbar when the page loads
+        window.onload = loadNavbar;
+    </script>
 
     <script src="script.js"></script>
 </body>
