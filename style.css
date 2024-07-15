@@ -81,8 +81,13 @@ footer {
 
 .logo img {
     width: 100px; /* Adjust as needed */
+    margin: 0 40px;
 }
-
+.logo img:hover {
+    cursor: pointer;
+    filter: brightness(120%);
+    transition: filter 0.3s ease;
+  }
 .nav-links {
     list-style: none;
     display: flex;
@@ -90,6 +95,7 @@ footer {
     padding: 0;
     flex: 2;
     justify-content: left;
+    
 }
 
 .nav-links li {
@@ -102,6 +108,15 @@ footer {
     font-size: 21px;
 }
 
+.nav-links a:hover {
+  cursor: pointer;
+  text-decoration: none;
+  color: #fff;
+  background-color: #333;
+  border-radius: 5px;
+  padding: 5px 10px;
+  transition: background-color 0.3s ease;
+}
 .menu-toggle {
     display: none;
     cursor: pointer;
@@ -114,7 +129,7 @@ footer {
 .cart a {
     color: #333; /* สีของไอคอนหรือรูปภาพ */
     text-decoration: none; /* ไม่ให้มี underline ใต้ข้อความ */
-    font-size: 20px; /* ขนาดของไอคอนหรือรูปภาพ */
+    font-size: 30px; /* ขนาดของไอคอนหรือรูปภาพ */
 }
 
 .cart a:hover {
