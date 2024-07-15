@@ -127,7 +127,6 @@ footer {
 }
 
 .cart a {
-    color: #333; /* สีของไอคอนหรือรูปภาพ */
     text-decoration: none; /* ไม่ให้มี underline ใต้ข้อความ */
     font-size: 30px; /* ขนาดของไอคอนหรือรูปภาพ */
 }
