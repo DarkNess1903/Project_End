@@ -5,8 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #navbar {
+            background-color: #f8f8f8;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        h1 {
+            text-align: center;
+        }
+        #products {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .product {
+            margin: 0 10px;
+        }
         table {
-            width: 100%;
+            width: 80%;
+            margin: 20px auto;
             border-collapse: collapse;
         }
         th, td {
@@ -15,8 +36,9 @@
             border-bottom: 1px solid #ddd;
         }
         .cart-summary {
+            width: 80%;
+            margin: 20px auto;
             text-align: right;
-            margin-top: 20px;
         }
         .checkout-button {
             margin-top: 10px;
@@ -28,6 +50,31 @@
         }
         .checkout-button:hover {
             background-color: darkgreen;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-control button {
+            background-color: #ddd;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .quantity-control button:hover {
+            background-color: #ccc;
+        }
+        .quantity-control span {
+            margin: 0 10px;
+        }
+        footer {
+            background-color: #f8f8f8;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+        }
+        footer div {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -68,6 +115,17 @@
         <button class="checkout-button" onclick="checkout()">สั่งสินค้า</button>
     </div>
 
+    <footer>
+        <div>ติดต่อเรา example address 250 019 Ayutthaya21</div>
+        <div>เบอร์ติดต่อ 0xxxxxxxxx</div>
+        <div>Email example@aru.ac.th</div>
+        <div>Other contact 
+            <a href="#">Facebook</a> 
+            <a href="#">LINE</a>
+        </div>
+        <div>©2024 Hantaphao Projects All rights reserved.</div>
+    </footer>
+
     <script>
         // Function to load the navbar from topnavbar.html
         function loadNavbar() {
@@ -106,15 +164,35 @@
                 row.innerHTML = `
                     <td>${item.product}</td>
                     <td>${item.price}</td>
-                    <td>${item.quantity}</td>
+                    <td class="quantity-control">
+                        <button onclick="decreaseQuantity(${index})">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="increaseQuantity(${index})">+</button>
+                    </td>
                     <td>${item.totalPrice}</td>
-                    <td><button onclick="removeFromCart(${index})">Remove</button></td>
+                    <td><button onclick="removeFromCart(${index})">ลบ</button></td>
                 `;
                 cartItems.appendChild(row);
                 totalPrice += item.totalPrice;
             });
 
             totalPriceElement.textContent = totalPrice;
+        }
+
+        function increaseQuantity(index) {
+            cart[index].quantity += 1;
+            cart[index].totalPrice += cart[index].price;
+            displayCart();
+        }
+
+        function decreaseQuantity(index) {
+            if (cart[index].quantity > 1) {
+                cart[index].quantity -= 1;
+                cart[index].totalPrice -= cart[index].price;
+                displayCart();
+            } else {
+                removeFromCart(index);
+            }
         }
 
         function removeFromCart(index) {
