@@ -33,16 +33,14 @@
     </style>
 </head>
 <body class="text-center">
-    <div id="ag-1720978127864"></div>
-    
     <main class="form-signin">
         <form id="loginForm">
             <img class="mb-4" src="https://getbootstrap.com/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
             <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
             <div class="form-floating">
-                <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" required>
-                <label for="floatingInput">Email address</label>
+                <input type="user" class="form-control" id="floatingInput" placeholder="name@example.com" required>
+                <label for="floatingInput">User</label> <!-- แก้เป็น "User" ตามที่ต้องการ -->
             </div>
             <div class="form-floating">
                 <input type="password" class="form-control" id="floatingPassword" placeholder="Password" required>
@@ -67,11 +65,14 @@
             var email = document.getElementById('floatingInput').value;
             var password = document.getElementById('floatingPassword').value;
 
+            // ตรวจสอบการเข้าสู่ระบบ
             if (email === 'admin@example.com' && password === 'password') {
                 document.getElementById('message').textContent = 'Login successful!';
                 document.getElementById('message').style.color = 'green';
+                // ในที่นี้คุณสามารถเพิ่ม redirect ไปยังหน้า dashboard หรือหน้าที่ต้องการได้
+                // window.location.href = 'dashboard.php';
             } else {
-                document.getElementById('message').textContent = 'Invalid email or password';
+                document.getElementById('message').textContent = 'Invalid User or password';
             }
         });
     </script>
