@@ -7,6 +7,108 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+       
+        .PR_pic {
+            flex: 1;
+            display: flex;
+            align-items: left;
+            justify-content: left;
+            padding: 0px;
+        }
+      
+        .right {
+            flex: 1;
+            background-color: #2B5914; /* Green background */
+            color: white;
+            padding: 87px 340px 266.5px 87px ;
+        }
+        .right h1 {
+            font-size: 4em;
+            margin: 0;
+        }
+        .right h2 {
+            font-size: 2em;
+            margin: 0;
+        }
+        .right p {
+            margin: 10px 0;
+        }
+        .right .column {
+            column-count: 3;
+            column-gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            @media (max-width: 1024px) {
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center align items */
+    }
+
+    .PR_pic {
+        width: 100%; /* Fill the width of its container */
+        text-align: center; /* Center align content */
+        margin-bottom: 20px; /* Add margin bottom for spacing */
+    }
+
+    .PR_pic img {
+        max-width: 100%; /* Adjust maximum width of the image */
+        height: auto; /* Maintain aspect ratio */
+    }
+
+    .right {
+        flex: 1; /* Occupy full width */
+        background-color: #2B5914; /* Green background */
+        color: white;
+        padding: 20px; /* Add padding inside the right section */
+        text-align: left; /* Align text to the left */
+        margin-top: 20px; /* Add space between PR_pic and right sections */
+    }
+
+    .right h1 {
+        font-size: 3em; /* Adjust font size */
+        margin: 0;
+    }
+
+    .right h2 {
+        font-size: 1.5em; /* Adjust font size */
+        margin: 0;
+    }
+
+    .right p {
+        margin: 10px 0; /* Add margin around paragraphs */
+    }
+
+    .right .column {
+        column-count: 1; /* Display text in a single column on smaller screens */
+        column-gap: 0; /* No gap between columns */
+    }
+
+    .objective,
+    .product {
+        flex: 1; /* Occupy full width on smaller screens */
+        padding: 20px; /* Add padding around sections */
+        margin-top: 20px; /* Add spacing between sections */
+        background-color: #fff; /* White background */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
+    }
+
+    .objective h3,
+    .product h3 {
+        font-size: 1.5em; /* Adjust heading font size */
+        margin-top: 0; /* Remove margin from the top */
+    }
+
+    .objective p,
+    .product p {
+        margin-top: 10px; /* Add margin above paragraphs */
+    }
+}
+}
+
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -34,22 +136,31 @@
     </header>
 
     <div class="container">
-        <div class="project">
+        <div class="PR_pic">
             <img src="img/example.jpg" alt="Example Picture" width="550" height="550">
-            <div class="project-details">
-                <p>วัตถุประสงค์ของโครงการ Hantaphao คือการให้การพัฒนาที่ยั่งยืนให้กับชุมชนโดยการผสมผสานการจัดการทรัพยากรธรรมชาติและการอนุรักษ์สิ่งแวดล้อม โครงการนี้มุ่งเน้นการเพิ่มคุณภาพชีวิตของชุมชนในท้องถิ่นผ่านการปฏิบัติที่ยั่งยืน</p>
+        </div>
+        <div class="right">
+            <h1>Hantaphao</h1>
+            <h2>Project</h2>
+            <p>เป็นมนุษย์สุดประเสริฐเลิศคุณค่า...</p>
+            <div class="column">
+                <p>The quick brown fox jumps over the lazy...</p>
+                <p>Year Yorky Year Yarn Your Yir...</p>
             </div>
-        </div>
-        <div class="objective">
-            <h3>วัตถุประสงค์</h3>
-            <p>โครงการ Hantaphao มีเป้าหมายที่จะสร้างการพัฒนาที่ยั่งยืนให้กับชุมชนโดยการจัดการทรัพยากรธรรมชาติและการอนุรักษ์สิ่งแวดล้อม</p>
-        </div>
-        <div class="product">
-            <h3>ผลิตภัณฑ์</h3>
-            <img src="img/product-image.jpg" alt="Product Image">
         </div>
     </div>
 
+    
+    <div class="objective">
+        <h3>วัตถุประสงค์</h3>
+        <p>โครงการ Hantaphao มีเป้าหมายที่จะสร้างการพัฒนาที่ยั่งยืนให้กับชุมชนโดยการจัดการทรัพยากรธรรมชาติและการอนุรักษ์สิ่งแวดล้อม</p>
+    </div>
+    <div class="product">
+        <h3>ผลิตภัณฑ์</h3>
+        <img src="" alt="Product Image">
+    </div>
+
+    
     <footer>
         <div class="contact">
             <div>
@@ -72,6 +183,6 @@
         <p>©2024 Hantaphao Projects All rights reserved.</p>
     </footer>
 
-    <script src="/js/script.js"></script>
+    <script src="js/navscript.js"></script>
 </body>
 </html>
