@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,21 +46,20 @@
 
     <script>
     // Retrieve the items from the hidden input
-    const items = JSON.parse(document.querySelector('input[name="items"]').value);
+    const urlParams = new URLSearchParams(window.location.search);
+    const productData = JSON.parse(urlParams.get('productData'));
 
-    // Display the items in the items container
+    // Display the product data in the items container
     const itemsContainer = document.getElementById('items-container');
-    items.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.innerHTML = `
-            <p>ชื่อสินค้า: ${item.product_name}</p>
-            <p>ราคา: ${item.price}</p>
-            <p>จำนวน: ${item.quantity}</p>
-            <p>ราคารวม: ${item.total_price}</p>
-            <hr>
-        `;
-        itemsContainer.appendChild(itemDiv);
-    });
+    const itemDiv = document.createElement('div');
+    itemDiv.innerHTML = `
+        <p>ชื่อสินค้า: ${productData.product_name}</p>
+        <p>ราคา: ${productData.price} บาท</p>
+        <p>จำนวน: ${productData.quantity}</p>
+        <p>ราคารวม: ${productData.totalPrice} บาท</p>
+        <hr>
+    `;
+    itemsContainer.appendChild(itemDiv);
     </script>
 
 </body>

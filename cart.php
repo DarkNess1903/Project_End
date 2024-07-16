@@ -1,19 +1,10 @@
 <?php
-// Connect to MySQL database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "order_management";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include "connectDB.php";
 
 // Function to update quantity in cart
 if (isset($_POST['updateQuantity'])) {
     $id = $_POST['id'];
-    $newQuantity = $_POST['newQuantity'];
+    $newQuantity = (int)$_POST['updateQuantity'];
 
     $sql_update = "UPDATE cart SET quantity = $newQuantity, total_price = price * $newQuantity WHERE id = $id";
     if ($conn->query($sql_update) === TRUE) {
@@ -27,35 +18,14 @@ if (isset($_POST['updateQuantity'])) {
 if (isset($_POST['removeItem'])) {
     $id = $_POST['id'];
 
+    // Delete item from cart table
     $sql_remove = "DELETE FROM cart WHERE id = $id";
     if ($conn->query($sql_remove) === TRUE) {
         echo "Removed item successfully.";
+
+        // Optionally, you could handle additional responses or redirect here after successful deletion.
     } else {
         echo "Error removing item: " . $conn->error;
-    }
-}
-
-// Function to handle checkout
-if (isset($_POST['checkout'])) {
-    $selectedItems = $_POST['selectedItems'];
-    if (!empty($selectedItems)) {
-        // Retrieve the selected items details
-        $items = [];
-        foreach ($selectedItems as $itemId) {
-            $sql_item = "SELECT * FROM cart WHERE id = $itemId";
-            $result = $conn->query($sql_item);
-            if ($result->num_rows > 0) {
-                $items[] = $result->fetch_assoc();
-            }
-        }
-        // Encode items as JSON and pass to orderForm.html
-        $items_json = json_encode($items);
-        echo "<form id='redirect-form' action='orderForm.html' method='POST'>";
-        echo "<input type='hidden' name='items' value='".htmlspecialchars($items_json)."'>";
-        echo "</form>";
-        echo "<script>document.getElementById('redirect-form').submit();</script>";
-    } else {
-        echo "No items selected for checkout.";
     }
 }
 
@@ -80,16 +50,16 @@ if ($result->num_rows > 0) {
         echo "<td>".$row["product_name"]."</td>";
         echo "<td>".$row["price"]."</td>";
         echo "<td>";
-        echo "<form method='POST'>";
+        echo "<form method='POST' class='quantity-form'>";
         echo "<input type='hidden' name='id' value='".$row["id"]."'>";
         echo "<button type='submit' name='updateQuantity' value='".($row["quantity"] - 1)."'>-</button>";
-        echo " " . $row["quantity"] . " ";
+        echo " <span class='quantity'>".$row["quantity"]."</span> ";
         echo "<button type='submit' name='updateQuantity' value='".($row["quantity"] + 1)."'>+</button>";
         echo "</form>";
         echo "</td>";
         echo "<td>".$row["total_price"]."</td>";
         echo "<td>";
-        echo "<form method='POST'>";
+        echo "<form method='POST' class='remove-form'>";
         echo "<input type='hidden' name='id' value='".$row["id"]."'>";
         echo "<button type='submit' name='removeItem'>Remove</button>";
         echo "</form>";
@@ -115,6 +85,8 @@ if ($result->num_rows > 0) {
 $conn->close();
 ?>
 
+
+
 <script>
 // JavaScript for select all functionality
 document.getElementById('select-all').onclick = function() {
@@ -125,32 +97,47 @@ document.getElementById('select-all').onclick = function() {
 };
 
 // JavaScript to handle quantity updates
-document.querySelectorAll('button[name="updateQuantity"]').forEach(button => {
-    button.addEventListener('click', function(e) {
+document.querySelectorAll('.quantity-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const form = e.target.closest('form');
         const formData = new FormData(form);
-        formData.append('newQuantity', e.target.value);
-        
-        fetch('', {
+        const newQuantity = formData.get('newQuantity'); // Get newQuantity from form data
+
+        fetch('cart.php', {
             method: 'POST',
             body: formData
         }).then(response => response.text())
-          .then(data => location.reload()); // Reload page to reflect changes
+          .then(data => {
+              if (data.includes('successfully')) {
+                  // Update quantity displayed on page
+                  const quantityElement = form.querySelector('.quantity');
+                  quantityElement.textContent = newQuantity;
+              } else {
+                  alert('Error updating quantity');
+              }
+          });
     });
 });
 
 // JavaScript to handle item removal
-document.querySelectorAll('button[name="removeItem"]').forEach(button => {
-    button.addEventListener('click', function(e) {
+document.querySelectorAll('.remove-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const form = e.target.closest('form');
-        
-        fetch('', {
+        const formData = new FormData(form);
+
+        fetch('cart.php', {
             method: 'POST',
-            body: new FormData(form)
+            body: formData
         }).then(response => response.text())
-          .then(data => location.reload()); // Reload page to reflect changes
+          .then(data => {
+              if (data.includes('successfully')) {
+                  // Remove the row from the table
+                  form.closest('tr').remove();
+              } else {
+                  alert('Error removing item');
+              }
+          });
     });
 });
+
 </script>

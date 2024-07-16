@@ -10,15 +10,17 @@ $price = (float)$data->price;
 $quantity = (int)$data->quantity;
 $totalPrice = (float)$data->totalPrice;
 
-// Insert data into the cart table
-$sql = "INSERT INTO cart (product_name, price, quantity, total_price) VALUES ('$name', $price, $quantity, $totalPrice)";
+// Prepare an SQL statement
+$stmt = $conn->prepare("INSERT INTO cart (product_name, price, quantity, total_price) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("sidi", $name, $price, $quantity, $totalPrice);
 
-if ($conn->query($sql) === TRUE) {
+if ($stmt->execute()) {
     echo json_encode(["message" => "Item added to cart successfully"]);
 } else {
-    echo json_encode(["error" => "Error: " . $sql . "<br>" . $conn->error]);
+    echo json_encode(["error" => "Error: " . $stmt->error]);
 }
 
-// Close the database connection
+// Close the statement and the database connection
+$stmt->close();
 $conn->close();
 ?>

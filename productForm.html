@@ -12,7 +12,7 @@
     <div id="navbar">Navbar Content</div>
 
     <div class="container">
-        <img src="img/Corn-modern-3.jpg" alt="Product Image" width="500" height="500">
+        <img src="img/Corn-modern-3.jpg" alt="Product Image" width="500px" height="500px">
     
         <div class="product-grid" id="product-grid">
             <!-- Products will be loaded here by JavaScript -->
@@ -27,10 +27,9 @@
             <button onclick="addToCart()">เพิ่มเข้าตะกร้า</button>
         </div>
     </div>
-    
 
-    <form id="checkout-form" action="product_cart.html" method="POST" style="display: none;">
-        <input type="hidden" name="cart-data" id="cart-data">
+    <form id="checkout-form" action="orderForm.html" method="POST">
+        <input type="hidden" name="productData" id="productData">
     </form>
 
     <script src="js/script.js"></script>
@@ -64,6 +63,22 @@
         };
         xhr.send(JSON.stringify(productData));
     }
+
+    function checkout() {
+        // ดึงชื่อสินค้าจาก HTML
+        var productName = document.getElementById('product-name').textContent;
+
+        // ข้อมูลสินค้าที่จะสั่งซื้อ
+        var productData = {
+            product: productName,
+            price: 100,
+            quantity: 1,
+            totalPrice: 100,
+            product_name: productName // เพิ่มชื่อสินค้าที่นี่
+        };
+
+        // ส่งข้อมูลไปยังฟอร์มเพื่อส่งไปหน้า orderForm.html
+        document.getElementById('productData').value = JSON.stringify(productData);
+        document.getElementById('checkout-form').submit();
+    }
 </script>
-
-
