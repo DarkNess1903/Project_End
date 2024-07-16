@@ -197,7 +197,7 @@ footer {
         position: fixed;
         top: 20px;
         left: 20px;
-        z-index: 1500; /* ให้ปุ่มอยู่ด้านหน้าของเมนู */
+        z-index: 1500; 
     }
     
     .cart {
