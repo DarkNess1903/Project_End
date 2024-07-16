@@ -1,8 +1,8 @@
 <?php
 // เชื่อมต่อกับ MySQL Database
 $servername = "localhost";
-$username = "admin";
-$password = "your_password";
+$username = "root";
+$password = "";
 $dbname = "order_management";
 
 // สร้างการเชื่อมต่อ

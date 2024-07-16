@@ -35,8 +35,8 @@
             <?php
             // เชื่อมต่อกับ MySQL Database
             $servername = "localhost";
-            $username = "admin";
-            $password = "your_password";
+            $username = "root";
+            $password = "";
             $dbname = "order_management";
 
             // สร้างการเชื่อมต่อ
@@ -48,7 +48,7 @@
             }
 
             // สร้างคำสั่ง SQL เพื่อดึงข้อมูล Order
-            $sql = "SELECT order_number, order_time,quantity, item_name FROM Orders";
+            $sql = "SELECT order_number, order_time, quantity, item_name FROM Orders";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
