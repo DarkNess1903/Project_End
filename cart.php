@@ -15,7 +15,7 @@ if (isset($_POST['updateQuantity'])) {
     $id = $_POST['id'];
     $newQuantity = $_POST['newQuantity'];
 
-    $sql_update = "UPDATE cart SET quantity = $newQuantity WHERE id = $id";
+    $sql_update = "UPDATE cart SET quantity = $newQuantity, total_price = price * $newQuantity WHERE id = $id";
     if ($conn->query($sql_update) === TRUE) {
         echo "Updated quantity successfully.";
     } else {
@@ -39,13 +39,21 @@ if (isset($_POST['removeItem'])) {
 if (isset($_POST['checkout'])) {
     $selectedItems = $_POST['selectedItems'];
     if (!empty($selectedItems)) {
+        // Retrieve the selected items details
+        $items = [];
         foreach ($selectedItems as $itemId) {
-            // Process each selected item (e.g., mark as purchased, move to another table, etc.)
-            // For demonstration, we will just remove it from the cart
-            $sql_checkout = "DELETE FROM cart WHERE id = $itemId";
-            $conn->query($sql_checkout);
+            $sql_item = "SELECT * FROM cart WHERE id = $itemId";
+            $result = $conn->query($sql_item);
+            if ($result->num_rows > 0) {
+                $items[] = $result->fetch_assoc();
+            }
         }
-        echo "Checked out successfully.";
+        // Encode items as JSON and pass to orderForm.html
+        $items_json = json_encode($items);
+        echo "<form id='redirect-form' action='orderForm.html' method='POST'>";
+        echo "<input type='hidden' name='items' value='".htmlspecialchars($items_json)."'>";
+        echo "</form>";
+        echo "<script>document.getElementById('redirect-form').submit();</script>";
     } else {
         echo "No items selected for checkout.";
     }
@@ -61,7 +69,7 @@ $totalPrice = 0;
 // Check if there are results
 if ($result->num_rows > 0) {
     echo "<h2>ตะกร้าสินค้า</h2>";
-    echo "<form method='POST'>";
+    echo "<form method='POST' id='cart-form'>";
     echo "<table border='1'>";
     echo "<tr><th><input type='checkbox' id='select-all'> เลือกทั้งหมด</th><th>ชื่อสินค้า</th><th>ราคา</th><th>จำนวน</th><th>ราคารวม</th><th>แก้ไข</th></tr>";
     
@@ -74,10 +82,9 @@ if ($result->num_rows > 0) {
         echo "<td>";
         echo "<form method='POST'>";
         echo "<input type='hidden' name='id' value='".$row["id"]."'>";
-        echo "<input type='hidden' name='currentQuantity' value='".$row["quantity"]."'>";
-        echo "<button type='submit' name='decrementQuantity' value='".$row["quantity"]."'>-</button>";
+        echo "<button type='submit' name='updateQuantity' value='".($row["quantity"] - 1)."'>-</button>";
         echo " " . $row["quantity"] . " ";
-        echo "<button type='submit' name='incrementQuantity' value='".$row["quantity"]."'>+</button>";
+        echo "<button type='submit' name='updateQuantity' value='".($row["quantity"] + 1)."'>+</button>";
         echo "</form>";
         echo "</td>";
         echo "<td>".$row["total_price"]."</td>";
@@ -116,4 +123,34 @@ document.getElementById('select-all').onclick = function() {
         checkbox.checked = this.checked;
     }
 };
+
+// JavaScript to handle quantity updates
+document.querySelectorAll('button[name="updateQuantity"]').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = e.target.closest('form');
+        const formData = new FormData(form);
+        formData.append('newQuantity', e.target.value);
+        
+        fetch('', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.text())
+          .then(data => location.reload()); // Reload page to reflect changes
+    });
+});
+
+// JavaScript to handle item removal
+document.querySelectorAll('button[name="removeItem"]').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = e.target.closest('form');
+        
+        fetch('', {
+            method: 'POST',
+            body: new FormData(form)
+        }).then(response => response.text())
+          .then(data => location.reload()); // Reload page to reflect changes
+    });
+});
 </script>

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pay Forn</title>
+    <title>Pay Form</title>
 </head>
 <body>
 
-    <h1>Pay Forn</h1>
+    <h1>Pay Form</h1>
     
     <div class="order-form">
         <div class="form-group bank-details">
@@ -34,8 +34,34 @@
                 <label for="slip">อัพโหลดภาพสลิปโอนเงิน:</label>
                 <input type="file" id="slip" name="slip" accept="image/*" required>
             </div>
+
+            <div id="items-container">
+                <h2>รายการสินค้าที่จะสั่งซื้อ</h2>
+                <!-- Items will be displayed here by JavaScript -->
+            </div>
+
             <button type="submit">ส่งข้อมูล</button>
         </form>
     </div>
+
+    <script>
+    // Retrieve the items from the hidden input
+    const items = JSON.parse(document.querySelector('input[name="items"]').value);
+
+    // Display the items in the items container
+    const itemsContainer = document.getElementById('items-container');
+    items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.innerHTML = `
+            <p>ชื่อสินค้า: ${item.product_name}</p>
+            <p>ราคา: ${item.price}</p>
+            <p>จำนวน: ${item.quantity}</p>
+            <p>ราคารวม: ${item.total_price}</p>
+            <hr>
+        `;
+        itemsContainer.appendChild(itemDiv);
+    });
+    </script>
+
 </body>
 </html>
