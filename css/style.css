@@ -4,6 +4,7 @@ body {
     font-family: Arial, sans-serif;
     padding: 0;
     box-sizing: border-box;
+    background-color: #f9f9f9;
     padding-top: 70px; /* Adjust this based on the height of your navbar */
 }
 
@@ -166,7 +167,6 @@ footer {
     cursor: pointer;
 }
 
-
 @media (max-width: 1024px){
     .nav-links {
         display: none;
@@ -201,21 +201,22 @@ footer {
     }
     
     .cart {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 9px; /* ปรับตำแหน่งของ cart ที่มุมซ้ายของหน้าจอ */
-            right: 20px; /* ปรับตำแหน่งของ cart ที่มุมขวาของหน้าจอ */
-            z-index: 1500; /* ตั้งค่า z-index ให้สูงกว่าเมนู */    
-            padding: 10px;
-            transition: right 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อน */
-        }
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 9px; /* ปรับตำแหน่งของ cart ที่มุมซ้ายของหน้าจอ */
+        right: 20px; /* ปรับตำแหน่งของ cart ที่มุมขวาของหน้าจอ */
+        z-index: 1500; /* ตั้งค่า z-index ให้สูงกว่าเมนู */    
+        padding: 10px;
+        transition: right 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อน */
+    }
+
     .cart a {
-            text-decoration: none;
-            font-size: 17px;
-            color: #202020;
-        }
+        text-decoration: none;
+        font-size: 17px;
+        color: #202020;
+    }
 }
 
 @media (max-width: 768px) {
@@ -235,45 +236,7 @@ footer {
     }
 }
 
-
-.checkout-button {
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.checkout-button:hover {
-    background-color: #218838;
-}
-
-.quantity-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.quantity-control button {
-    background-color: #ddd;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.quantity-control button:hover {
-    background-color: #ccc;
-}
-
-.quantity-control span {
-    margin: 0 10px;
-}
-
-h1 {
-    text-align: center;
-    margin-top: 20px;
-}
-
+/* Order Form Styles */
 .order-form {
     width: 50%;
     margin: 20px auto;
@@ -325,4 +288,80 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #218838;
+}
+
+/* Cart Table Styles */
+.cart-table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-table th, .cart-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-table th {
+    background-color: #f1f1f1;
+}
+
+.cart-table td img {
+    width: 50px;
+    height: auto;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Cart Summary Styles */
+.cart-summary {
+    width: 80%;
+    margin: 20px auto;
+    padding: 10px;
+    text-align: right;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Checkout Button Styles */
+.checkout-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background-color: #218838;
+}
+
+/* Quantity Control Styles */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-control button {
+    background-color: #ddd;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.quantity-control button:hover {
+    background-color: #ccc;
+}
+
+.quantity-control span {
+    margin: 0 10px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
 }
