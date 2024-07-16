@@ -19,20 +19,25 @@ $phone = $_POST['phone'];
 $address = $_POST['address'];
 $slip = $_FILES['slip']['name']; // ชื่อไฟล์ของภาพสลิป
 $slip_tmp = $_FILES['slip']['tmp_name']; // ไฟล์ที่อัพโหลดชั่วคราว
+$slip_path = "uploads/" . basename($slip); // พาธของไฟล์ที่ต้องการย้าย
 
 // สร้างคำสั่ง SQL เพื่อบันทึกข้อมูลลงฐานข้อมูล
-$sql = "INSERT INTO Orders (order_number, quantity, item_name) VALUES (?, ?, ?)";
+$sql = "INSERT INTO Orders (order_number, name, phone, address, slip_path, quantity, item_name) VALUES (?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 $order_number = generateOrderNumber(); // ฟังก์ชันสร้างเลข Order อัตโนมัติ
 $quantity = 1; // จำนวนสินค้าที่สั่งซื้อ
 $item_name = "Product"; // ชื่อสินค้า (ในที่นี้เป็นตัวอย่าง)
 
-$stmt->bind_param("sis", $order_number, $quantity, $item_name);
+$stmt->bind_param("sssssis", $order_number, $name, $phone, $address, $slip_path, $quantity, $item_name);
 
 // Execute the statement
 if ($stmt->execute()) {
-    move_uploaded_file($slip_tmp, "uploads/" . $slip); // ย้ายไฟล์ภาพสลิปไปเก็บที่ uploads/
-    echo "ข้อมูลถูกบันทึกเรียบร้อยแล้ว!";
+    // ย้ายไฟล์ภาพสลิปไปเก็บที่ uploads/
+    if (move_uploaded_file($slip_tmp, $slip_path)) {
+        echo "ข้อมูลถูกบันทึกเรียบร้อยแล้ว!";
+    } else {
+        echo "เกิดข้อผิดพลาดในการอัพโหลดไฟล์ภาพสลิป.";
+    }
 } else {
     echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $conn->error;
 }

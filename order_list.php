@@ -26,9 +26,12 @@
         <thead>
             <tr>
                 <th>Order Number</th>
-                <th>Timestamp</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Address</th>
                 <th>Quantity</th>
                 <th>Item Name</th>
+                <th>Slip Image</th>
             </tr>
         </thead>
         <tbody>
@@ -48,7 +51,7 @@
             }
 
             // สร้างคำสั่ง SQL เพื่อดึงข้อมูล Order
-            $sql = "SELECT order_number, order_time, quantity, item_name FROM Orders";
+            $sql = "SELECT order_number, name, phone, address, quantity, item_name, slip_path FROM Orders";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
@@ -56,13 +59,16 @@
                 while($row = $result->fetch_assoc()) {
                     echo "<tr>";
                     echo "<td>" . $row["order_number"] . "</td>";
-                    echo "<td>" . $row["order_time"] . "</td>";
+                    echo "<td>" . $row["name"] . "</td>";
+                    echo "<td>" . $row["phone"] . "</td>";
+                    echo "<td>" . $row["address"] . "</td>";
                     echo "<td>" . $row["quantity"] . "</td>";
                     echo "<td>" . $row["item_name"] . "</td>";
+                    echo "<td><img src='" . $row["slip_path"] . "' alt='Slip Image' width='100'></td>";
                     echo "</tr>";
                 }
             } else {
-                echo "<tr><td colspan='4'>ไม่พบข้อมูลการสั่งซื้อ</td></tr>";
+                echo "<tr><td colspan='7'>ไม่พบข้อมูลการสั่งซื้อ</td></tr>";
             }
             $conn->close();
             ?>
