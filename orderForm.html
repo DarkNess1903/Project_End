@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="navbar"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก topnavbar.html -->
+
+    <h1>Order Page</h1>
+    
+    <div class="order-form">
+        <div class="form-group bank-details">
+            <label for="bank-details">เลขบัญชีธนาคาร : xxxxxxxxxx</label>
+            <div id="bank-details">
+                <!-- ใส่รูปบัญชีธนาคาร -->
+                <img src="/img/bank-image.jpg" alt="Bank Account">
+            </div>
+        </div>
+        <form id="payment-form" action="process_order.php" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">ชื่อคนสั่ง:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">เบอร์โทร:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="address">ที่อยู่:</label>
+                <textarea id="address" name="address" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="slip">อัพโหลดภาพสลิปโอนเงิน:</label>
+                <input type="file" id="slip" name="slip" accept="image/*" required>
+            </div>
+            <button type="submit">ส่งข้อมูล</button>
+        </form>
+    </div>
+
+    <div id="footer"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก footer.html -->
+
+    <script>
+        // Function to load the navbar from topnavbar.html
+        function loadNavbar() {
+            fetch('topnavbar.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('navbar').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading navbar:', error));
+        }
+
+        // Function to load the footer from footer.html
+        function loadFooter() {
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footer').innerHTML = data;
+                })
+                .catch(error => console.error('Error loading footer:', error));
+        }
+
+        // Load the navbar and footer when the page loads
+        window.onload = function() {
+            loadNavbar();
+            loadFooter();
+        };
+    </script>
+</body>
+</html>
