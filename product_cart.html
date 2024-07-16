@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hantaphao Project</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -69,6 +69,10 @@
         ราคารวม <span id="total-price">260</span> $
         <button class="checkout-button" onclick="checkout()">สั่งสินค้า</button>
     </div>
+
+    <form id="checkout-form" action="orderForm.html" method="POST" style="display: none;">
+        <input type="hidden" name="cart-data" id="cart-data">
+    </form>
 
     <script>
         // Function to load the navbar from topnavbar.html
@@ -152,9 +156,9 @@
         }
 
         function checkout() {
-            alert('สั่งซื้อสินค้าสำเร็จ!');
-            cart = [];
-            displayCart();
+            const cartData = JSON.stringify(cart);
+            document.getElementById('cart-data').value = cartData;
+            document.getElementById('checkout-form').submit();
         }
 
         displayCart();
