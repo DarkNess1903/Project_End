@@ -7,7 +7,11 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
        
         .PR_pic {
             flex: 1;
@@ -21,15 +25,17 @@
             flex: 1;
             background-color: #2B5914; /* Green background */
             color: white;
-            padding: 87px 340px 266.5px 87px ;
+            padding: 87px 340px 266.5px 87px;
         }
         .right h1 {
             font-size: 4em;
             margin: 0;
+            font-weight: 700;
         }
         .right h2 {
             font-size: 2em;
             margin: 0;
+            font-weight: 700;
         }
         .right p {
             margin: 10px 0;
@@ -40,80 +46,78 @@
         }
 
         @media (max-width: 1024px) {
-            @media (max-width: 1024px) {
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center; /* Center align items */
-    }
+            .container {
+                display: flex;
+                flex-direction: column;
+                align-items: center; /* Center align items */
+            }
 
-    .PR_pic {
-        width: 100%; /* Fill the width of its container */
-        text-align: center; /* Center align content */
-        margin-bottom: 20px; /* Add margin bottom for spacing */
-    }
+            .PR_pic {
+                width: 100%; /* Fill the width of its container */
+                text-align: center; /* Center align content */
+                margin-bottom: 20px; /* Add margin bottom for spacing */
+            }
 
-    .PR_pic img {
-        max-width: 100%; /* Adjust maximum width of the image */
-        height: auto; /* Maintain aspect ratio */
-    }
+            .PR_pic img {
+                width: 100%; /* Set image width to 100% */
+                max-width: none; /* Ensure the image can expand fully */
+                height: auto; /* Maintain aspect ratio */
+            }
 
-    .right {
-        flex: 1; /* Occupy full width */
-        background-color: #2B5914; /* Green background */
-        color: white;
-        padding: 20px; /* Add padding inside the right section */
-        text-align: left; /* Align text to the left */
-        margin-top: 20px; /* Add space between PR_pic and right sections */
-    }
+            .right {
+                flex: 1; /* Occupy full width */
+                background-color: #2B5914; /* Green background */
+                color: white;
+                padding: 20px; /* Add padding inside the right section */
+                text-align: left; /* Align text to the left */
+                margin-top: 20px; /* Add space between PR_pic and right sections */
+            }
 
-    .right h1 {
-        font-size: 3em; /* Adjust font size */
-        margin: 0;
-    }
+            .right h1 {
+                font-size: 3em; /* Adjust font size */
+                margin: 0;
+            }
 
-    .right h2 {
-        font-size: 1.5em; /* Adjust font size */
-        margin: 0;
-    }
+            .right h2 {
+                font-size: 1.5em; /* Adjust font size */    
+                margin: 0;
+            }
 
-    .right p {
-        margin: 10px 0; /* Add margin around paragraphs */
-    }
+            .right p {
+                margin: 10px 0; /* Add margin around paragraphs */
+            }
 
-    .right .column {
-        column-count: 1; /* Display text in a single column on smaller screens */
-        column-gap: 0; /* No gap between columns */
-    }
+            .right .column {
+                column-count: 1; /* Display text in a single column on smaller screens */
+                column-gap: 0; /* No gap between columns */
+            }
 
-    .objective,
-    .product {
-        flex: 1; /* Occupy full width on smaller screens */
-        padding: 20px; /* Add padding around sections */
-        margin-top: 20px; /* Add spacing between sections */
-        background-color: #fff; /* White background */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
-    }
+            .objective,
+            .product {
+                flex: 1; /* Occupy full width on smaller screens */
+                padding: 20px; /* Add padding around sections */
+                margin-top: 20px; /* Add spacing between sections */
+                background-color: #fff; /* White background */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
+            }
 
-    .objective h3,
-    .product h3 {
-        font-size: 1.5em; /* Adjust heading font size */
-        margin-top: 0; /* Remove margin from the top */
-    }
+            .objective h3,
+            .product h3 {
+                font-size: 1.5em; /* Adjust heading font size */
+                margin-top: 0; /* Remove margin from the top */
+            }
 
-    .objective p,
-    .product p {
-        margin-top: 10px; /* Add margin above paragraphs */
-    }
-}
-}
-
+            .objective p,
+            .product p {
+                margin-top: 10px; /* Add margin above paragraphs */
+            }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">
-            <img src="img/logo.png" alt="Logo">
+            <img src="img/Logo.png" alt="Logo" width="100px" height="100px" >
         </div>
         <div class="menu-toggle" id="mobile-menu">
             <i class="fas fa-bars"></i>
@@ -142,15 +146,15 @@
         <div class="right">
             <h1>Hantaphao</h1>
             <h2>Project</h2>
-            <p>เป็นมนุษย์สุดประเสริฐเลิศคุณค่า...</p>
             <div class="column">
-                <p>The quick brown fox jumps over the lazy...</p>
-                <p>Year Yorky Year Yarn Your Yir...</p>
+                <p>ตำบลหันตะเภาเป็นชุมชนเกษตรกรรม อุดมสมบูรณ์ไปด้วยป่าไม้ มีลำคลองไหลผ่าน </p>
+                <p>ในอดีตชาวบ้านใช้คลองในการสัญจรไปมาโดยใช้เรือเป็นพาหนะ ซึ่งสมัยก่อนเรียกคลองนี้ว่าคลองลำแดง ต่อมามีคนจีนอพยพมาอยู่ประกอบอาชีพค้าขาย เป็นทั้งแหล่งรวบรวมสินค้านานาภัณฑ์ และเป็นจุดกลับลำเรือสำเภา จึงเรียกขาน</p>
+                <p>ที่นี่ว่า “หันสำเภา” และเรียกเพี้ยนมาเป็น “หันตะเภา” ต่อมาคนจีนได้อพยพออกจากพื้นที่ไปอยู่ที่อื่นๆ พื้นที่บ้านลำแดงมีป่าลดน้อยน้อยลงทำให้ชาวบ้านยึดอาชีพทำการเกษตรจนถึงปัจจุบัน (สำนักงานพัฒนาชุมชนอำเภอวังน้อย, 2564)</p>
+                <p>ตำบลหันตะเภา อำเภอวังน้อย จังหวัดพระนครศรีอยุธยา มีคำขวัญประจำตำบลว่า "ตำบลน่าอยู่ ชุมชนเข้มแข็ง พัฒนาคุณภาพชีวิต ส่งเสริมเศรษฐกิจ มุ่งสู่ชีวิตพอเพียง และมีการบริหารจัดการที่ดีระดับแนวหน้า"</p>
             </div>
         </div>
     </div>
 
-    
     <div class="objective">
         <h3>วัตถุประสงค์</h3>
         <p>โครงการ Hantaphao มีเป้าหมายที่จะสร้างการพัฒนาที่ยั่งยืนให้กับชุมชนโดยการจัดการทรัพยากรธรรมชาติและการอนุรักษ์สิ่งแวดล้อม</p>
@@ -160,7 +164,6 @@
         <img src="" alt="Product Image">
     </div>
 
-    
     <footer>
         <div class="contact">
             <div>
