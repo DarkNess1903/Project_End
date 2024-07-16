@@ -1,52 +1,76 @@
-/* style.css */
+/* General Styles */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     padding: 0;
     box-sizing: border-box;
     background-color: #f9f9f9;
+    padding-top: 70px; /* Adjust this based on the height of your navbar */
 }
 
+/* Footer Styles */
+footer {
+    background-color: #2B5914;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.contact {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.contact div {
+    width: 100%;
+    max-width: 25%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Container Styles */
 .container {
     padding: 20px;
 }
 
+/* Project Section Styles */
 .project {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
 
 .project img {
-    max-width: 45%;
+    max-width: 100%;
+    flex: 1;
     border: 1px solid #ccc;
 }
 
 .project-details {
-    max-width: 50%;
+    flex: 1;
+    max-width: 100%;
+    margin: 10px;
 }
 
+/* Content Sections */
 .objective, .product {
     margin-bottom: 20px;
 }
 
-.contact {
-    background-color: #333;
-    color: white;
-    padding: 20px;
-    display: flex;
-    justify-content: space-around;
+.product img {
+    max-width: 100%;
 }
 
-.contact div {
-    max-width: 30%;
-}
-
+/* Banner Styles */
 .banner {
     width: 100%;
     overflow: hidden;
-    margin-top: 80px; /* Adjust the margin-top value based on your navbar height */
+    margin-top: 50px; /* เพิ่ม margin-top เพื่อหลีกเลี่ยงการทับกันกับ Navbar */
+    position: relative; /* ตั้งค่า position เป็น relative เพื่อให้ z-index ทำงานได้ถูกต้อง */
+    z-index: 1; /* ตั้งค่า z-index ให้สูงกว่า Navbar */
 }
 
 .banner img {
@@ -55,6 +79,7 @@ body {
     display: block;
 }
 
+/* Navbar Styles */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -74,118 +99,144 @@ body {
 
 .logo img {
     width: 100px; /* Adjust as needed */
+    margin: 0 40px;
 }
 
+.logo img:hover {
+    cursor: pointer;
+    filter: brightness(120%);
+    transition: filter 0.3s ease;
+}
+
+/* Navigation Links */
 .nav-links {
     list-style: none;
     display: flex;
     margin: 0;
     padding: 0;
-    flex: 2;
+    flex: 2.5;
     justify-content: left;
+    flex-wrap: wrap;
 }
 
 .nav-links li {
-    margin: 0 30px;
+    margin: 0 15px;
 }
 
 .nav-links a {
     text-decoration: none;
-    color: #333;
-    font-size: 21px;
+    color: #272626;
+    font-size: 20px;
 }
 
+.nav-links a:hover {
+    cursor: pointer;
+    color: #fff;
+    background-color: #333;
+    border-radius: 5px;
+    padding: 5px 10px;
+    transition: background-color 0.3s ease;
+}
+
+/* Cart Styles */
+.cart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 35px; /* ปรับตำแหน่งของ cart ที่มุมซ้ายของหน้าจอ */
+    right: 150px; /* ปรับตำแหน่งของ cart ที่มุมขวาของหน้าจอ */
+    z-index: 1500; /* ตั้งค่า z-index ให้สูงกว่าเมนู */    
+    padding: 10px;
+    transition: right 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อน */
+}
+
+.cart a {
+    text-decoration: none;
+    font-size: 30px;
+    color: #202020;
+}
+
+.cart a:hover {
+    color: #e00000;
+}
+
+/* Menu Toggle (for mobile) */
 .menu-toggle {
     display: none;
     cursor: pointer;
 }
 
-.cart {
-    margin-right: 225px; /* ปรับขนาดของ margin ตามที่ต้องการ */
+@media (max-width: 1024px){
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: -100%; /* เริ่มต้นที่ซ่อนไว้ด้านซ้าย */
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        z-index: 1000;
+        transition: left 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อนเมนู */
+    }
+
+    .nav-links.active {
+        left: 0; /* เมื่อมีคลาส active ให้แสดงทางซ้าย */
+        display: flex;
+    }
+
+    .nav-links li {
+        text-align: center;
+        margin: 10px 0;
+    }
+
+    .menu-toggle {
+        display: block;
+        cursor: pointer;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1500; /* ให้ปุ่มอยู่ด้านหน้าของเมนู */
+    }
+    
+    .cart {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 9px; /* ปรับตำแหน่งของ cart ที่มุมซ้ายของหน้าจอ */
+        right: 20px; /* ปรับตำแหน่งของ cart ที่มุมขวาของหน้าจอ */
+        z-index: 1500; /* ตั้งค่า z-index ให้สูงกว่าเมนู */    
+        padding: 10px;
+        transition: right 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อน */
+    }
+
+    .cart a {
+        text-decoration: none;
+        font-size: 17px;
+        color: #202020;
+    }
 }
 
-.cart a {
-    color: #333; /* สีของไอคอนหรือรูปภาพ */
-    text-decoration: none; /* ไม่ให้มี underline ใต้ข้อความ */
-    font-size: 20px; /* ขนาดของไอคอนหรือรูปภาพ */
+@media (max-width: 768px) {
+    .project,
+    .contact,
+    .navbar {
+        flex-direction: column;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo img {
+        margin: 0;
+    }
 }
 
-.cart a:hover {
-    color: #FF5733; /* สีของไอคอนหรือรูปภาพเมื่อ hover */
-}
-
-.cart-table {
-    width: 80%;
-    margin: 20px auto;
-    border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.cart-table th, .cart-table td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-}
-
-.cart-table th {
-    background-color: #f1f1f1;
-}
-
-.cart-table td img {
-    width: 50px;
-    height: auto;
-    display: inline-block;
-    margin-right: 10px;
-}
-
-.cart-summary {
-    width: 80%;
-    margin: 20px auto;
-    padding: 10px;
-    text-align: right;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.checkout-button {
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.checkout-button:hover {
-    background-color: #218838;
-}
-
-.quantity-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.quantity-control button {
-    background-color: #ddd;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-.quantity-control button:hover {
-    background-color: #ccc;
-}
-
-.quantity-control span {
-    margin: 0 10px;
-}
-
-h1 {
-    text-align: center;
-    margin-top: 20px;
-}
-
+/* Order Form Styles */
 .order-form {
     width: 50%;
     margin: 20px auto;
@@ -237,4 +288,80 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #218838;
+}
+
+/* Cart Table Styles */
+.cart-table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-table th, .cart-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.cart-table th {
+    background-color: #f1f1f1;
+}
+
+.cart-table td img {
+    width: 50px;
+    height: auto;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* Cart Summary Styles */
+.cart-summary {
+    width: 80%;
+    margin: 20px auto;
+    padding: 10px;
+    text-align: right;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Checkout Button Styles */
+.checkout-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background-color: #218838;
+}
+
+/* Quantity Control Styles */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-control button {
+    background-color: #ddd;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.quantity-control button:hover {
+    background-color: #ccc;
+}
+
+.quantity-control span {
+    margin: 0 10px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
 }
