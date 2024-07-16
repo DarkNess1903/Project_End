@@ -1,14 +1,5 @@
 <?php
-// Connect to MySQL database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "order_management";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include "connectDB.php";
 
 // Get the data sent via POST
 $data = json_decode(file_get_contents("php://input"));

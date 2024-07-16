@@ -1,17 +1,5 @@
 <?php
-// เชื่อมต่อกับ MySQL Database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "order_management";
-
-// สร้างการเชื่อมต่อ
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// ตรวจสอบการเชื่อมต่อ
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include "connectDB.php";
 
 // รับข้อมูลจากฟอร์ม
 $name = $_POST['name'];
