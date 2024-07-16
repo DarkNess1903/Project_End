@@ -7,14 +7,6 @@ body {
     background-color: #f9f9f9;
 }
 
-#navbar, #footer {
-    width: 100%;
-    background-color: #333;
-    color: #fff;
-    padding: 10px 0;
-    /* text-align: center; */
-}
-
 .container {
     padding: 20px;
 }
