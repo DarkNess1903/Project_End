@@ -1,0 +1,25 @@
+/* responsive.css */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links li {
+        margin: 10px 0;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .navbar {
+        padding: 10px;
+    }
+
+    .banner img {
+        width: 100%; 
+    }
+}
