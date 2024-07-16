@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div id="navbar"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก topnavbar.html -->
 
     <h1>Shopping Cart</h1>
 
@@ -75,31 +74,6 @@
     </form>
 
     <script>
-        // Function to load the navbar from topnavbar.html
-        function loadNavbar() {
-            fetch('topnavbar.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('navbar').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading navbar:', error));
-        }
-
-        // Function to load the footer from footer.html
-        function loadFooter() {
-            fetch('footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footer').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading footer:', error));
-        }
-
-        // Load the navbar and footer when the page loads
-        window.onload = function() {
-            loadNavbar();
-            loadFooter();
-        };
 
         let cart = [
             { product: 'ข้าว', price: 50, quantity: 2, totalPrice: 100 },
@@ -163,8 +137,6 @@
 
         displayCart();
     </script>
-
-    <div id="footer"></div> <!-- ส่วนนี้จะถูกแทนที่ด้วยเนื้อหาจาก footer.html -->
 
     <script src="Footer.js"></script>
 </body>
