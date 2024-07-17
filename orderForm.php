@@ -11,11 +11,11 @@
     
     <div class="order-form">
         <div class="form-group bank-details">
-            <label for="bank-details">เลขบัญชีธนาคาร : xxxxxxxxxx</label>
             <div id="bank-details">
                 <!-- ใส่รูปบัญชีธนาคาร -->
-                <img src="/img/bank-image.jpg" alt="Bank Account">
+                <img src="bank-image.jpg" alt="Bank Account" width="200" height="200">
             </div>
+            <label for="bank-details">เลขบัญชีธนาคาร : xxxxxxxxxx</label>
         </div>
         <form id="payment-form" action="orderInsert.php" method="POST" enctype="multipart/form-data">
             <div class="form-group">
