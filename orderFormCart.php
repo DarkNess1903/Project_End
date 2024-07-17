@@ -13,7 +13,7 @@
         <div class="form-group bank-details">
             <div id="bank-details">
                 <!-- ใส่รูปบัญชีธนาคาร -->
-                <img src="bank-image.jpg" alt="Bank Account" width="200" height="200">
+                <img src="QRcode.jpg" alt="Bank Account" width="200" height="200">
             </div>
             <label for="bank-details">เลขบัญชีธนาคาร : xxxxxxxxxx</label>
         </div>
