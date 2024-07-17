@@ -35,32 +35,37 @@
                 <input type="file" id="slip" name="slip" accept="image/*" required>
             </div>
 
-            <div id="items-container">
+            <div id="items-container"> 
                 <h2>รายการสินค้าที่จะสั่งซื้อ</h2>
-                <!-- Items will be displayed here by JavaScript -->
+                <?php
+                // เชื่อมต่อฐานข้อมูล
+                include 'connectDB.php';
+
+                // คำสั่ง SQL เพื่อดึงข้อมูลสินค้า
+                $sql = "SELECT * FROM cart";
+                $result = $conn->query($sql);
+
+                // แสดงผลข้อมูล
+                if ($result->num_rows > 0) {
+                    while($row = $result->fetch_assoc()) {
+                        echo "<p>ชื่อสินค้า: " . $row["product_name"] . "</p>";
+                        echo "<p>ราคา: " . $row["price"] . " บาท</p>";
+                        echo "<p>จำนวน: " . $row["quantity"] . "</p>";
+                        echo "<p>ราคารวม: " . $row["total_price"] . " บาท</p>";
+                        echo "<hr>";
+                    }
+                } else {
+                    echo "ไม่พบสินค้าในตะกร้า";
+                }
+
+                // ปิดการเชื่อมต่อ
+                $conn->close();
+                ?>
             </div>
 
             <button type="submit">ส่งข้อมูล</button>
         </form>
     </div>
-
-    <script>
-    // Retrieve the items from the hidden input
-    const urlParams = new URLSearchParams(window.location.search);
-    const productData = JSON.parse(urlParams.get('productData'));
-
-    // Display the product data in the items container
-    const itemsContainer = document.getElementById('items-container');
-    const itemDiv = document.createElement('div');
-    itemDiv.innerHTML = `
-        <p>ชื่อสินค้า: ${productData.product_name}</p>
-        <p>ราคา: ${productData.price} บาท</p>
-        <p>จำนวน: ${productData.quantity}</p>
-        <p>ราคารวม: ${productData.totalPrice} บาท</p>
-        <hr>
-    `;
-    itemsContainer.appendChild(itemDiv);
-    </script>
 
 </body>
 </html>
