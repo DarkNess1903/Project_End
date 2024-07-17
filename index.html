@@ -4,58 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hantaphao Project</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/stylenav.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Jocky one', sans-serif;
-            line-height: 2;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-       
+  
         .PR_pic {
             flex: 1;
             display: flex;
             align-items: left;
             justify-content: left;
             padding: 0;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); /* Add shadow for a raised effect */
             background-color: #dda42b; /* Background color */
         }
       
         .right {
-            flex: 1;
-            background-color: #3B5929; /* Green background */
+            flex: 2;
+            background-color: #2c3f20; /* Green background */
             color: white;
-            padding: 30px 260px 87px 70px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
+            padding: 0px 300px 74px 89px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* Add shadow for a raised effect */
         }
         .right h1 {
             font-size: 4em;
-            margin-top: -10px;
+            margin-top: 0px;
             font-weight: 800;
-            color: #D7E0C4;
+            color: #3abe1f;
+              
         }
+
+        .right h1 img{
+            margin-left: -20px;
+            margin-top: 10px;
+        }
+
         .right h2 {
             font-size: 2em;
-            margin-top: -100px;
+            margin-top: -60px;
             font-weight: 800;
         }
         .right p {
-           
+            font-family: "IBM Plex Sans Thai", sans-serif;
+            font-style: bold;
             font-size: 16px;
-            margin: 10px 10px 10px 0;
-            text-align: justify;
+            color: #ffffff;
+            line-height: 1.8; /* เพิ่ม line-height เพื่อให้ช่องว่างระหว่างบรรทัดมากขึ้น */
+            margin: 0; /* เพิ่ม margin บนและล่าง */
+            text-align: left; /* จัดข้อความให้เต็มบรรทัด */
+            text-justify: inter-word; /* จัดให้คำห่างกันอย่างสม่ำเสมอ */
+            word-spacing: 1px; /* เพิ่มช่องว่างระหว่างคำ */
+            letter-spacing: 0.5px; /* เพิ่มช่องว่างระหว่างตัวอักษร */
+            font-weight: 400; /* ลด font-weight ให้ข้อความดูนุ่มนวลขึ้น */
+            padding: 10px; /* เพิ่ม padding รอบๆ ข้อความ */
+            margin-left: 18px;
+            font-weight: 600;
+
         }
         .right .column {
-            column-count: 3;
-            column-gap: 20px;
+            column-count: 1; /* Display text in a single column on smaller screens */
+            column-gap: 0; /* No gap between columns */
+            
         }
 
+        .sec {
+            font-size: 3.5em;
+            margin-top: -5px;
+            font-weight: 800;
+            color: #3abe1f;
+            margin-bottom: -30px;
+        }
+
+        .right .sec1{
+            font-size: 3.5em;
+            margin-top: -30px;
+            font-weight: 800;
+            color: #3abe1f;
+            margin-bottom: -40px;
+            margin-left: 800px; 
+        }
+        
         @media (max-width: 1024px) {
             .container {
                 display: flex;
@@ -85,9 +116,15 @@
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
             }
 
+            .right h1 img {
+                width: 70px; /* Adjust image width for smaller screens */
+                height: 70px; /* Adjust image height for smaller screens */
+                margin-left: -30px; /* Adjust margin left */
+                margin-top: 5px; /* Adjust margin top */
+            }
             .right h1 {
                 font-size: 3em; /* Adjust font size */
-                margin: 0;
+                margin: 0 0 0 0;
             }
 
             .right h2 {
@@ -153,20 +190,24 @@
 
     <div class="container">
         <div class="PR_pic">
-            <img src="img/example.jpg" alt="Example Picture" width="540" height="550">
+            <img src="img/example.jpg" alt="Example Picture" width="540" height="560">
         </div>
         <div class="right">
-            <h1>Hantaphao</h1>
-            <h2>Project</h2>
+            <h1>Hantaphao <img src="img/leaf.png" alt="Leaf Icon" width="90px" height="90px"></h1>
+            <h2>History</h2>
+            <div class="sec">"</div>
             <div class="column">
-                <p>ตำบลหันตะเภาเป็นชุมชนเกษตรกรรมอุดมสมบูรณ์ไปด้วยป่าไม้ มีลำคลองไหลผ่านในอดีตชาวบ้านใช้คลองในการสัญจรไปมาโดยใช้เรือเป็นพาหนะ  
-                ซึ่งสมัยก่อนเรียกคลองนี้ว่าคลองลำแดง ต่อมามีคนจีนอพยพมาอยู่ประกอบอาชีพค้าขายเป็นทั้งแหล่งรวบรวมสินค้านานาภัณฑ์ 
-                และ เป็นจุดกลับลำเรือสำเภาจึงเรียกขานที่นี่ว่า “หันสำเภา” และเรียกเพี้ยนมาเป็น “หันตะเภา” ต่อมาคนจีนได้อพยพออกจากพื้นที่ไปอยู่ที่อื่นๆ พื้นที่บ้านลำแดงมีป่าลดน้อยน้อยลงทำให้ชาวบ้านยึดอาชีพทำการเกษตรจนถึงปัจจุบัน (สำนักงานพัฒนาชุมชนอำเภอวังน้อย, 2564)
-                ตำบลหันตะเภา อำเภอวังน้อย จังหวัดพระนครศรีอยุธยา มีคำขวัญประจำตำบลว่า "ตำบลน่าอยู่ ชุมชนเข้มแข็ง พัฒนาคุณภาพชีวิต ส่งเสริมเศรษฐกิจ มุ่งสู่ชีวิตพอเพียง และมีการบริหารจัดการที่ดีระดับแนวหน้า"</p>
+                
+                <p>     ตำบลหันตะเภาเป็นชุมชนเกษตรกรรมอุดมสมบูรณ์ไปด้วยป่าไม้มีลำคลองไหลผ่านในอดีตชาวบ้านใช้คลองในการสัญจรไปมาโดยใช้เรือเป็นพาหนะมีลำคลองไหลผ่านในอดีตชาวบ้านใช้คลองในการสัญจรไปมาโดยใช้เรือเป็นพาหนะ
+               <br> ต่อมามีคนจีนอพยพมาอยู่ประกอบอาชีพค้าขายเป็นทั้งแหล่งรวบรวมสินค้านานาภัณฑ์ และ เป็นจุดกลับลำเรือสำเภาจึงเรียกขานที่นี่ว่า  “หันสำเภา”  และเรียกเพี้ยนมาเป็น  “หันตะเภา”  ต่อมาคนจีนได้อพยพออกจากพื้นที่ไปอยู่ที่อื่นๆ
+               <br>พื้นที่บ้านลำแดงมีป่าลดน้อยน้อยลงทำให้ชาวบ้านยึดอาชีพทำการเกษตรจนถึงปัจจุบัน ตำบลหันตะเภา อำเภอวังน้อย จังหวัดพระนครศรีอยุธยามีคำขวัญประจำตำบลว่า "ตำบลน่าอยู่ ชุมชนเข้มแข็ง พัฒนาคุณภาพชีวิต ส่งเสริมเศรษฐกิจ มุ่งสู่ชีวิตพอเพียง และมีการบริหารจัดการที่ดีระดับแนวหน้า"</p>
+                
+            <div class="sec1">"</div>
             </div>
         </div>
+        
     </div>
-
+    
     <div class="objective">
         <h3>วัตถุประสงค์</h3>
         <p>โครงการ Hantaphao มีเป้าหมายที่จะสร้างการพัฒนาที่ยั่งยืนให้กับชุมชนโดยการจัดการทรัพยากรธรรมชาติและการอนุรักษ์สิ่งแวดล้อม</p>
