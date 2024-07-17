@@ -61,4 +61,5 @@
         <hr>
     `;
     itemsContainer.appendChild(itemDiv);
-    </script>
+</script>
+
