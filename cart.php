@@ -6,11 +6,22 @@ if (isset($_POST['updateQuantity'])) {
     $id = $_POST['id'];
     $newQuantity = (int)$_POST['updateQuantity'];
 
-    $sql_update = "UPDATE cart SET quantity = $newQuantity, total_price = price * $newQuantity WHERE id = $id";
-    if ($conn->query($sql_update) === TRUE) {
-        echo "Updated quantity successfully.";
+    if ($newQuantity <= 0) {
+        // Remove item if new quantity is 0 or less
+        $sql_remove = "DELETE FROM cart WHERE id = $id";
+        if ($conn->query($sql_remove) === TRUE) {
+            echo "Removed item successfully.";
+        } else {
+            echo "Error removing item: " . $conn->error;
+        }
     } else {
-        echo "Error updating quantity: " . $conn->error;
+        // Update quantity if new quantity is greater than 0
+        $sql_update = "UPDATE cart SET quantity = $newQuantity, total_price = price * $newQuantity WHERE id = $id";
+        if ($conn->query($sql_update) === TRUE) {
+            echo "Updated quantity successfully.";
+        } else {
+            echo "Error updating quantity: " . $conn->error;
+        }
     }
 }
 
@@ -18,12 +29,9 @@ if (isset($_POST['updateQuantity'])) {
 if (isset($_POST['removeItem'])) {
     $id = $_POST['id'];
 
-    // Delete item from cart table
     $sql_remove = "DELETE FROM cart WHERE id = $id";
     if ($conn->query($sql_remove) === TRUE) {
         echo "Removed item successfully.";
-
-        // Optionally, you could handle additional responses or redirect here after successful deletion.
     } else {
         echo "Error removing item: " . $conn->error;
     }
