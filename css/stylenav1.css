@@ -1,7 +1,6 @@
-/* General Styles */
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Jocky one', sans-serif;
     padding: 0;
     box-sizing: border-box;
     padding-top: 70px; /* Adjust this based on the height of your navbar */
@@ -32,11 +31,10 @@ footer {
 /* Container Styles */
 
 .container {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-    }
-
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
 
 .project img {
     max-width: 100%;
@@ -93,7 +91,36 @@ footer {
     transition: filter 0.3s ease;
 }
 
-/* Navigation Links */
+.nav-links li > ul {
+    display: none;
+    position: absolute;
+    top: 62%;
+    left: 460px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    z-index: 1000;
+    
+}
+
+.nav-links li:hover > ul {
+    display: block;
+}
+
+.dropdown li {
+    margin-bottom: 10px;
+    list-style-type: none;
+}
+
+.dropdown li a {
+    color: #333;
+    text-decoration: none;
+}
+
+.dropdown li a:hover {
+    color: #1e7821;
+}
+
 .nav-links {
     list-style: none;
     display: flex;
@@ -116,11 +143,9 @@ footer {
 
 .nav-links a:hover {
     cursor: pointer;
-    color: #fff;
-    background-color: #333;
-    border-radius: 5px;
+    color: #08c002;
+    border-radius: 100px;
     padding: 5px 10px;
-    transition: background-color 0.3s ease;
 }
 
 /* Cart Styles */
@@ -152,30 +177,39 @@ footer {
     cursor: pointer;
 }
 
+@media (max-width: 1024px) {
+        .nav-links {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            bottom: -179px;
+            left: -100%; /* เริ่มต้นที่ซ่อนไว้ด้านซ้าย */
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: left 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อนเมนู */
+        }
+        .nav-links li > ul {
+            display: none;
+            position: absolute;
+            top: 20%;
+            left: 290px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            padding: 25px;
+            z-index: 1000;
+        }
+        .nav-links.active {
+            left: 0px; /* เมื่อมีคลาส active ให้แสดงทางซ้าย */
+            display: flex;
+            background-color: #fff; 
+        }
 
-@media (max-width: 1024px){
-    .nav-links {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        bottom: -179px;
-        left: -100%; /* เริ่มต้นที่ซ่อนไว้ด้านซ้าย */
-        width: 100%;
-        background-color: #fff;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        z-index: 1000;
-        transition: left 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อนเมนู */
-    }
-
-    .nav-links.active {
-        left: 0; /* เมื่อมีคลาส active ให้แสดงทางซ้าย */
-        display: flex;
-    }
-
-    .nav-links li {
-        text-align: center;
-        margin: 10px 0;
-    }
+        .nav-links li {
+            text-align: center;
+            margin: 10px 0;
+        }
 
     .menu-toggle {
         display: block;
@@ -197,6 +231,7 @@ footer {
         padding: 10px;
         transition: right 0.3s ease; /* เพิ่ม transition เพื่อให้มีการเคลื่อนไหวเวลาแสดง/ซ่อน */
     }
+
     .cart a {
         text-decoration: none;
         font-size: 17px;

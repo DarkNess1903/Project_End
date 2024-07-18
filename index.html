@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hantaphao Project</title>
-    <link rel="stylesheet" href="css/stylenav.css">
+    <link rel="stylesheet" href="css/stylenav1.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,9 +92,12 @@
             max-width: 100%;
             margin: auto;
             overflow: hidden;
-            width: 1400px; /* Set the width of the slideshow container */
-            height: 480px; /* Set the height of the slideshow container */
-        }
+            margin-bottom: -10px;
+            width: 1300px; /* Set the width of the slideshow container */
+            height: 465px; /* Set the height of the slideshow container */
+            padding-top: 23px;
+}
+
 
         /* Hide the images by default */
         .mySlides {
@@ -123,15 +126,6 @@
             border-radius: 3px 0 0 3px;
         }
 
-        /* Number text (1/3 etc) */
-        .numbertext {
-            color: #f2f2f2;
-            font-size: 12px;
-            padding: 8px 12px;
-            position: absolute;
-            top: 0;
-        }
-
         .dot-container {
         position: absolute;
         bottom: 50px; /* Adjust the bottom position as needed */
@@ -151,10 +145,49 @@
         transition: background-color 0.6s ease;
         position: relative; /* Add this to position the dots relative to their parent */
         top: -40px; /* Move the dots up by 20px */
-}
+        }
+
         .active, .dot:hover {
             background-color: #717171;
         }
+        .objective,
+        .product {
+                flex: 1; /* Occupy full width on smaller screens */
+                padding: 20px; /* Add padding around sections */
+                margin-top: 20px; /* Add spacing between sections */
+                background-color: #fff; /* White background */
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
+            }
+
+            
+            .product h1 {
+                font-family: "IBM Plex Sans Thai", sans-serif;
+                font-style: bold;
+                margin-top: 0px;
+                margin-left: 90px; /* Remove margin from the top */
+            }
+            
+            .objective h3{
+                margin-top: 0;
+            }
+
+            .objective p,
+            .product p {
+                margin-top: 10px; /* Add margin above paragraphs */
+            }
+            
+            .product h1 img {
+                margin-left: 0px;
+                margin-bottom: -35px;
+
+            }
+
+           
+            .product h1 img:hover {
+                cursor: pointer;
+                filter: brightness(120%);
+                transition: filter 0.3s ease;
+                }
 
         @media (max-width: 1024px) {
         .container {
@@ -181,79 +214,61 @@
             color: white;
             text-align: left; /* Align text to the left */
             margin-top: -16px; /* Remove margin top */
-            padding: 25px 130px 70px 70px; /* Add padding to make the content more readable */
+            padding: 25px 130px 70px 44px; /* Add padding to make the content more readable */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
             max-width: 80%; /* Limit the width to 80% of the parent container */
 
-}
         }
 
-        .right h1 img {
-            width: 70px; /* Adjust image width for smaller screens */
-            height: 70px; /* Adjust image height for smaller screens */
-            margin-left: 0; /* Adjust margin left */
-            margin-top: 5px; /* Adjust margin top */
-        }
-
-        .right h1 {
-            font-size: 3em; /* Adjust font size */
-            margin: 0; /* Remove margin */
-        }
-
-        .right h2 {
-            font-size: 1.5em; /* Adjust font size */    
-            margin-top: -15px; /* Remove margin */
-        }
-
-        .right p {
-            margin: 10px 20px; /* Adjust margin around paragraphs */
-        }
-
-        .right .sec1{
-            font-size: 3.5em;
-            margin-top: -30px;
-            font-weight: 800;
-            color: #3abe1f;
-            margin-bottom: -40px;
-            margin-left: 500px; 
-        }
-        .right.column {
-            column-count: 1; /* Display text in a single column on smaller screens */
-            column-gap: 0; /* No gap between columns */
-        }
-            .objective,
-            .product {
-                flex: 1; /* Occupy full width on smaller screens */
-                padding: 20px; /* Add padding around sections */
-                margin-top: 20px; /* Add spacing between sections */
-                background-color: #fff; /* White background */
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow for a raised effect */
+            .right h1 img {
+                width: 70px; /* Adjust image width for smaller screens */
+                height: 70px; /* Adjust image height for smaller screens */
+                margin-left: 0; /* Adjust margin left */
+                margin-top: 5px; /* Adjust margin top */
+                margin-bottom: -5px; /* Adjust margin top */
             }
 
-            .objective h3,
-            .product h3 {
-                font-size: 1.5em; /* Adjust heading font size */
-                margin-top: 0; /* Remove margin from the top */
+            .right h1 {
+                font-size: 3em; /* Adjust font size */
+                margin: 0; /* Remove margin */
             }
 
-            .objective p,
-            .product p {
-                margin-top: 10px; /* Add margin above paragraphs */
+            .right h2 {
+                font-size: 1.5em; /* Adjust font size */    
+                margin-top: -15px; /* Remove margin */
             }
+
+            .right p {
+                margin: 10px 20px; /* Adjust margin around paragraphs */
+            }
+
+            .right .sec1{
+                font-size: 3.5em;
+                margin-top: -30px;
+                font-weight: 800;
+                color: #3abe1f;
+                margin-bottom: -40px;
+                margin-left: 500px; 
+            }
+            .right.column {
+                column-count: 1; /* Display text in a single column on smaller screens */
+                column-gap: 0; /* No gap between columns */
+            }
+            
             .slideshow-container {
-        height: 300px; /* Adjust the height for smaller screens */
+            height: 300px; /* Adjust the height for smaller screens */
+            }
+            .prev,.next {
+                font-size: 30px; /* Reduce font size for smaller screens */
+            }
+            .dot-container {
+                bottom: 10px; /* Adjust the bottom position for smaller screens */
+            }
+            .dot {
+                height: 10px;
+                width: 10px; /* Reduce dot size for smaller screens */
+            }
         }
-        .prev,.next {
-            font-size: 30px; /* Reduce font size for smaller screens */
-        }
-        .dot-container {
-            bottom: 10px; /* Adjust the bottom position for smaller screens */
-        }
-        .dot {
-            height: 10px;
-            width: 10px; /* Reduce dot size for smaller screens */
-        }
-
     </style>
 </head>
 <body>
@@ -265,7 +280,13 @@
             <i class="fas fa-bars"></i>
         </div>
         <ul class="nav-links" id="nav-links">
-            <li><a href="#">เกี่ยวกับโครงการ</a></li>
+            <li><a href="#">เกี่ยวกับโครงการ ▾</a>
+                <ul class="dropdown">
+                    <li><a href="#">ประวัติโครงการ</a></li>
+                    <li><a href="#">วัตถุประสงค์</a></li>
+                    <li><a href="#">ทีมงาน</a></li>
+                </ul>
+            </li>
             <li><a href="#">ผลิตภัณฑ์</a></li>
             <li><a href="#">ข่าวสารจากชุมชน</a></li>
             <li><a href="#">คำถามที่พบบ่อย</a></li>
@@ -306,18 +327,15 @@
         <p>โครงการ Hantaphao มีเป้าหมายที่จะสร้างการพัฒนาที่ยั่งยืนให้กับชุมชนโดยการจัดการทรัพยากรธรรมชาติและการอนุรักษ์สิ่งแวดล้อม</p>
     </div>
     <div class="product">
-        <h1>ผลิตภัณฑ์</h1>
+        <h1>ผลิตภัณฑ์ <img src="img/cart2.png" alt="cart Icon" width="90px" height="90px"></h1>
         <div class="slideshow-container">
             <div class="mySlides fade">
-                <div class="numbertext">1 / 3</div>
                 <img src="img/Element/Product_1.jpg" style="width:100%">
             </div>
             <div class="mySlides fade">
-                <div class="numbertext">2 / 3</div>
                 <img src="img/product2.jpg" style="width:100%">
             </div>
             <div class="mySlides fade">
-                <div class="numbertext">3 / 3</div>
                 <img src="img/product3.jpg" style="width:100%">
             </div>
             <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
@@ -378,6 +396,7 @@
             }
             slides[slideIndex-1].style.display = "block";
             dots[slideIndex-1].className += " active";
+            
         }
     </script>
     <script src="js/navscript.js"></script>
