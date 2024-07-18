@@ -92,30 +92,57 @@ $conn->close();
 
     <script>
         function addToCart(productId) {
-            // ฟังก์ชันสำหรับเพิ่มสินค้าลงในตะกร้า
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "cart.php", true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    alert("เพิ่มสินค้าเข้าตะกร้าแล้ว!");
-                }
-            };
-            xhr.send(JSON.stringify({ id: productId }));
-        }
+        // ดึงข้อมูลสินค้าจากฐานข้อมูลโดยใช้ AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "getProduct.php?id=" + productId, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var product = JSON.parse(xhr.responseText);
 
-        function orderNow(productId) {
-            // ฟังก์ชันสำหรับสั่งซื้อสินค้า
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "orderForm.php", true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    alert("สั่งซื้อสินค้าสำเร็จ!");
-                }
-            };
-            xhr.send(JSON.stringify({ id: productId }));
-        }
+                // ข้อมูลสินค้าที่จะเพิ่มเข้าตะกร้า
+                var productData = {
+                    product: product.product_name,
+                    price: product.price,
+                    quantity: 1,
+                    totalPrice: product.price,
+                    product_name: product.product_name
+                };
+
+                // ส่งข้อมูลผ่าน AJAX ไปยังไฟล์ PHP เพื่อบันทึกลงฐานข้อมูล
+                var xhrAdd = new XMLHttpRequest();
+                xhrAdd.open("POST", "cartInsert.php", true);
+                xhrAdd.setRequestHeader("Content-Type", "application/json");
+                xhrAdd.onreadystatechange = function () {
+                    if (xhrAdd.readyState === 4 && xhrAdd.status === 200) {
+                        console.log(xhrAdd.responseText); // แสดงผลลัพธ์ที่ได้จากการบันทึก
+                        alert("เพิ่มสินค้าเข้าตะกร้าแล้ว!");
+                    }
+                };
+                xhrAdd.send(JSON.stringify(productData));
+            }
+        };
+        xhr.send();
+    }
+
+    function checkout(productId) {
+        // ดึงข้อมูลสินค้าจากฐานข้อมูลโดยใช้ AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "getProduct.php?id=" + productId, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var product = JSON.parse(xhr.responseText);
+                alert("สั่งซื้อสินค้าสำเร็จ!");
+
+                // สร้าง URL สำหรับเปลี่ยนเส้นทางไปยังหน้า productDetails.php พร้อมกับพารามิเตอร์ id
+                var url = `productDetails.php?id=${product.id}`;
+
+                // เปลี่ยนเส้นทางไปยังหน้า productDetails.php
+                window.location.href = url;
+            }
+        };
+        xhr.send();
+    }
+    
     </script>
 </body>
 </html>
