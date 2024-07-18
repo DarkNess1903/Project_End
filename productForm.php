@@ -24,7 +24,7 @@
                 if ($result->num_rows > 0) {
                     while($row = $result->fetch_assoc()) {
                         echo "<div class='product-item'>";
-                        echo "<img src='".$row["image"]."' alt='Product Image' width='150px' height='150px'>";
+                        echo "<a href='productDetails.php?id=".$row["id"]."'><img src='".$row["image"]."' alt='Product Image' width='150px' height='150px'></a><br>";
                         echo "<span class='product-name'>".$row["product_name"]."</span><br>";
                         echo "<span>ราคา: ".$row["price"]." บาท</span>";
                         echo "<div class='action-buttons'>";
@@ -93,22 +93,10 @@
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var product = JSON.parse(xhr.responseText);
 
-                // ข้อมูลสินค้าที่จะสั่งซื้อ
-                var productData = {
-                    product: product.product_name,
-                    price: product.price,
-                    quantity: 1,
-                    totalPrice: product.price,
-                    product_name: product.product_name
-                };
+                // สร้าง URL สำหรับเปลี่ยนเส้นทางไปยังหน้า productDetails.php พร้อมกับพารามิเตอร์ id
+                var url = `productDetails.php?id=${product.id}`;
 
-                // แปลงข้อมูลเป็น JSON
-                var productDataJSON = JSON.stringify(productData);
-                
-                // สร้าง URL ด้วยพารามิเตอร์
-                var url = `orderForm.php?productData=${encodeURIComponent(productDataJSON)}`;
-                
-                // เปลี่ยนเส้นทางไปยังหน้า orderForm.php พร้อมกับพารามิเตอร์
+                // เปลี่ยนเส้นทางไปยังหน้า productDetails.php
                 window.location.href = url;
             }
         };
