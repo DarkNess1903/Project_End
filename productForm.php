@@ -28,7 +28,6 @@
                         echo "<span class='product-name'>".$row["product_name"]."</span><br>";
                         echo "<span>ราคา: ".$row["price"]." บาท</span>";
                         echo "<div class='action-buttons'>";
-                        echo "<button onclick='checkout(".$row["id"].")'>สั่งซื้อสินค้า</button>";
                         echo "<button onclick='addToCart(".$row["id"].")'>เพิ่มเข้าตะกร้า</button>";
                         echo "</div>";
                         echo "</div>";
@@ -80,24 +79,6 @@
                     }
                 };
                 xhrAdd.send(JSON.stringify(productData));
-            }
-        };
-        xhr.send();
-    }
-
-    function checkout(productId) {
-        // ดึงข้อมูลสินค้าจากฐานข้อมูลโดยใช้ AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "getProduct.php?id=" + productId, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var product = JSON.parse(xhr.responseText);
-
-                // สร้าง URL สำหรับเปลี่ยนเส้นทางไปยังหน้า productDetails.php พร้อมกับพารามิเตอร์ id
-                var url = `productDetails.php?id=${product.id}`;
-
-                // เปลี่ยนเส้นทางไปยังหน้า productDetails.php
-                window.location.href = url;
             }
         };
         xhr.send();

@@ -38,7 +38,37 @@
             <div id="items-container"> 
                 <h2>รายการสินค้าที่จะสั่งซื้อ</h2>
                 <!-- Items will be displayed here by JavaScript -->
-                 
+                <?php
+        if(isset($_POST['productId'])) {
+            $productId = $_POST['productId'];
+
+            include "connectDB.php";
+
+            // Query ข้อมูลสินค้าจากฐานข้อมูล
+            $sql = "SELECT * FROM products WHERE id = $productId";
+            $result = $conn->query($sql);
+
+            if ($result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $productName = $row["product_name"];
+                $price = $row["price"];
+
+                // แสดงข้อมูลรายการสินค้าที่จะสั่งซื้อ
+                echo "<div class='product-item'>";
+                echo "<span>สินค้า:</span><span>$productName</span>";
+                echo "</div>";
+                echo "<div class='product-item'>";
+                echo "<span>ราคา:</span><span>฿$price</span>";
+                echo "</div>";
+            } else {
+                echo "<p>ไม่พบข้อมูลสินค้า</p>";
+            }
+
+            $conn->close();
+        } else {
+            echo "<p>ไม่พบข้อมูลสินค้าที่จะสั่งซื้อ</p>";
+        }
+        ?>
             </div>
 
             <button type="submit">ส่งข้อมูล</button>

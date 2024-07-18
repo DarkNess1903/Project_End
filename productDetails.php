@@ -92,57 +92,54 @@ $conn->close();
 
     <script>
         function addToCart(productId) {
-        // ดึงข้อมูลสินค้าจากฐานข้อมูลโดยใช้ AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "getProduct.php?id=" + productId, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var product = JSON.parse(xhr.responseText);
+            // ดึงข้อมูลสินค้าจากฐานข้อมูลโดยใช้ AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "getProduct.php?id=" + productId, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var product = JSON.parse(xhr.responseText);
 
-                // ข้อมูลสินค้าที่จะเพิ่มเข้าตะกร้า
-                var productData = {
-                    product: product.product_name,
-                    price: product.price,
-                    quantity: 1,
-                    totalPrice: product.price,
-                    product_name: product.product_name
-                };
+                    // ข้อมูลสินค้าที่จะเพิ่มเข้าตะกร้า
+                    var productData = {
+                        product: product.product_name,
+                        price: product.price,
+                        quantity: 1,
+                        totalPrice: product.price,
+                        product_name: product.product_name
+                    };
 
-                // ส่งข้อมูลผ่าน AJAX ไปยังไฟล์ PHP เพื่อบันทึกลงฐานข้อมูล
-                var xhrAdd = new XMLHttpRequest();
-                xhrAdd.open("POST", "cartInsert.php", true);
-                xhrAdd.setRequestHeader("Content-Type", "application/json");
-                xhrAdd.onreadystatechange = function () {
-                    if (xhrAdd.readyState === 4 && xhrAdd.status === 200) {
-                        console.log(xhrAdd.responseText); // แสดงผลลัพธ์ที่ได้จากการบันทึก
-                        alert("เพิ่มสินค้าเข้าตะกร้าแล้ว!");
-                    }
-                };
-                xhrAdd.send(JSON.stringify(productData));
-            }
-        };
-        xhr.send();
-    }
+                    // ส่งข้อมูลผ่าน AJAX ไปยังไฟล์ PHP เพื่อบันทึกลงฐานข้อมูล
+                    var xhrAdd = new XMLHttpRequest();
+                    xhrAdd.open("POST", "cartInsert.php", true);
+                    xhrAdd.setRequestHeader("Content-Type", "application/json");
+                    xhrAdd.onreadystatechange = function () {
+                        if (xhrAdd.readyState === 4 && xhrAdd.status === 200) {
+                            console.log(xhrAdd.responseText); // แสดงผลลัพธ์ที่ได้จากการบันทึก
+                            alert("เพิ่มสินค้าเข้าตะกร้าแล้ว!");
+                        }
+                    };
+                    xhrAdd.send(JSON.stringify(productData));
+                }
+            };
+            xhr.send();
+        }
 
-    function checkout(productId) {
-        // ดึงข้อมูลสินค้าจากฐานข้อมูลโดยใช้ AJAX
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "getProduct.php?id=" + productId, true);
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var product = JSON.parse(xhr.responseText);
-                alert("สั่งซื้อสินค้าสำเร็จ!");
+        function orderNow(productId) {
+            // ส่งข้อมูลไปยังหน้า orderForm.php
+            var form = document.createElement("form");
+            form.setAttribute("method", "post");
+            form.setAttribute("action", "orderForm.php");
 
-                // สร้าง URL สำหรับเปลี่ยนเส้นทางไปยังหน้า productDetails.php พร้อมกับพารามิเตอร์ id
-                var url = `productDetails.php?id=${product.id}`;
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", "productId");
+            hiddenField.setAttribute("value", productId);
 
-                // เปลี่ยนเส้นทางไปยังหน้า productDetails.php
-                window.location.href = url;
-            }
-        };
-        xhr.send();
-    }
-    
+            form.appendChild(hiddenField);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
     </script>
 </body>
 </html>
