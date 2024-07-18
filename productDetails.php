@@ -105,7 +105,8 @@ $conn->close();
                         price: product.price,
                         quantity: 1,
                         totalPrice: product.price,
-                        product_name: product.product_name
+                        product_name: product.product_name,
+                        image: product.image // เพิ่มรูปภาพเข้าไปในข้อมูลสินค้า
                     };
 
                     // ส่งข้อมูลผ่าน AJAX ไปยังไฟล์ PHP เพื่อบันทึกลงฐานข้อมูล
@@ -130,12 +131,12 @@ $conn->close();
             form.setAttribute("method", "post");
             form.setAttribute("action", "orderForm.php");
 
-            var hiddenField = document.createElement("input");
-            hiddenField.setAttribute("type", "hidden");
-            hiddenField.setAttribute("name", "productId");
-            hiddenField.setAttribute("value", productId);
+            var hiddenFieldId = document.createElement("input");
+            hiddenFieldId.setAttribute("type", "hidden");
+            hiddenFieldId.setAttribute("name", "productId");
+            hiddenFieldId.setAttribute("value", productId);
 
-            form.appendChild(hiddenField);
+            form.appendChild(hiddenFieldId);
 
             document.body.appendChild(form);
             form.submit();
