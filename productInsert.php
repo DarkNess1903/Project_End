@@ -17,7 +17,7 @@ if (isset($data->product) && isset($data->price) && isset($data->quantity) && is
     $sql = "INSERT INTO cart (product_name, price, quantity, total_price, details) VALUES ('$name', $price, $quantity, $totalPrice, '$details')";
 
     if ($conn->query($sql) === TRUE) {
-        echo "บันทึกข้อมูลเรียบร้อย";
+        echo "บันทึกข้อมูลเรียบร้อย"; 
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
