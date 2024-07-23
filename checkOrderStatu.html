@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตรวจสอบสถานะออร์เดอร์</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="navbar">เนื้อหา Navbar</div>
+
+    <div class="container">
+        <h1>ตรวจสอบสถานะออร์เดอร์</h1>
+        <form id="order-status-form">
+            <label for="phone-number">หมายเลขโทรศัพท์:</label>
+            <input type="text" id="phone-number" name="phoneNumber" required>
+            <button type="submit">ตรวจสอบสถานะ</button>
+        </form>
+
+        <div id="order-status-result"></div>
+    </div>
+
+    <div id="footer">เนื้อหา Footer</div>
+
+    <script>
+        $(document).ready(function() {
+            $("#order-status-form").on("submit", function(event) {
+                event.preventDefault();
+                var phoneNumber = $("#phone-number").val();
+                
+                $.ajax({
+                    url: "checkOrderStatus.php",
+                    type: "POST",
+                    data: { phoneNumber: phoneNumber },
+                    success: function(response) {
+                        $("#order-status-result").html(response);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
