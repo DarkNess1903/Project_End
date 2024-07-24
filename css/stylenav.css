@@ -95,7 +95,7 @@ footer {
     display: none;
     position: absolute;
     top: 62%;
-    left: 460px;
+    left: 375px;
     background-color: #ffffff;
     border: 1px solid #ddd;
     padding: 10px;
@@ -115,6 +115,8 @@ footer {
 .dropdown li a {
     color: #333;
     text-decoration: none;
+    margin-left: 0;
+
 }
 
 .dropdown li a:hover {
@@ -138,7 +140,9 @@ footer {
 .nav-links a {
     text-decoration: none;
     color: #272626;
-    font-size: 20px;
+    font-size: 24px;
+    margin-left: -90px;
+    margin-right: 100px; /* Add space between each link */
 }
 
 .nav-links a:hover {
