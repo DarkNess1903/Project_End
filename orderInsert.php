@@ -5,47 +5,70 @@ include "connectDB.php";
 $name = $_POST['name'];
 $phone = $_POST['phone'];
 $address = $_POST['address'];
-$slip = $_FILES['slip']['name']; // ชื่อไฟล์ของภาพสลิป
-$slip_tmp = $_FILES['slip']['tmp_name']; // ไฟล์ที่อัพโหลดชั่วคราว
-$slip_path = "uploads/" . basename($slip); // พาธของไฟล์ที่ต้องการย้าย
+$slip = $_FILES['slip']['name'];
+$slip_tmp = $_FILES['slip']['tmp_name'];
+$slip_path = "uploads/" . basename($slip);
+$order_time = date('Y-m-d H:i:s');
+$status = 'รอรับเรื่อง';
+
+// รับข้อมูลสินค้าจากฟอร์ม
+$product_names = $_POST['product_name'];
+$prices = $_POST['price'];
+$quantities = $_POST['quantity'];
+$total_prices = $_POST['total_price'];
 
 // สร้างคำสั่ง SQL เพื่อบันทึกข้อมูลลงฐานข้อมูล
-$sql = "INSERT INTO Orders (order_number, name, phone, address, slip_path, quantity, item_name, price, order_time, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$order_number = generateOrderNumber(); // ฟังก์ชันสร้างเลข Order อัตโนมัติ
-$quantity = 1; // จำนวนสินค้าที่สั่งซื้อ
-$item_name = "Product"; // ชื่อสินค้า (ในที่นี้เป็นตัวอย่าง)
-$price = 100; // ราคา (ตัวอย่าง)
-$order_time = date('Y-m-d H:i:s'); // วันที่และเวลาในปัจจุบัน
-$status = 'รอรับเรื่อง'; // สถานะเริ่มต้น
+$order_number = generateOrderNumber();
 
-$stmt->bind_param("sssssisiss", $order_number, $name, $phone, $address, $slip_path, $quantity, $item_name, $price, $order_time, $status);
+foreach ($product_names as $index => $product_name) {
+    $price = $prices[$index];
+    $quantity = $quantities[$index];
+    $total_price = $total_prices[$index];
 
-// Execute the statement
-if ($stmt->execute()) {
-    // ย้ายไฟล์ภาพสลิปไปเก็บที่ uploads/
-    if (move_uploaded_file($slip_tmp, $slip_path)) {
-        echo "ข้อมูลถูกบันทึกเรียบร้อยแล้ว!";
+    $sql = "INSERT INTO Orders (order_number, name, phone, address, slip_path, quantity, item_name, price, order_time, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssisiss", $order_number, $name, $phone, $address, $slip_path, $quantity, $product_name, $price, $order_time, $status);
+
+    // Execute the statement
+    if ($stmt->execute()) {
+        // ย้ายไฟล์ภาพสลิปไปเก็บที่ uploads/ (ทำครั้งเดียว)
+        if (!isset($fileMoved)) {
+            if (move_uploaded_file($slip_tmp, $slip_path)) {
+                echo "ข้อมูลถูกบันทึกเรียบร้อยแล้ว!";
+                $fileMoved = true;
+            } else {
+                echo "เกิดข้อผิดพลาดในการอัพโหลดไฟล์ภาพสลิป.";
+            }
+        }
+
         // ส่งการแจ้งเตือน
-        sendLineNotify("มีคำสั่งซื้อใหม่! \nOrder Number: $order_number\nName: $name\nPrice: ฿$price\nOrder Time: $order_time\nStatus: $status");
+        sendLineNotify("มีคำสั่งซื้อใหม่! \nOrder Number: $order_number\nName: $name\nProduct: $product_name\nQuantity: $quantity\nTotal Price: ฿$total_price\nOrder Time: $order_time\nStatus: $status");
     } else {
-        echo "เกิดข้อผิดพลาดในการอัพโหลดไฟล์ภาพสลิป.";
+        echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $conn->error;
     }
+
+    // ปิดการเชื่อมต่อ
+    $stmt->close();
+}
+
+// ลบข้อมูลในตาราง cart หลังจากบันทึกคำสั่งซื้อเสร็จ
+$deleteCartSql = "DELETE FROM cart";
+if ($conn->query($deleteCartSql) === TRUE) {
+    echo "ข้อมูลในตะกร้าถูกลบเรียบร้อยแล้ว!";
 } else {
-    echo "เกิดข้อผิดพลาดในการบันทึกข้อมูล: " . $conn->error;
+    echo "เกิดข้อผิดพลาดในการลบข้อมูลตะกร้า: " . $conn->error;
 }
 
 // ปิดการเชื่อมต่อฐานข้อมูล
-$stmt->close();
 $conn->close();
 
-// ฟังก์ชันสร้างเลข Order อัตโนมัติ (เช่น O20240001)
+// ฟังก์ชันสร้างเลข Order อัตโนมัติ
 function generateOrderNumber() {
     global $conn;
     $prefix = 'O';
     $year = date('Y');
     $last_order_number = getLastOrderNumber();
-    
+
     if ($last_order_number === false) {
         return $prefix . $year . '0001';
     } else {
@@ -70,7 +93,7 @@ function getLastOrderNumber() {
 
 // ฟังก์ชันส่งการแจ้งเตือนผ่าน Line Notify
 function sendLineNotify($message) {
-    $accessToken = 'Y0l8lajewGFBTsAtHL74ZcdSB9LFnaYElrhg8LapsBv';
+    $accessToken = 'YOUR_LINE_NOTIFY_ACCESS_TOKEN';
     $apiUrl = 'https://notify-api.line.me/api/notify';
 
     $headers = [
