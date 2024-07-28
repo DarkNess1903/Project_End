@@ -7,7 +7,7 @@ $phone = $_POST['phone'] ?? null;
 $address = $_POST['address'] ?? null;
 $slip = $_FILES['slip']['name'] ?? null;
 $slip_tmp = $_FILES['slip']['tmp_name'] ?? null;
-$slip_path = "uploads/" . basename($slip);
+$slip_path = "admin/uploads/" . basename($slip);
 $order_time = date('Y-m-d H:i:s');
 $status = 'รอรับเรื่อง';
 
