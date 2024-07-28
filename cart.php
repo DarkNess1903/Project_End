@@ -4,12 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hantaphao Project</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/stylenav.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <STYle>
+.container {
+    width: 80%;
+    margin: auto;
+    overflow-x: auto; /* Allow horizontal scrolling if necessary */
+    padding: 70px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+h2 {
+    text-align: left;
+    margin-top: 0; /* Adjust margin-top to align properly */
+}
+
+table {
+    width: 180%; /* Extend the table width beyond 100% */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    margin-left: auto; /* Align the table to the right */
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px; /* Reduced padding for better alignment */
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.quantity-form, .remove-form {
+    display: inline-block;
+}
+
+.quantity-form button, .remove-form button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    background-color: #f2f2f2;
+    cursor: pointer;
+    border-radius: 5px; /* Added border-radius for consistency */
+}
+
+.quantity-form button:hover, .remove-form button:hover {
+    background-color: #ddd;
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+h3 {
+    text-align: center;
+    margin-top: 20px;
+    color: #333;
+    font-size: 24px;
+}
+
+/* Additional styling for responsiveness */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 10px;
+    }
+
+    table {
+        width: 100%; /* Ensure table fits smaller screens */
+    }
+
+    th, td {
+        padding: 8px;
+    }
+
+    button[type="submit"] {
+        font-size: 14px;
+    }
+
+    h3 {
+        font-size: 20px;
+    }
+}
+
+
+    </STYle>
 </head>
 <body>
-    <div id="navbar">Navbar Content</div>
+<nav class="navbar">
+        <div class="logo">
+            <img src="img/Logo.png" alt="Logo" width="100px" height="100px">
+        </div>
+        <div class="menu-toggle" id="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#">เกี่ยวกับโครงการ ▾</a>
+                <ul class="dropdown">
+                    <li><a href="mushroom.html">โรงเห็ดอัจฉริยะ</a></li>
+                    <li><a href="furnance.html">เคาเผาถ่านไร้ควัน</a></li>
+                    <li><a href="riceMill.html">โรงสีข้าว</a></li>
+                </ul>
+            </li>
+            <li><a href="#">ผลิตภัณฑ์</a></li>
+            <li><a href="#">ข่าวสารจากชุมชน</a></li>
+            <li><a href="#">คำถามที่พบบ่อย</a></li>
+        </ul>
+        <div class="cart">
+            <a href="#"><i class="fa fa-shopping-cart"></i></a>
+        </div>
+    </nav>
 
     <div class="container">
         <?php
@@ -136,7 +272,27 @@
             }
         }
     </script>
-
-    <div id="footer">Footer Content</div>
+<footer>
+<div class="contact">
+            <div>
+                <h4>ติดต่อเรา</h4>
+                <p>123 หมู่ 4 ตำบลบ้านโฮ่ง อำเภอบ้านโฮ่ง จังหวัดลำพูน</p>
+            </div>
+            <div>
+                <h4>เบอร์ติดต่อ</h4>
+                <p>081-234-5678</p>
+            </div>
+            <div>
+                <h4>Email</h4>
+                <p>contact@hantaphao.com</p>
+            </div>
+            <div>
+                <h4>สื่อสังคมออนไลน์</h4>
+                <a href=""><img src="img/Facebook-icon.png" alt="fb Picture" width="60" height="60"></a>
+                <a href=""><img src="img/line-icon.png" alt="line Picture" width="42" height="42" style="position: relative; top: -8px;"></a>
+            </div>
+        </div>
+        <p>©2024 Hantaphao Projects All rights reserved.</p>
+</footer>
 </body>
 </html>
