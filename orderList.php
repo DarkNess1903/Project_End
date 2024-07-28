@@ -36,7 +36,7 @@
                 <th>Phone</th>
                 <th>Address</th>
                 <th>Quantity</th>
-                <th>Item Name</th>
+                <th>Price</th>
                 <th>Slip Image</th>
                 <th>Status</th>
                 <th>Update Status</th>
@@ -59,7 +59,7 @@
             }
 
             // สร้างคำสั่ง SQL เพื่อดึงข้อมูล Order
-            $sql = "SELECT order_id, order_number, name, phone, address, quantity, item_name, slip_path, status FROM Orders";
+            $sql = "SELECT order_id, order_number, name, phone, address,quantity, price, slip_path, status FROM Orders";
             $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
@@ -71,7 +71,7 @@
                     echo "<td>" . $row["phone"] . "</td>";
                     echo "<td>" . $row["address"] . "</td>";
                     echo "<td>" . $row["quantity"] . "</td>";
-                    echo "<td>" . $row["item_name"] . "</td>";
+                    echo "<td>" . $row["price"] . "</td>";
                     echo "<td><img src='" . $row["slip_path"] . "' alt='Slip Image' width='100'></td>";
                     echo "<td>" . $row["status"] . "</td>";
                     echo "<td>
