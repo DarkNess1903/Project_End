@@ -2,27 +2,25 @@
 include "connectDB.php";
 
 // รับข้อมูลจากฟอร์ม
-$name = $_POST['name'];
-$phone = $_POST['phone'];
-$address = $_POST['address'];
-$slip = $_FILES['slip']['name'];
-$slip_tmp = $_FILES['slip']['tmp_name'];
+$name = $_POST['name'] ?? null;
+$phone = $_POST['phone'] ?? null;
+$address = $_POST['address'] ?? null;
+$slip = $_FILES['slip']['name'] ?? null;
+$slip_tmp = $_FILES['slip']['tmp_name'] ?? null;
 $slip_path = "uploads/" . basename($slip);
 $order_time = date('Y-m-d H:i:s');
 $status = 'รอรับเรื่อง';
 
 // รับข้อมูลสินค้าจากฟอร์ม
-$product_names = isset($_POST['product_name']) ? $_POST['product_name'] : [];
-$prices = isset($_POST['price']) ? $_POST['price'] : [];
-$quantities = isset($_POST['quantity']) ? $_POST['quantity'] : [];
-$total_prices = isset($_POST['total_price']) ? $_POST['total_price'] : [];
+$product_names = $_POST['product_name'] ?? [];
+$prices = $_POST['price'] ?? [];
+$quantities = $_POST['quantity'] ?? [];
+$total_prices = $_POST['total_price'] ?? [];
 
-// ตรวจสอบว่าข้อมูลสินค้าถูกส่งมาครบถ้วน
 if (empty($product_names) || empty($prices) || empty($quantities) || empty($total_prices)) {
-    echo "กรุณากรอกข้อมูลสินค้าทั้งหมด";
+    echo "เกิดข้อผิดพลาด: ข้อมูลสินค้าไม่ครบถ้วน.";
     exit();
 }
-
 
 // สร้างคำสั่ง SQL เพื่อบันทึกข้อมูลลงฐานข้อมูล
 $order_number = generateOrderNumber();
