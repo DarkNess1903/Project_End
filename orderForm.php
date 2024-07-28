@@ -39,36 +39,44 @@
                 <h2>รายการสินค้าที่จะสั่งซื้อ</h2>
                 <!-- Items will be displayed here by JavaScript -->
                 <?php
-        if(isset($_POST['productId'])) {
-            $productId = $_POST['productId'];
+                    if(isset($_POST['productId'])) {
+                        $productId = $_POST['productId'];
 
-            include "connectDB.php";
+                        include "connectDB.php";
 
-            // Query ข้อมูลสินค้าจากฐานข้อมูล
-            $sql = "SELECT * FROM products WHERE id = $productId";
-            $result = $conn->query($sql);
+                        // Query ข้อมูลสินค้าจากฐานข้อมูล
+                        $sql = "SELECT * FROM products WHERE id = $productId";
+                        $result = $conn->query($sql);
 
-            if ($result->num_rows > 0) {
-                $row = $result->fetch_assoc();
-                $productName = $row["product_name"];
-                $price = $row["price"];
+                        if ($result->num_rows > 0) {
+                            $row = $result->fetch_assoc();
+                            $productName = $row["product_name"];
+                            $price = $row["price"];
 
-                // แสดงข้อมูลรายการสินค้าที่จะสั่งซื้อ
-                echo "<div class='product-item'>";
-                echo "<span>สินค้า:</span><span>$productName</span>";
-                echo "</div>";
-                echo "<div class='product-item'>";
-                echo "<span>ราคา:</span><span>฿$price</span>";
-                echo "</div>";
-            } else {
-                echo "<p>ไม่พบข้อมูลสินค้า</p>";
-            }
+                            // แสดงข้อมูลรายการสินค้าที่จะสั่งซื้อ
+                            echo "<div class='product-item'>";
+                            echo "<span>สินค้า:</span><span>$productName</span>";
+                            echo "<input type='hidden' name='product_name[]' value='$productName'>";
+                            echo "</div>";
+                            echo "<div class='product-item'>";
+                            echo "<span>ราคา:</span><span>฿$price</span>";
+                            echo "<input type='hidden' name='price[]' value='$price'>";
+                            echo "</div>";
+                            echo "<div class='product-item'>";
+                            echo "<span>จำนวน:</span><input type='number' name='quantity[]' value='1' min='1' required>";
+                            echo "</div>";
+                            echo "<div class='product-item'>";
+                            echo "<span>ราคารวม:</span><input type='text' name='total_price[]' value='$price' readonly>";
+                            echo "</div>";
+                        } else {
+                            echo "<p>ไม่พบข้อมูลสินค้า</p>";
+                        }
 
-            $conn->close();
-        } else {
-            echo "<p>ไม่พบข้อมูลสินค้าที่จะสั่งซื้อ</p>";
-        }
-        ?>
+                        $conn->close();
+                    } else {
+                        echo "<p>ไม่พบข้อมูลสินค้าที่จะสั่งซื้อ</p>";
+                    }
+                ?>
             </div>
 
             <button type="submit">ส่งข้อมูล</button>
@@ -76,20 +84,16 @@
     </div>
 
     <script>
-    // Retrieve the items from the URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const productData = JSON.parse(decodeURIComponent(urlParams.get('productData')));
+    // Function to calculate total price
+    document.querySelectorAll('input[name="quantity[]"]').forEach(input => {
+        input.addEventListener('change', (event) => {
+            const quantity = event.target.value;
+            const price = event.target.parentElement.previousElementSibling.querySelector('input[name="price[]"]').value;
+            const totalPriceInput = event.target.parentElement.nextElementSibling.querySelector('input[name="total_price[]"]');
+            totalPriceInput.value = (quantity * price).toFixed(2);
+        });
+    });
+    </script>
 
-    // Display the product data in the items container
-    const itemsContainer = document.getElementById('items-container');
-    const itemDiv = document.createElement('div');
-    itemDiv.innerHTML = `
-        <p>ชื่อสินค้า: ${productData.product_name}</p>
-        <p>ราคา: ${productData.price} บาท</p>
-        <p>จำนวน: ${productData.quantity}</p>
-        <p>ราคารวม: ${productData.totalPrice} บาท</p>
-        <hr>
-    `;
-    itemsContainer.appendChild(itemDiv);
-</script>
-
+</body>
+</html>

@@ -66,7 +66,7 @@
                     price: product.price,
                     quantity: 1,
                     totalPrice: product.price,
-                    product_name: product.product_name
+                    imagePath: product.image // เพิ่มพาธรูปภาพ
                 };
 
                 // ส่งข้อมูลผ่าน AJAX ไปยังไฟล์ PHP เพื่อบันทึกลงฐานข้อมูล

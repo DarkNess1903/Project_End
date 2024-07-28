@@ -9,10 +9,11 @@ $name = $conn->real_escape_string($data->product);
 $price = (float)$data->price;
 $quantity = (int)$data->quantity;
 $totalPrice = (float)$data->totalPrice;
+$imagePath = $conn->real_escape_string($data->imagePath); // รับพาธรูปภาพ
 
 // Prepare an SQL statement
-$stmt = $conn->prepare("INSERT INTO cart (product_name, price, quantity, total_price) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("sidi", $name, $price, $quantity, $totalPrice);
+$stmt = $conn->prepare("INSERT INTO cart (product_name, price, quantity, total_price, image_path) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("sidis", $name, $price, $quantity, $totalPrice, $imagePath);
 
 if ($stmt->execute()) {
     echo json_encode(["message" => "Item added to cart successfully"]);

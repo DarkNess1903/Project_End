@@ -48,6 +48,10 @@
                 // แสดงผลข้อมูล
                 if ($result->num_rows > 0) {
                     while($row = $result->fetch_assoc()) {
+                        echo "<input type='hidden' name='product_name[]' value='" . $row["product_name"] . "'>";
+                        echo "<input type='hidden' name='price[]' value='" . $row["price"] . "'>";
+                        echo "<input type='hidden' name='quantity[]' value='" . $row["quantity"] . "'>";
+                        echo "<input type='hidden' name='total_price[]' value='" . $row["total_price"] . "'>";
                         echo "<p>ชื่อสินค้า: " . $row["product_name"] . "</p>";
                         echo "<p>ราคา: " . $row["price"] . " บาท</p>";
                         echo "<p>จำนวน: " . $row["quantity"] . "</p>";

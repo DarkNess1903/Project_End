@@ -12,7 +12,7 @@ if(isset($_POST['phoneNumber'])) {
     if ($result->num_rows > 0) {
         // แสดงข้อมูลออร์เดอร์
         echo "<table border='1'>";
-        echo "<tr><th>Order ID</th><th>Order Number</th><th>Name</th><th>Phone</th><th>Address</th><th>Slip Path</th><th>Quantity</th><th>Item Name</th><th>Timestamp</th><th>Status</th></tr>";
+        echo "<tr><th>Order ID</th><th>Order Number</th><th>Name</th><th>Phone</th><th>Address</th><th>Slip Path</th><th>Quantity</th><th>Price</th><th>Item Name</th><th>time</th><th>Status</th></tr>";
         
         while($row = $result->fetch_assoc()) {
             echo "<tr>";
@@ -23,8 +23,9 @@ if(isset($_POST['phoneNumber'])) {
             echo "<td>".$row["address"]."</td>";
             echo "<td><img src='".$row["slip_path"]."' alt='Slip Image' width='100px' height='100px'></td>";
             echo "<td>".$row["quantity"]."</td>";
+            echo "<td>".$row["price"]."</td>";
             echo "<td>".$row["item_name"]."</td>";
-            echo "<td>".$row["timestamp"]."</td>";
+            echo "<td>".$row["order_time"]."</td>";
             echo "<td>".$row["status"]."</td>";
             echo "</tr>";
         }

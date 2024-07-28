@@ -216,12 +216,13 @@ h3 {
             echo "<h2>ตะกร้าสินค้า</h2>";
             echo "<form method='POST' id='cart-form' action=''>";
             echo "<table border='1'>";
-            echo "<tr><th><input type='checkbox' id='select-all' onchange='toggleSelectAll()'> เลือกทั้งหมด</th><th>ชื่อสินค้า</th><th>ราคา</th><th>จำนวน</th><th>ราคารวม</th><th>แก้ไข</th></tr>";
+            echo "<tr><th><input type='checkbox' id='select-all' onchange='toggleSelectAll()'> เลือกทั้งหมด</th><th>รูปสินค้า</th><th>ชื่อสินค้า</th><th>ราคา</th><th>จำนวน</th><th>ราคารวม</th><th>แก้ไข</th></tr>";
             
             // Output data of each row
             while($row = $result->fetch_assoc()) {
                 echo "<tr>";
                 echo "<td><input type='checkbox' class='item-checkbox' name='selectedItems[]' value='".$row["id"]."'></td>";
+                echo "<td><img src='".$row["image_path"]."' alt='".$row["product_name"]."' width='100' height='100'></td>";
                 echo "<td>".$row["product_name"]."</td>";
                 echo "<td>".$row["price"]."</td>";
                 echo "<td>";
