@@ -78,9 +78,9 @@
                             <form class='status-form' action='updateOrderStatus.php' method='POST'>
                                 <input type='hidden' name='orderId' value='" . $row["order_id"] . "'>
                                 <select name='status' required>
-                                    <option value='รอรับเรื่อง'" . ($row["status"] == 'รอรับเรื่อง' ? ' selected' : '') . ">รอรับเรื่อง</option>
+                                    <option value='รอดำเนินการ'" . ($row["status"] == 'รอดำเนินการ' ? ' selected' : '') . ">รอดำเนินการ</option>
                                     <option value='กำลังดำเนินการ'" . ($row["status"] == 'กำลังดำเนินการ' ? ' selected' : '') . ">กำลังดำเนินการ</option>
-                                    <option value='เสร็จรอรับสินค้า'" . ($row["status"] == 'เสร็จรอรับสินค้า' ? ' selected' : '') . ">เสร็จรอรับสินค้า</option>
+                                    <option value='เสร็จสมบูรณ์'" . ($row["status"] == 'เสร็จสมบูรณ์' ? ' selected' : '') . ">เสร็จสมบูรณ์</option>
                                 </select>
                                 <button type='submit'>อัปเดต</button>
                             </form>

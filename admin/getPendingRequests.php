@@ -3,7 +3,7 @@ include "../connectDB.php";
 
 // ดึงจำนวนคำสั่งซื้อที่อยู่ในสถานะ "Pending" จากฐานข้อมูล
 function getPendingRequests($conn) {
-    $sql = "SELECT COUNT(*) AS pending_count FROM orders WHERE status = 'รอรับเรื่อง'";
+    $sql = "SELECT COUNT(*) AS pending_count FROM orders WHERE status = 'รอดำเนินการ'";
     $result = $conn->query($sql);
 
     if (!$result) {

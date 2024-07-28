@@ -2,15 +2,14 @@
 include "../connectDB.php";
 
 // ดึงข้อมูลรายได้รายเดือนจากฐานข้อมูล
-function getMonthlyRevenue($conn) {
+function getEarningsOverview($conn) {
     $sql = "SELECT 
                 DATE_FORMAT(order_time, '%Y-%m') AS month, 
                 SUM(price * quantity) AS total_revenue 
             FROM Orders 
             WHERE order_time >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
             GROUP BY month 
-            ORDER BY month DESC 
-            LIMIT 12";
+            ORDER BY month ASC";
     $result = $conn->query($sql);
 
     if (!$result) {
@@ -35,6 +34,6 @@ function getMonthlyRevenue($conn) {
     return $data;
 }
 
-$monthlyRevenue = getMonthlyRevenue($conn);
-echo json_encode($monthlyRevenue);
+$earningsOverview = getEarningsOverview($conn);
+echo json_encode($earningsOverview);
 ?>
