@@ -1,3 +1,7 @@
+<?php
+include 'auth.php'; // ตรวจสอบการเข้าสู่ระบบ
+// โค้ดที่เกี่ยวข้องกับ Admin Dashboard
+?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
