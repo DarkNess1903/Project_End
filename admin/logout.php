@@ -1,7 +1,4 @@
 <?php
-// เชื่อมต่อกับฐานข้อมูล
-include "../connectDB.php";
-
 session_start();
 session_unset(); // ลบข้อมูล session
 session_destroy(); // ทำลาย session

@@ -1,7 +1,5 @@
 <?php
 session_start();
-
-// เชื่อมต่อกับฐานข้อมูล
 include "../connectDB.php";
 
 // ตรวจสอบการส่งฟอร์ม
