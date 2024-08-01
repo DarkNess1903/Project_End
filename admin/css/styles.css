@@ -185,3 +185,61 @@ td img:hover {
 .status-form button:hover {
     background-color: #2e59d9;
 }
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #4e54c8;
+}
+
+.textbox {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.textbox i {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: #4e54c8;
+}
+
+.textbox input {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    font-size: 1em;
+}
+
+.btn {
+    width: 100%;
+    background: #4e54c8;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn:hover {
+    background: #8f94fb;
+}
