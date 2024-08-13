@@ -1,6 +1,15 @@
 <?php
 include 'auth.php'; // ตรวจสอบการเข้าสู่ระบบ
-?>
+
+// รวมไฟล์ที่มีการประกาศคลาส ThailandTime
+include 'ThailandTime.php';
+
+// สร้างอ็อบเจ็กต์ของ ThailandTime
+$thaiTime = new ThailandTime();
+
+// แสดงเวลาปัจจุบันในรูปแบบที่ต้องการ
+echo $thaiTime->getCurrentTime('H:i:s');
+?> 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +26,21 @@ include 'auth.php'; // ตรวจสอบการเข้าสู่ระ
         rel="stylesheet">
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <script src="js/alerts.js"></script>
+
+    <style>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            flex: 1;
+        }
+        .nav-time {
+            text-align: center;
+            flex: 2;
+        }
+    </style>
 
 </head>
 
@@ -117,10 +141,11 @@ include 'auth.php'; // ตรวจสอบการเข้าสู่ระ
                                 <!-- Counter - Alerts -->
                                 <span class="badge badge-danger badge-counter">3+</span>
                             </a>
+                            
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header">
-                                    Alerts Center
+                                    Alerts Center   
                                 </h6>
                                 <!-- New Order Alert -->
                                 <a class="dropdown-item d-flex align-items-center" href="orderDetails.php">

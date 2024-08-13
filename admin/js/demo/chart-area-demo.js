@@ -82,7 +82,7 @@ fetch('getEarningsOverview.php')
                             maxTicksLimit: 5,
                             padding: 10,
                             callback: function(value, index, values) {
-                                return '$' + number_format(value);
+                                return '฿' + number_format(value);
                             }
                         },
                         gridLines: {
