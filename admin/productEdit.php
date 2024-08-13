@@ -13,10 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['delete'])) {
-    if (isset($_POST['productName']) && isset($_POST['price']) && isset($_POST['details']) && isset($_FILES['image'])) {
+    if (isset($_POST['productName']) && isset($_POST['price']) && isset($_POST['details']) && isset($_POST['stock']) && isset($_FILES['image'])) {
         $productName = $conn->real_escape_string($_POST['productName']);
         $price = (float)$_POST['price'];
         $details = $conn->real_escape_string($_POST['details']);
+        $stock = (int)$_POST['stock'];
 
         // Path for the first product directory (outside admin folder)
         $targetDir1 = "../product/";
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['delete'])) {
 
         if (isset($_POST['productId']) && $_POST['productId'] != '') {
             $productId = (int)$_POST['productId'];
-            $sql = "UPDATE products SET product_name='$productName', price=$price, details='$details'";
+            $sql = "UPDATE products SET product_name='$productName', price=$price, details='$details', stock=$stock";
 
             if ($_FILES["image"]["size"] > 0) {
                 if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile1) && copy($targetFile1, $targetFile2)) {
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['delete'])) {
             $sql .= " WHERE id=$productId";
         } else {
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFile1) && copy($targetFile1, $targetFile2)) {
-                $sql = "INSERT INTO products (product_name, price, details, image) VALUES ('$productName', $price, '$details', '$targetFile1')";
+                $sql = "INSERT INTO products (product_name, price, details, image, stock) VALUES ('$productName', $price, '$details', '$targetFile1', $stock)";
             } else {
                 echo "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ.";
             }
@@ -85,11 +86,15 @@ $result = $conn->query($sql);
         </div>
         <div class="form-group">
             <label for="price">ราคา:</label>
-            <input type="number" id="price" name="price" required>
+            <input type="number" id="price" name="price" step="0.01" required>
         </div>
         <div class="form-group">
             <label for="details">รายละเอียด:</label>
             <textarea id="details" name="details" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="stock">จำนวนสินค้าในสต็อก:</label>
+            <input type="number" id="stock" name="stock" required>
         </div>
         <div class="form-group">
             <label for="image">อัพโหลดรูปภาพ:</label>
@@ -106,6 +111,7 @@ $result = $conn->query($sql);
                 <th>ชื่อสินค้า</th>
                 <th>ราคา</th>
                 <th>รายละเอียด</th>
+                <th>จำนวนสินค้า</th>
                 <th>รูปภาพ</th>
                 <th>แก้ไข</th>
                 <th>ลบ</th>
@@ -120,13 +126,14 @@ $result = $conn->query($sql);
                     echo "<td>".$row["product_name"]."</td>";
                     echo "<td>".$row["price"]."</td>";
                     echo "<td>".$row["details"]."</td>";
+                    echo "<td>".$row["stock"]."</td>";
                     echo "<td><img src='".$row["image"]."' alt='Product Image' class='img-thumbnail' onclick='openModal(this.src)'></td>";
-                    echo "<td><button class='btn btn-warning' onclick='editProduct(".$row["id"].", \"".$row["product_name"]."\", ".$row["price"].", \"".$row["details"]."\", \"".$row["image"]."\")'>แก้ไข</button></td>";
+                    echo "<td><button class='btn btn-warning' onclick='editProduct(".$row["id"].", \"".$row["product_name"]."\", ".$row["price"].", \"".$row["details"]."\", \"".$row["stock"]."\", \"".$row["image"]."\")'>แก้ไข</button></td>";
                     echo "<td><button class='btn btn-danger' onclick='deleteProduct(".$row["id"].")'>ลบ</button></td>";
                     echo "</tr>";
                 }
             } else {
-                echo "<tr><td colspan='7'>ไม่มีสินค้า</td></tr>";
+                echo "<tr><td colspan='8'>ไม่มีสินค้า</td></tr>";
             }
             ?>
         </tbody>
@@ -144,11 +151,12 @@ $result = $conn->query($sql);
 </div>
 
 <script>
-function editProduct(id, name, price, details, image) {
+function editProduct(id, name, price, details, stock, image) {
     document.getElementById('productId').value = id;
     document.getElementById('productName').value = name;
     document.getElementById('price').value = price;
     document.getElementById('details').value = details;
+    document.getElementById('stock').value = stock;
 }
 
 function deleteProduct(id) {

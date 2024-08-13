@@ -10,25 +10,33 @@ document.querySelectorAll('.quantity-form').forEach(form => {
             return;
         }
 
-        fetch('cart.php', {
-            method: 'POST',
-            body: formData
-        }).then(response => response.text())
-          .then(data => {
-              if (data.includes('successfully')) {
-                  // Update quantity displayed on page
-                  if (newQuantity === 0) {
-                      // If new quantity is 0, remove the row
-                      form.closest('tr').remove();
-                  } else {
-                      const quantityElement = form.querySelector('.quantity');
-                      quantityElement.textContent = newQuantity;
-                  }
-              } else {
-                  alert('Error updating quantity');
-              }
-              location.reload(); // Reload page to reflect changes
-          });
+        // ตรวจสอบจำนวนสินค้าในสต็อกก่อนอัปเดต
+        fetch('getProduct.php?id=' + formData.get('productId'))
+            .then(response => response.json())
+            .then(product => {
+                if (newQuantity > product.stock) {
+                    alert('จำนวนสินค้าเกินกว่าสต็อกที่มีอยู่.');
+                } else {
+                    return fetch('cart.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                if (data && data.includes('successfully')) {
+                    // อัปเดตจำนวนในหน้าเพจ
+                    if (newQuantity === 0) {
+                        form.closest('tr').remove();
+                    } else {
+                        form.querySelector('.quantity').textContent = newQuantity;
+                    }
+                    location.reload(); // รีเฟรชหน้าเพจหลังการอัปเดต
+                } else {
+                    alert('Error updating quantity');
+                }
+            });
     });
 });
 
@@ -44,12 +52,46 @@ document.querySelectorAll('.remove-form').forEach(form => {
         }).then(response => response.text())
           .then(data => {
               if (data.includes('successfully')) {
-                  // Remove the row from the table
                   form.closest('tr').remove();
               } else {
                   alert('Error removing item');
               }
-              location.reload(); // Reload page to reflect changes
+              location.reload(); // รีเฟรชหน้าเพจหลังจากลบสินค้า
           });
     });
 });
+
+// JavaScript to handle adding items to cart
+function addToCart(productId) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "getProduct.php?id=" + productId, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            var product = JSON.parse(xhr.responseText);
+
+            if (product.stock > 0) {
+                var productData = {
+                    product: product.product_name,
+                    price: product.price,
+                    quantity: 1,
+                    totalPrice: product.price,
+                    imagePath: product.image
+                };
+
+                var xhrAdd = new XMLHttpRequest();
+                xhrAdd.open("POST", "cartInsert.php", true);
+                xhrAdd.setRequestHeader("Content-Type", "application/json");
+                xhrAdd.onreadystatechange = function () {
+                    if (xhrAdd.readyState === 4 && xhrAdd.status === 200) {
+                        alert('สินค้าเพิ่มเข้าตะกร้าเรียบร้อยแล้ว');
+                        console.log(xhrAdd.responseText);
+                    }
+                };
+                xhrAdd.send(JSON.stringify(productData));
+            } else {
+                alert("สินค้าหมดแล้ว ไม่สามารถเพิ่มเข้าตะกร้าได้");
+            }
+        }
+    };
+    xhr.send();
+}

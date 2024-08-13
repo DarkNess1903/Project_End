@@ -1,5 +1,6 @@
 <?php
 include "connectDB.php";
+include 'topnavbar.php';
 
 // ตรวจสอบว่ามีการส่งพารามิเตอร์ id ผ่าน URL หรือไม่
 if(isset($_GET['id'])) {
@@ -15,6 +16,7 @@ if(isset($_GET['id'])) {
         $price = $row["price"];
         $image = $row["image"];
         $details = $row["details"];
+        $stock = $row["stock"]; // เพิ่มการดึงค่าของสต็อก
     } else {
         echo "ไม่พบสินค้าที่คุณเลือก";
         exit;
@@ -27,52 +29,8 @@ if(isset($_GET['id'])) {
 $conn->close();
 ?>
 
-<!DOCTYPE html>
-<html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Details: <?php echo $productName; ?></title>
-    <style>
-        /* CSS เพิ่มเติมสำหรับรายละเอียดสินค้า */
-        .product-details {
-            border: 1px solid #ccc;
-            padding: 16px;
-            margin: 16px;
-            display: flex;
-            align-items: center;
-            width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            flex-direction: column;
-        }
-        .product-details img {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 16px;
-        }
-        .product-details .product-info {
-            text-align: center;
-        }
-        .product-details .product-info h2 {
-            font-size: 1.5em;
-            margin: 0;
-        }
-        .product-details .product-info p {
-            margin: 8px 0;
-        }
-        .product-details .product-info .price {
-            font-size: 1.2em;
-            color: #b12704;
-        }
-        .product-details .product-buttons {
-            margin-top: 16px;
-        }
-        .product-details .product-buttons button {
-            padding: 10px 20px;
-            margin: 0 5px;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
     <h1>Product Details: <?php echo $productName; ?></h1>
@@ -83,10 +41,15 @@ $conn->close();
             <h2><?php echo $productName; ?></h2>
             <p class="price">ราคา: ฿<?php echo $price; ?></p>
             <p><?php echo $details; ?></p>
+            <p class="stock">จำนวนที่เหลือ: <?php echo $stock; ?> ชิ้น</p>
         </div>
         <div class="product-buttons">
-            <button onclick="addToCart(<?php echo $productId; ?>)">เพิ่มเข้าตะกร้า</button>
-            <button onclick="orderNow(<?php echo $productId; ?>)">สั่งซื้อ</button>
+            <?php if ($stock > 0): ?>
+                <button onclick="addToCart(<?php echo $productId; ?>)">เพิ่มเข้าตะกร้า</button>
+                <button onclick="orderNow(<?php echo $productId; ?>)">สั่งซื้อ</button>
+            <?php else: ?>
+                <button disabled>สินค้าหมด</button>
+            <?php endif; ?>
         </div>
     </div>
 
