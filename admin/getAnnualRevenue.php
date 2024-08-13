@@ -1,12 +1,13 @@
 <?php
 include "../connectDB.php";
 
-// ดึงข้อมูลรายได้ประจำปีจากฐานข้อมูล
+// ดึงข้อมูลรายได้ประจำปีจากฐานข้อมูลเฉพาะคำสั่งซื้อที่เสร็จสมบูรณ์
 function getAnnualRevenue($conn) {
     $sql = "SELECT 
                 SUM(price * quantity) AS total_revenue 
-            FROM orders 
-            WHERE YEAR(order_time) = YEAR(CURDATE())";
+            FROM Orders 
+            WHERE YEAR(order_time) = YEAR(CURDATE()) 
+              AND status = 'เสร็จสมบูรณ์'";
     $result = $conn->query($sql);
 
     if (!$result) {

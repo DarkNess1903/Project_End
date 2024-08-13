@@ -15,7 +15,12 @@ $status = 'รอดำเนินการ';
 $product_names = $_POST['product_name'] ?? [];
 $prices = $_POST['price'] ?? [];
 $quantities = $_POST['quantity'] ?? [];
-$total_prices = $_POST['total_price'] ?? [];
+$total_prices = [];
+foreach ($product_names as $index => $product_name) {
+    $price = $prices[$index];
+    $quantity = $quantities[$index];
+    $total_prices[] = $price * $quantity; // คำนวณราคาทั้งหมด
+}
 
 if (empty($product_names) || empty($prices) || empty($quantities) || empty($total_prices)) {
     echo "เกิดข้อผิดพลาด: ข้อมูลสินค้าไม่ครบถ้วน.";
@@ -28,14 +33,36 @@ $order_number = generateOrderNumber();
 foreach ($product_names as $index => $product_name) {
     $price = $prices[$index];
     $quantity = $quantities[$index];
-    $total_price = $total_prices[$index];
+    $total_price = $price * $quantity;
 
-    $sql = "INSERT INTO Orders (order_number, name, phone, address, slip_path, quantity, item_name, price, order_time, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // ตรวจสอบสต็อกสินค้าก่อน
+    $stockCheckSql = "SELECT stock FROM products WHERE product_name = ?";
+    $stmtCheck = $conn->prepare($stockCheckSql);
+    $stmtCheck->bind_param("s", $product_name);
+    $stmtCheck->execute();
+    $stmtCheck->bind_result($stock);
+    $stmtCheck->fetch();
+    $stmtCheck->close();
+
+    if ($stock < $quantity) {
+        echo "สินค้าหมดสต็อก: " . $product_name;
+        continue; // ข้ามสินค้าที่สต็อกไม่พอ
+    }
+
+    // บันทึกคำสั่งซื้อในตาราง Orders
+    $sql = "INSERT INTO Orders (order_number, name, phone, address, slip_path, quantity, item_name, price, total_price, order_time, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssssisiss", $order_number, $name, $phone, $address, $slip_path, $quantity, $product_name, $price, $order_time, $status);
+    $stmt->bind_param("sssssisiss", $order_number, $name, $phone, $address, $slip_path, $quantity, $product_name, $price, $total_price, $order_time, $status);
 
     // Execute the statement
     if ($stmt->execute()) {
+        // ลดจำนวนสต็อกสินค้าหลังจากเพิ่มคำสั่งซื้อแล้ว
+        $updateStockSql = "UPDATE products SET stock = stock - ? WHERE product_name = ?";
+        $stmtUpdate = $conn->prepare($updateStockSql);
+        $stmtUpdate->bind_param("is", $quantity, $product_name);
+        $stmtUpdate->execute();
+        $stmtUpdate->close();
+
         // ย้ายไฟล์ภาพสลิปไปเก็บที่ uploads/ (ทำครั้งเดียว)
         if (!isset($fileMoved)) {
             if (move_uploaded_file($slip_tmp, $slip_path)) {

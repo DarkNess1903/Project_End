@@ -76,6 +76,7 @@
                 xhrAdd.onreadystatechange = function () {
                     if (xhrAdd.readyState === 4 && xhrAdd.status === 200) {
                         console.log(xhrAdd.responseText); // แสดงผลลัพธ์ที่ได้จากการบันทึก
+                            alert("เพิ่มสินค้าเข้าตะกร้าแล้ว!");
                     }
                 };
                 xhrAdd.send(JSON.stringify(productData));

@@ -1,5 +1,5 @@
 <?php
-include "connectDB.php";
+include "../connectDB.php";
 
 // ตรวจสอบว่ามีการส่งพารามิเตอร์ orderId และ status ผ่าน POST หรือไม่
 if(isset($_POST['orderId']) && isset($_POST['status'])) {

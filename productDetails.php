@@ -69,7 +69,7 @@ $conn->close();
                         quantity: 1,
                         totalPrice: product.price,
                         product_name: product.product_name,
-                        image: product.image // เพิ่มรูปภาพเข้าไปในข้อมูลสินค้า
+                        imagePath: product.image // เพิ่มรูปภาพเข้าไปในข้อมูลสินค้า
                     };
 
                     // ส่งข้อมูลผ่าน AJAX ไปยังไฟล์ PHP เพื่อบันทึกลงฐานข้อมูล
