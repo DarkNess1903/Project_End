@@ -98,7 +98,7 @@ function getLastOrderNumber() {
 
 // ฟังก์ชันส่งการแจ้งเตือนผ่าน Line Notify
 function sendLineNotify($message) {
-    $accessToken = 'YOUR_LINE_NOTIFY_ACCESS_TOKEN';
+    $accessToken = 'Y0l8lajewGFBTsAtHL74ZcdSB9LFnaYElrhg8LapsBv';
     $apiUrl = 'https://notify-api.line.me/api/notify';
 
     $headers = [
