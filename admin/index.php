@@ -1,14 +1,5 @@
 <?php
 include 'auth.php'; // ตรวจสอบการเข้าสู่ระบบ
-
-// รวมไฟล์ที่มีการประกาศคลาส ThailandTime
-include 'ThailandTime.php';
-
-// สร้างอ็อบเจ็กต์ของ ThailandTime
-$thaiTime = new ThailandTime();
-
-// แสดงเวลาปัจจุบันในรูปแบบที่ต้องการ
-echo $thaiTime->getCurrentTime('H:i:s');
 ?> 
 
 <!DOCTYPE html>
@@ -106,6 +97,46 @@ echo $thaiTime->getCurrentTime('H:i:s');
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
+
+                    <!-- Time display in the center -->
+                        <div class="mx-auto" id="current-time"></div>
+
+                        <!-- JavaScript -->
+                        <script>
+                        function updateTime() {
+                            const now = new Date();
+                            const hours = now.getHours().toString().padStart(2, '0');
+                            const minutes = now.getMinutes().toString().padStart(2, '0');
+                            const seconds = now.getSeconds().toString().padStart(2, '0');
+                            const currentTime = `${hours}:${minutes}:${seconds}`;
+                            
+                            document.getElementById('current-time').textContent = currentTime;
+                        }
+
+                        // Update every second
+                        setInterval(updateTime, 1000);
+
+                        // Initial call to display time immediately
+                        updateTime();
+                        </script>
+
+                        <!-- CSS -->
+                        <style>
+                        .navbar .mx-auto {
+                            position: absolute;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            font-size: 24px; /* เพิ่มขนาดตัวอักษร */
+                            font-weight: bold;
+                            color: #4e73df; /* สีที่โดดเด่น */
+                        }
+
+                        @media (max-width: 768px) {
+                            .navbar .mx-auto {
+                                font-size: 18px; /* ขนาดตัวอักษรเล็กลงสำหรับอุปกรณ์ขนาดเล็ก */
+                            }
+                        }
+                        </style>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
