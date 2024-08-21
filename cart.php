@@ -213,10 +213,10 @@ h3 {
 
         // Check if there are results
         if ($result->num_rows > 0) {
-            echo "<h2>ตะกร้าสินค้า</h2>";
+            echo "<h2 style='margin-right: -125px;'>ตะกร้าสินค้า</h2>";
             echo "<form method='POST' id='cart-form' action=''>";
             echo "<table border='1'>";
-            echo "<tr><th><input type='checkbox' id='select-all' onchange='toggleSelectAll()'> เลือกทั้งหมด</th><th>รูปสินค้า</th><th>ชื่อสินค้า</th><th>ราคา</th><th>จำนวน</th><th>ราคารวม</th><th>แก้ไข</th></tr>";
+            echo "<br><br><br><tr><th><input type='checkbox' id='select-all' onchange='toggleSelectAll()'> เลือกทั้งหมด</th><th>รูปสินค้า</th><th>ชื่อสินค้า</th><th>ราคา</th><th>จำนวน</th><th>ราคารวม</th><th>แก้ไข</th></tr>";
             
             // Output data of each row
             while($row = $result->fetch_assoc()) {
