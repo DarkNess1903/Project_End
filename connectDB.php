@@ -1,14 +1,19 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "order_management";
+// connectDB.php
 
-// Create connection
-$conn = new mysqli($servername, $username, $password,$dbname);
+$servername = "localhost";  // ชื่อเซิร์ฟเวอร์ฐานข้อมูล
+$username = "root";         // ชื่อผู้ใช้ฐานข้อมูล
+$password = "";             // รหัสผ่านฐานข้อมูล
+$dbname = "hantaphao_project"; // ชื่อฐานข้อมูล
 
-// Check connection
+// สร้างการเชื่อมต่อ
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// ตรวจสอบการเชื่อมต่อ
 if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+    die("การเชื่อมต่อล้มเหลว: " . $conn->connect_error);
 }
+
+// ตั้งค่าชุดตัวอักษรเป็น UTF-8 เพื่อรองรับภาษาไทย
+$conn->set_charset("utf8");
 ?>

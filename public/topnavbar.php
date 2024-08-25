@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
-    <title>Top Navbar</title>
-    <script src="js/cart.js"></script>
+    <link rel="stylesheet" href="css/styles.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
+    <script src="js/script.js" defer></script>
+    <script src="js/cart.js" defer></script>
+
 </head>
 <body>
     <div class="navbar">
         <div class="navbar-container">
             <!-- Logo -->
             <div class="logo">
-                <a href="index.php"> <!-- ลิงก์กลับไปยังหน้าแรก -->
-                    <img src="path_to_your_logo_image/logo.png" alt="Your Logo">
+                <a href="index.php">
+                    <img src="path_to_your_logo_image/logo.png" alt="Your Logo" width="150">
                 </a>
             </div>
-            
+
             <!-- Navigation Links -->
             <ul class="nav-links">
                 <li><a href="index.php">หน้าหลัก</a></li>
@@ -38,7 +39,7 @@
             <div class="navbar-icons">
                 <a href="cart.php" class="cart-icon">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">0</span> <!-- คุณสามารถเพิ่ม JavaScript เพื่ออัปเดตจำนวนสินค้าในตะกร้า -->
+                    <span class="cart-count">0</span> <!-- ตัวนับจำนวนสินค้าในตะกร้า -->
                 </a>
                 <a href="profile.php" class="user-icon">
                     <i class="fas fa-user"></i>
