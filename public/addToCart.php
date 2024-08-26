@@ -1,23 +1,24 @@
-// addToCart.php
 <?php
 session_start();
-include '../connectDB.php'; // ใช้เส้นทางที่ถูกต้อง
+include '../connectDB.php';
+
+$response = ['success' => false, 'message' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = intval($_POST['productId']);
     
-    // ตรวจสอบว่ามีการสร้างตะกร้าหรือไม่
     if (!isset($_SESSION['cart'])) {
         $_SESSION['cart'] = array();
     }
 
-    // เพิ่มสินค้าลงในตะกร้า
     if (array_key_exists($productId, $_SESSION['cart'])) {
-        $_SESSION['cart'][$productId]++;
+        $_SESSION['cart'][$productId]['quantity']++;
     } else {
-        $_SESSION['cart'][$productId] = 1;
+        $_SESSION['cart'][$productId] = array('quantity' => 1);
     }
 
-    echo "สินค้าถูกเพิ่มลงในตะกร้าแล้ว!";
+    $response['success'] = true;
+    $response['message'] = "สินค้าถูกเพิ่มลงในตะกร้าแล้ว!";
+    echo json_encode($response);
 }
 ?>

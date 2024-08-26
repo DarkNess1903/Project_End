@@ -172,3 +172,17 @@ footer {
     font-size: 12px;
     margin-left: 5px;
 }
+
+.topnavbar {
+    position: fixed; /* ทำให้ navbar ติดกับด้านบนของหน้าต่าง */
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333; /* สีพื้นหลังของ navbar */
+    color: white;
+    z-index: 1000; /* ให้แน่ใจว่ามี z-index สูงกว่าองค์ประกอบอื่น */
+}
+
+body {
+    padding-top: 60px; /* ขนาดของ topnavbar ให้พอดี */
+}

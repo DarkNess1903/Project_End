@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สินค้า - Hantaphao Project</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/cart.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
+    <script src="js/cart.js" defer></script> <!-- ใช้ไฟล์ cart.js เพื่อจัดการตะกร้า -->
 </head>
 <body>
     <?php include 'topnavbar.php'; ?>
@@ -32,7 +32,9 @@
                         $stockAvailable = isset($row["stock"]) ? intval($row["stock"]) : 0;
 
                         echo "<div class='product-item'>";
-                        echo "<a href='productDetails.php?id=".$productId."'><img src='".htmlspecialchars($productImage)."' alt='Product Image' width='150' height='150'></a><br>";
+                        echo "<a href='productDetails.php?id=".$productId."'>";
+                        echo "<img src='".htmlspecialchars($productImage)."' alt='Product Image' width='150' height='150'>";
+                        echo "</a><br>";
                         echo "<span class='product-name'>".$productName."</span><br>";
                         echo "<span>ราคา: ".$productPrice." บาท</span><br>";
 
