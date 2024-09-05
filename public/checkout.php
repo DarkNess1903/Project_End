@@ -13,7 +13,11 @@ if (empty($cart)) {
 
 $totalAmount = 0;
 foreach ($cart as $item) {
-    $totalAmount += $item['totalPrice'];
+    if (!isset($item['price']) || !isset($item['quantity'])) {
+        echo 'ข้อมูลไม่สมบูรณ์สำหรับสินค้าบางรายการ';
+        continue;
+    }
+    $totalAmount += $item['price'] * $item['quantity'];
 }
 
 // ตรวจสอบว่ามีข้อมูลการติดต่อจากฟอร์มหรือไม่

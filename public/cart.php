@@ -1,15 +1,16 @@
+<?php include 'topnavbar.php'; ?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
+    <link rel="stylesheet" href="css/style.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
     <script src="js/cart.js" defer></script> <!-- ใช้ไฟล์ cart.js เพื่อจัดการตะกร้า -->
     <title>ตะกร้าสินค้า - Hantaphao Project</title>
 </head>
 <body>
-<?php include 'topnavbar.php'; ?>
     <div class="container">
         <h1>ตะกร้าสินค้า</h1>
         <div class="cart-items">
@@ -61,7 +62,6 @@
         </div>
         <a href="checkout.php" class="checkout-button">ไปที่ชำระเงิน</a>
     </div>
-
-    <?php include 'footer.php'; ?>
 </body>
+<?php include 'footer.php'; ?>
 </html>

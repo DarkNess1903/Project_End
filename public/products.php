@@ -1,3 +1,8 @@
+<?php 
+include 'topnavbar.php'; 
+include "../connectDB.php";
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -5,18 +10,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สินค้า - Hantaphao Project</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
+    <link rel="stylesheet" href="css/style.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
     <script src="js/cart.js" defer></script> <!-- ใช้ไฟล์ cart.js เพื่อจัดการตะกร้า -->
 </head>
 <body>
-    <?php include 'topnavbar.php'; ?>
-
     <div class="container">
         <h1>รายการสินค้า</h1>
         <div class="product-grid" id="product-grid">
+            
             <?php
-                include "../connectDB.php";
-
                 // ป้องกัน SQL Injection โดยใช้ Prepared Statements
                 $stmt = $conn->prepare("SELECT * FROM Products");
                 $stmt->execute();
@@ -57,7 +59,6 @@
             ?>
         </div>
     </div>
-
-    <?php include 'footer.php'; ?>
 </body>
+<?php include 'footer.php'; ?>
 </html>
