@@ -1,6 +1,6 @@
 <?php
 // uploadSlip.php
-include '../connectDB.php'; // ปรับเส้นทางให้ถูกต้อง
+include 'connectDB.php'; // ปรับเส้นทางให้ถูกต้อง
 
 // ตรวจสอบว่ามีการส่งข้อมูลหรือไม่
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

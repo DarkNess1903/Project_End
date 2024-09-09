@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../connectDB.php'; // เชื่อมต่อฐานข้อมูล
+include 'connectDB.php'; // เชื่อมต่อฐานข้อมูล
 
 // ตรวจสอบว่ามีตะกร้าสินค้าใน session หรือไม่ ถ้าไม่มีให้สร้างใหม่
 if (!isset($_SESSION['cart'])) {

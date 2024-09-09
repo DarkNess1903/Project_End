@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../connectDB.php'; // เชื่อมต่อฐานข้อมูล
+include 'connectDB.php'; // เชื่อมต่อฐานข้อมูล
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $productId = intval($_POST['productId']);

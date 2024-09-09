@@ -1,7 +1,7 @@
 <?php
 // getProduct.php
 
-include '../connectDB.php';
+include 'connectDB.php';
 
 $productId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 

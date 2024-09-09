@@ -1,6 +1,6 @@
 <?php 
 include 'topnavbar.php'; 
-include "../connectDB.php";
+include "connectDB.php";
 ?>
 
 <!DOCTYPE html>
