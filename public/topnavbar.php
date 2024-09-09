@@ -22,8 +22,9 @@
             <ul class="nav-links">
                 <li><a href="index.php">หน้าหลัก</a></li>
                 <li><a href="products.php">สินค้า</a></li>
-                <li><a href="about.php">เกี่ยวกับเรา</a></li>
-                <li><a href="contact.php">ติดต่อเรา</a></li>
+                <li><a href="check_order.php">เช็คออเดอร์</a></li>
+                <li><a href="#">เกี่ยวกับเรา</a></li>
+                <li><a href="#">ติดต่อเรา</a></li>
             </ul>
 
             <!-- Search Bar -->

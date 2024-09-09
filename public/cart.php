@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css"> <!-- ลิงก์ไปยังไฟล์ CSS ของคุณ -->
     <script src="js/cart.js" defer></script> <!-- ใช้ไฟล์ cart.js เพื่อจัดการตะกร้า -->
+    <script>
+        function confirmCheckout() {
+            return confirm('คุณแน่ใจหรือไม่ว่าต้องการดำเนินการสั่งซื้อ?');
+        }
+    </script>
     <title>ตะกร้าสินค้า - Hantaphao Project</title>
 </head>
 <body>
@@ -15,9 +20,9 @@
         <h1>ตะกร้าสินค้า</h1>
         <div class="cart-items">
             <?php
-                session_start();
-                include '../connectDB.php'; // เชื่อมต่อฐานข้อมูล
-
+             session_start();
+             include '../connectDB.php'; // เชื่อมต่อฐานข้อมูล
+             
                 if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
                     $total = 0;
                     foreach ($_SESSION['cart'] as $productId => $item) {
@@ -60,7 +65,7 @@
                 $conn->close();
             ?>
         </div>
-        <a href="checkout.php" class="checkout-button">ไปที่ชำระเงิน</a>
+        <a href="checkout.php" class="checkout-button" onclick="return confirmCheckout()">สั่งซื้อ</a>
     </div>
 </body>
 <?php include 'footer.php'; ?>

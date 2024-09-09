@@ -1,6 +1,5 @@
 <?php
 session_start();
-include '../connectDB.php'; // ใช้เส้นทางที่ถูกต้อง
 
 $response = ['success' => false, 'message' => ''];
 
