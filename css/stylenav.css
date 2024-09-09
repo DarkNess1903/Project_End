@@ -32,8 +32,10 @@ footer {
 
 .container {
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap; /* Allow content to wrap on smaller screens */
+    justify-content: space-between;
     align-items: flex-start;
+    margin: 0 auto;
 }
 
 .project img {
@@ -70,10 +72,10 @@ footer {
     background-color: #fff;
     padding: 10px 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: fixed;
-    top: 0;
+    position: relative;
     width: 100%;
     z-index: 1000;
+
 }
 
 .logo {
