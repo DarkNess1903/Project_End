@@ -27,14 +27,6 @@
                 <li><a href="#">ติดต่อเรา</a></li>
             </ul>
 
-            <!-- Search Bar -->
-            <div class="search-bar">
-                <form action="search.php" method="GET">
-                    <input type="text" name="query" placeholder="ค้นหาสินค้า...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
-
             <!-- User & Cart Icons -->
             <div class="navbar-icons">
                 <a href="cart.php" class="cart-icon">

@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // การอัปโหลดสลิป
         if (isset($_FILES['slip']) && $_FILES['slip']['error'] == 0) {
-            $uploadDir = '../admin/uploads';
+            $uploadDir = '../admin/uploads/';
             $uploadFile = $uploadDir . basename($_FILES['slip']['name']);
             
             if (move_uploaded_file($_FILES['slip']['tmp_name'], $uploadFile)) {

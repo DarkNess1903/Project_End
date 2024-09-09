@@ -1,4 +1,8 @@
-<?php include 'topnavbar.php'; ?>
+<?php  
+  session_start();
+  include '../connectDB.php'; // เชื่อมต่อฐานข้อมูล
+  include 'topnavbar.php';
+?>
 
 <!DOCTYPE html>
 <html lang="th">
@@ -15,14 +19,11 @@
     </script>
     <title>ตะกร้าสินค้า - Hantaphao Project</title>
 </head>
-<body>
-    <div class="container">
-        <h1>ตะกร้าสินค้า</h1>
+<body class="cart-page">
+    <div class="container cart-container">
+        <h1 class="cart-title">ตะกร้าสินค้า</h1>
         <div class="cart-items">
             <?php
-             session_start();
-             include '../connectDB.php'; // เชื่อมต่อฐานข้อมูล
-             
                 if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
                     $total = 0;
                     foreach ($_SESSION['cart'] as $productId => $item) {
@@ -42,25 +43,25 @@
                                 $total += $itemTotalPrice;
                 
                                 echo "<div class='cart-item'>";
-                                echo "<img src='".htmlspecialchars($product['image'])."' alt='Product Image' width='100' height='100'>";
-                                echo "<span>".htmlspecialchars($product['product_name'])."</span><br>";
-                                echo "<span>ราคา: ".htmlspecialchars($itemPrice)." บาท</span><br>";
-                                echo "<span>จำนวน: <button onclick='changeQuantity($productId, -1)'>&ndash;</button> ".htmlspecialchars($item['quantity'])." <button onclick='changeQuantity($productId, 1)'>+</button></span><br>";
-                                echo "<span>ราคารวม: ".htmlspecialchars($itemTotalPrice)." บาท</span><br>";
-                                echo "<button onclick='removeFromCart($productId)'>ลบ</button>";
+                                echo "<img class='product-image' src='".htmlspecialchars($product['image'])."' alt='Product Image' width='100' height='100'>";
+                                echo "<span class='product-name'>".htmlspecialchars($product['product_name'])."</span><br>";
+                                echo "<span class='product-price'>ราคา: ".htmlspecialchars($itemPrice)." บาท</span><br>";
+                                echo "<span class='product-quantity'>จำนวน: <button class='quantity-button' onclick='changeQuantity($productId, -1)'>&ndash;</button> ".htmlspecialchars($item['quantity'])." <button class='quantity-button' onclick='changeQuantity($productId, 1)'>+</button></span><br>";
+                                echo "<span class='item-total-price'>ราคารวม: ".htmlspecialchars($itemTotalPrice)." บาท</span><br>";
+                                echo "<button class='remove-button' onclick='removeFromCart($productId)'>ลบ</button>";
                                 echo "</div>";
                             } else {
-                                echo "<p>ไม่พบสินค้าที่เลือก</p>";
+                                echo "<p class='error-message'>ไม่พบสินค้าที่เลือก</p>";
                             }
                 
                             $stmt->close();
                         } else {
-                            echo "<p>ตะกร้าสินค้ามีข้อมูลผิดพลาด</p>";
+                            echo "<p class='error-message'>ตะกร้าสินค้ามีข้อมูลผิดพลาด</p>";
                         }
                     }
                     echo "<div class='cart-total'>ยอดรวม: ".htmlspecialchars($total)." บาท</div>";
                 } else {
-                    echo "<p>ตะกร้าของคุณว่างเปล่า</p>";
+                    echo "<p class='empty-cart-message'>ตะกร้าของคุณว่างเปล่า</p>";
                 }     
                 $conn->close();
             ?>
