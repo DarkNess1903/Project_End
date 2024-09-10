@@ -114,7 +114,7 @@ $conn->close();
         <ul class="product-list">
             <?php while ($item = $items->fetch_assoc()): ?>
                 <li>
-                    <img src="<?php echo htmlspecialchars($item['image']); ?>" alt="Product Image" width="50px" height="50px">
+                    <img src="../Admin/product/<?php echo htmlspecialchars($item['image']); ?>" alt="Product Image" width="50px" height="50px">
                     <span><?php echo htmlspecialchars($item['product_name']); ?></span> -
                     <span><?php echo number_format($item['price'], 2); ?> บาท</span> -
                     <span><?php echo htmlspecialchars($item['quantity']); ?> ชิ้น</span> -

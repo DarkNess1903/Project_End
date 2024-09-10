@@ -35,7 +35,7 @@ include "connectDB.php";
 
                         echo "<div class='product-item'>";
                         echo "<a href='productDetails.php?id=".$productId."'>";
-                        echo "<img src='".htmlspecialchars($productImage)."' alt='Product Image' width='150' height='150'>";
+                        echo "<img src='../Admin/product/".htmlspecialchars($productImage)."' alt='Product Image' width='150' height='150'>";
                         echo "</a><br>";
                         echo "<span class='product-name'>".$productName."</span><br>";
                         echo "<span>ราคา: ".$productPrice." บาท</span><br>";

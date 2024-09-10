@@ -125,7 +125,7 @@ $conn->close();
                 $totalPrice = $item['price'] * $item['quantity'];
                 ?>
                 <li>
-                    <img src="<?php echo htmlspecialchars($item['imagePath']); ?>" alt="Product Image" width="50px" height="50px">
+                    <img src="../Admin/product/<?php echo htmlspecialchars($item['imagePath']); ?>" alt="Product Image" width="50px" height="50px">
                     <span><?php echo htmlspecialchars($item['product']); ?></span> -
                     <span><?php echo number_format($item['price'], 2); ?> บาท</span> -
                     <span><?php echo htmlspecialchars($item['quantity']); ?> ชิ้น</span> -
@@ -144,7 +144,7 @@ $conn->close();
 
             <!-- QR Code -->
             <div class="qr-code">
-                <img src="path_to_qr_code_image/qr_code.png" alt="QR Code">
+                <img src="../Admin/QRcode.png" alt="QR Code">
                 <p>สแกน QR Code เพื่อทำการโอนเงิน</p>
             </div>
 
