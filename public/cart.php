@@ -43,7 +43,7 @@
                                 $total += $itemTotalPrice;
                 
                                 echo "<div class='cart-item'>";
-                                echo "<img class='product-image' src='".htmlspecialchars($product['image'])."' alt='Product Image' width='100' height='100'>";
+                                echo "<img class='product-image' src='../Admin/product/".htmlspecialchars($product['image'])."' alt='Product Image' width='100' height='100'>";
                                 echo "<span class='product-name'>".htmlspecialchars($product['product_name'])."</span><br>";
                                 echo "<span class='product-price'>ราคา: ".htmlspecialchars($itemPrice)." บาท</span><br>";
                                 echo "<span class='product-quantity'>จำนวน: <button class='quantity-button' onclick='changeQuantity($productId, -1)'>&ndash;</button> ".htmlspecialchars($item['quantity'])." <button class='quantity-button' onclick='changeQuantity($productId, 1)'>+</button></span><br>";
