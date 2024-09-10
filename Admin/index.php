@@ -23,11 +23,10 @@ if (!isset($_SESSION['admin_id'])) {
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
     <link href="css/sb-admin-2.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
-    <script src="js/alerts.js"></script>
     <!-- Chart.js and jQuery -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
     <style>
         .navbar {
             display: flex;
@@ -178,10 +177,6 @@ if (!isset($_SESSION['admin_id'])) {
                                 </h6>
                                 <!-- New Order Alert -->
                                 <div id="alertContent">
-                                    <!-- Alerts will be dynamically inserted here -->
-                                </div>
-                                <a class="dropdown-item text-center small text-gray-500" href="orderDetails.php">Show All Alerts</a>
-                            </div>
                         </li>
 
                         <script>
@@ -264,7 +259,7 @@ if (!isset($_SESSION['admin_id'])) {
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Earnings (Monthly)
+                                             รายได้ (รายเดือน)
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800" id="monthlyEarnings">฿0</div>
                                     </div>
@@ -301,7 +296,7 @@ if (!isset($_SESSION['admin_id'])) {
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                            Earnings (Annual)
+                                            รายได้ (รายปี)
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800" id="annualEarnings">฿0</div>
                                     </div>
@@ -404,17 +399,6 @@ if (!isset($_SESSION['admin_id'])) {
                             <!-- Card Header - Dropdown -->
                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                 <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                                <div class="dropdown no-arrow">
-                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                                        <div class="dropdown-header">Dropdown Header:</div>
-                                        <a class="dropdown-item" href="#">รายได้รายวัน</a>
-                                        <a class="dropdown-item" href="#">รายได้รายเดือน</a>
-                                        <a class="dropdown-item" href="#">รายได้รายปี</a>                                      
-                                    </div>
-                                </div>
                             </div>
 
                             <!-- Card Body -->
@@ -653,5 +637,4 @@ if (!isset($_SESSION['admin_id'])) {
     <script src="js/demo/chart-pie-demo.js"></script>
 
 </body>
-
 </html>
