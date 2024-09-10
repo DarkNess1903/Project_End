@@ -1,7 +1,7 @@
 <?php
 session_start();
-include '../public/connectDB.php';
 include 'topnavbar.php';
+include '../public/connectDB.php';  
 
 // ตรวจสอบการเชื่อมต่อ
 if (!$conn) {
