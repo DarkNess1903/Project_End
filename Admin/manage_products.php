@@ -18,6 +18,7 @@ if (isset($_POST['add_product'])) {
     
     // อัปโหลดรูปภาพ
     if ($image) {
+        move_uploaded_file($image_tmp, '../admin/product/' . $image);
         move_uploaded_file($image_tmp, '../admin/uploads/' . $image);
     }
 
@@ -44,6 +45,7 @@ if (isset($_POST['edit_product'])) {
 
     // อัปโหลดรูปภาพถ้ามีการเปลี่ยนแปลง
     if ($image) {
+        move_uploaded_file($image_tmp, '../admin/product/' . $image);
         move_uploaded_file($image_tmp, '../admin/uploads/' . $image);
         $query = "UPDATE Products SET product_name = ?, price = ?, stock = ?, image = ? WHERE product_id = ?";
         $stmt = $conn->prepare($query);

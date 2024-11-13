@@ -17,7 +17,7 @@ if (!isset($_SESSION['admin_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>SB Admin 2 - Dashboard</title>
+    <title>RyuAdmin</title>
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
@@ -57,7 +57,7 @@ if (!isset($_SESSION['admin_id'])) {
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">Admin</div>
+                <div class="sidebar-brand-text mx-3">RyuAdmin</div>
             </a>
 
             <!-- Divider -->
@@ -586,7 +586,9 @@ if (!isset($_SESSION['admin_id'])) {
                     fetchSalesData();
                 });
                 </script>
-            </div>
+                </div>
+
+
             <!-- End of Main Content -->
         </div>
         <!-- End of Content Wrapper -->

@@ -1,45 +1,4 @@
-.product-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
 
-.product-item {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 10px;
-    text-align: center;
-    width: 200px;
-}
-
-.product-item img {
-    border-radius: 8px;
-    max-width: 100%;
-    height: auto;
-}
-
-.product-name {
-    font-weight: bold;
-    display: block;
-    margin: 10px 0;
-}
-
-.action-buttons button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.action-buttons button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
 
 .footer-container {
     max-width: 1200px;
@@ -80,77 +39,7 @@
     margin: 5px 0;
     color: #495057;
 }
-.navbar {
-    background-color: #007bff;
-    padding: 10px 20px;
-    color: white;
-}
 
-.navbar-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.logo img {
-    max-width: 100%;
-    height: auto;
-}
-
-.nav-links {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 20px;
-}
-
-.nav-links li {
-    display: inline;
-}
-
-.nav-links a {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.nav-links a:hover {
-    text-decoration: underline;
-}
-
-.navbar-icons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.navbar-icons .cart-icon,
-.navbar-icons .user-icon {
-    color: white;
-    text-decoration: none;
-}
-
-.navbar-icons .cart-count {
-    background-color: #ff0000;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    margin-left: 5px;
-}
-
-.topnavbar {
-    position: fixed; /* ทำให้ navbar ติดกับด้านบนของหน้าต่าง */
-    top: 0;
-    left: 0;
-    width: 100%;
-    background-color: #333; /* สีพื้นหลังของ navbar */
-    color: white;
-    z-index: 1000; /* ให้แน่ใจว่ามี z-index สูงกว่าองค์ประกอบอื่น */
-}
 
 body {
     padding-top: 60px; /* ขนาดของ topnavbar ให้พอดี */

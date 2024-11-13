@@ -1,7 +1,6 @@
 body {
     margin: 0;
     font-family: 'Jocky one', sans-serif;
-    padding: 0;
     box-sizing: border-box;
     padding-top: 70px; /* Adjust this based on the height of your navbar */
     background-color: #E8E8E8;
@@ -34,8 +33,18 @@ footer {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    margin-top: 50px; /* ปรับระยะห่างจาก navbar เพื่อให้ h1 แสดงผล */
+    padding: 10px;
 }
-
+.title h2{
+    text-align: center;  /* จัดกลางข้อความ */
+    bottom: -100px;      /* เพิ่ม padding หากต้องการให้มีพื้นที่รอบ ๆ */
+    position: relative;  /* ตั้งค่า position เป็น relative */
+    z-index: 10;        /* ตั้งค่า z-index ให้สูงกว่า Navbar */
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    font-size: 40px;
+}
 .project img {
     max-width: 100%;
     flex: 1;
@@ -75,6 +84,28 @@ footer {
     width: 100%;
     z-index: 1000;
 }
+
+.bt-login {
+    background-color: #28a745; /* สีเขียว */
+    color: white; /* สีข้อความ */
+    border: none; /* ไม่มีเส้นขอบ */
+    padding: 10px 20px; /* ขนาดของปุ่ม */
+    font-size: 16px; /* ขนาดตัวอักษร */
+    border-radius: 5px; /* มุมมนของปุ่ม */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อชี้ที่ปุ่ม */
+    transition: background-color 0.3s ease; /* ทำให้สีเปลี่ยนแบบนุ่มนวล */
+    position: absolute; /* กำหนดตำแหน่งแบบ absolute */
+    right: 80px; /* ปรับระยะจากด้านซ้าย */
+    top: 43px; /* ปรับระยะจากด้านบน */
+    z-index: 1000; /* ให้ปุ่มอยู่บนสุด */
+    font-weight: bold; /* ทำให้ข้อความตัวหนา */
+}
+
+.bt-login:hover {
+    background-color: #218838; /* สีเข้มขึ้นเมื่อชี้ที่ปุ่ม */
+}
+
+
 
 .logo {
     flex: 1;
@@ -173,6 +204,26 @@ footer {
 
 .cart a:hover {
     color: #e00000;
+}
+.cart a .cart-count {
+    position: absolute;
+    top: -10px; /* ปรับตำแหน่งบนของตัวนับ */
+    right: -10px; /* ปรับตำแหน่งขวาของตัวนับ */
+    background-color: #ff0000; /* สีแดง */
+    color: white; /* สีของตัวเลข */
+    border-radius: 50%; /* ทำให้เป็นวงกลม */
+    padding: 5px 10px; /* ขนาดภายในของวงกลม */
+    font-size: 16px; /* ขนาดของตัวอักษร */
+    font-weight: bold; /* ตัวหนา */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 10px; /* ขนาดขั้นต่ำของวงกลม */
+    height: 20px; /* ขนาดของวงกลม */
+}
+
+.cart a:hover .cart-count {
+    background-color: #e00000; /* เปลี่ยนสีเมื่อ hover */
 }
 
 /* Menu Toggle (for mobile) */

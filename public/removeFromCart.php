@@ -1,28 +1,47 @@
 <?php
 session_start();
-include 'connectDB.php'; // ใช้เส้นทางที่ถูกต้อง
+include 'connectDB.php';
 
-$response = ['success' => false, 'message' => ''];
+$response = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['productId'])) {
-        $productId = intval($_POST['productId']);
+if (isset($_POST['productId'])) {
+    $product_id = intval($_POST['productId']);
 
-        // ตรวจสอบว่ามีการสร้างตะกร้าหรือไม่
-        if (isset($_SESSION['cart']) && array_key_exists($productId, $_SESSION['cart'])) {
-            unset($_SESSION['cart'][$productId]);
-            $response['success'] = true;
-            $response['message'] = "สินค้าถูกลบออกจากตะกร้าแล้ว!";
-        } else {
-            $response['message'] = "สินค้านี้ไม่มีในตะกร้า";
-        }
+    // ตรวจสอบว่ามีสินค้าในตะกร้าหรือไม่
+    if (isset($_SESSION['cart'][$product_id])) {
+        $quantity_to_remove = $_SESSION['cart'][$product_id]['quantity'];
+
+        // อัปเดตสต็อกสินค้า
+        $update_stock_query = "UPDATE Products SET stock = stock + ? WHERE product_id = ?";
+        $stmt = $conn->prepare($update_stock_query);
+        $stmt->bind_param('ii', $quantity_to_remove, $product_id);
+        $stmt->execute();
+
+        // ลบสินค้าจากตะกร้า
+        unset($_SESSION['cart'][$product_id]);
+
+        $response['success'] = true;
+        $response['message'] = 'ลบสินค้าสำเร็จ';
     } else {
-        $response['message'] = "ข้อมูลสินค้าไม่ถูกต้อง";
+        $response['success'] = false;
+        $response['message'] = 'ไม่พบสินค้าที่จะลบ';
     }
 } else {
-    $response['message'] = "คำขอไม่ถูกต้อง";
+    $response['success'] = false;
+    $response['message'] = 'ข้อมูลไม่ถูกต้อง';
 }
 
-header('Content-Type: application/json');
-echo json_encode($response, JSON_UNESCAPED_UNICODE); // ใช้ JSON_UNESCAPED_UNICODE เพื่อไม่ให้แปลงเป็น Unicode
+// คำนวณยอดรวมใหม่
+$total = 0;
+if (isset($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $item) {
+        $total += $item['price'] * $item['quantity'];
+    }
+}
+
+$response['total'] = $total;
+
+// ส่งผลลัพธ์กลับ
+echo json_encode($response);
+$conn->close();
 ?>
