@@ -140,7 +140,7 @@ $conn->close();
             <div id="slipModal" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
-                    <img src="../admin/uploads/<?php echo htmlspecialchars($payment['slip_image']); ?>" alt="Slip Image">
+                    <img src="../Admin/uploads/<?php echo htmlspecialchars($payment['slip_image']); ?>" alt="Slip Image">
                 </div>
             </div>
             <button id="verifySlipBtn">ตรวจสอบสลิปเรียบร้อย</button>
