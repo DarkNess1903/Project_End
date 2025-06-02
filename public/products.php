@@ -37,7 +37,7 @@ include "connectDB.php";
     text-align: center;
     transition: transform 0.3s ease; /* เพิ่มการเคลื่อนไหวเล็กน้อยเมื่อ hover */
     margin-bottom:auto;
-    margin:;
+    margin: 10px;
 }
 
 .product-item:hover {
