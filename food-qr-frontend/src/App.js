@@ -4,17 +4,16 @@ import { CartProvider } from './contexts/CartContext';
 
 import MenuPage from './pages/MenuPage';
 import CartPage from './pages/CartPage';
+import QRCodePage from './pages/QRCodePage';
 
 function App() {
   return (
     <CartProvider>
       <Router>
         <Routes>
-          {/* หน้าแสดงเมนูอาหาร */}
           <Route path="/" element={<MenuPage />} />
-          
-          {/* หน้าแสดงตะกร้าและยืนยันคำสั่ง */}
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/qr" element={<QRCodePage />} />  // ✅ เพิ่มบรรทัดนี้
         </Routes>
       </Router>
     </CartProvider>
