@@ -5,6 +5,7 @@ import { CartProvider } from './contexts/CartContext';
 import MenuPage from './pages/MenuPage';
 import CartPage from './pages/CartPage';
 import QRCodePage from './pages/QRCodePage';
+import MenuDetailPage from './pages/MenuDetailPage';
 
 function App() {
   return (
@@ -12,8 +13,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<MenuPage />} />
+          <Route path="/menu/:id" element={<MenuDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/qr" element={<QRCodePage />} />  // ✅ เพิ่มบรรทัดนี้
+          <Route path="/qr" element={<QRCodePage />} />
         </Routes>
       </Router>
     </CartProvider>

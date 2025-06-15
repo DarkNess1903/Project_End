@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
 import {
   Box,
@@ -8,55 +7,28 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemAvatar,
+  Avatar,
   ListItemSecondaryAction,
   Button,
   Divider,
   Paper,
   Stack,
+  TextField,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const CartPage = () => {
-  const { items, removeFromCart, clearCart } = useCart();
+  const { items, removeFromCart, updateQuantity, clearCart, totalAmount } = useCart();
 
-  const total = items.reduce((sum, item) => sum + item.Price * item.quantity, 0);
-
-    const handleOrder = async () => {
-    const tableId = localStorage.getItem("table_id");
-
-    if (!tableId) {
-        alert("ไม่พบรหัสโต๊ะ กรุณาสแกน QR อีกครั้ง");
-        return;
-    }
-
-    const orderData = {
-        table_id: tableId,
-        items: items.map(item => ({
-        menu_id: item.MenuID,
-        quantity: item.quantity
-        }))
-    };
-
-    try {
-        const res = await axios.post('http://localhost/project_END/restaurant-backend/api/orders/create.php',
-        orderData
-        );
-        if (res.data.success) {
-        alert("ส่งคำสั่งซื้อเรียบร้อยแล้ว");
-        clearCart();
-        } else {
-        alert("เกิดข้อผิดพลาด: " + (res.data.message || "ไม่สามารถสั่งอาหารได้"));
-        }
-    } catch (error) {
-        console.error(error);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-    }
-    };
+  const handleOrder = () => {
+    alert('ยังไม่ได้เชื่อม API สั่งอาหาร');
+  };
 
   return (
     <Box
       sx={{
-        maxWidth: 480, // ขนาดมือถือทั่วไป
+        maxWidth: 480,
         margin: 'auto',
         p: 2,
         minHeight: '100vh',
@@ -76,11 +48,57 @@ const CartPage = () => {
           <List>
             {items.map(item => (
               <div key={item.MenuID}>
-                <ListItem>
+                <ListItem alignItems="flex-start">
+                  {item.ImageURL && (
+                    <ListItemAvatar>
+                      <Avatar
+                        variant="rounded"
+                        src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
+                        alt={item.Name}
+                        sx={{ width: 56, height: 56, mr: 2 }}
+                      />
+                    </ListItemAvatar>
+                  )}
+
                   <ListItemText
-                    primary={`${item.Name} × ${item.quantity}`}
-                    secondary={`฿${(item.Price * item.quantity).toFixed(2)}`}
+                    primary={`${item.Name} × `}
+                    secondary={
+                      <>
+                        <Typography
+                          sx={{ display: 'inline' }}
+                          component="span"
+                          variant="body2"
+                          color="text.primary"
+                        >
+                          ฿{item.Price} × {item.quantity} = ฿{(item.Price * item.quantity).toFixed(2)}
+                        </Typography>
+                        <br />
+                        {item.Description && (
+                          <Typography variant="caption" color="text.secondary">
+                            {item.Description}
+                          </Typography>
+                        )}
+                        {item.note && (
+                          <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                            หมายเหตุ: {item.note}
+                          </Typography>
+                        )}
+                      </>
+                    }
                   />
+
+                  <TextField
+                    type="number"
+                    inputProps={{ min: 1 }}
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const qty = parseInt(e.target.value, 10);
+                      if (!isNaN(qty)) updateQuantity(item.MenuID, qty);
+                    }}
+                    size="small"
+                    sx={{ width: 60, mr: 1 }}
+                  />
+
                   <ListItemSecondaryAction>
                     <IconButton
                       edge="end"
@@ -103,7 +121,7 @@ const CartPage = () => {
           รวมทั้งหมด:
         </Typography>
         <Typography variant="h6" color="primary" fontWeight="bold">
-          ฿{total.toFixed(2)}
+          ฿{totalAmount.toFixed(2)}
         </Typography>
       </Stack>
 

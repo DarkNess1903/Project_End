@@ -11,12 +11,14 @@ export const CartProvider = ({ children }) => {
     setItems(prev => {
       const exist = prev.find(item => item.MenuID === menuItem.MenuID);
       if (exist) {
+        // ถ้ามีอยู่แล้ว เพิ่มจำนวนขึ้น 1
         return prev.map(item =>
           item.MenuID === menuItem.MenuID
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
+      // ถ้าไม่มี เพิ่มใหม่จำนวน 1
       return [...prev, { ...menuItem, quantity: 1 }];
     });
   };
@@ -25,13 +27,14 @@ export const CartProvider = ({ children }) => {
     setItems(prev => prev.filter(item => item.MenuID !== menuId));
   };
 
-  // เพิ่มฟังก์ชันแก้ไขจำนวน
+  // ฟังก์ชันแก้ไขจำนวนในตะกร้า
   const updateQuantity = (menuId, newQuantity) => {
     setItems(prev => {
       if (newQuantity <= 0) {
-        // ถ้าจำนวน 0 หรือน้อยกว่า ลบรายการนั้นออก
+        // ลบถ้าจำนวน 0 หรือน้อยกว่า
         return prev.filter(item => item.MenuID !== menuId);
       }
+      // อัพเดตจำนวนใหม่
       return prev.map(item =>
         item.MenuID === menuId ? { ...item, quantity: newQuantity } : item
       );
@@ -40,7 +43,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => setItems([]);
 
-  // คำนวณยอดรวม (optional)
+  // คำนวณยอดรวมในตะกร้า (optional)
   const totalAmount = items.reduce((sum, item) => sum + item.Price * item.quantity, 0);
 
   return (
