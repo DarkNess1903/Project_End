@@ -14,15 +14,26 @@ const MenuPage = () => {
 
   useEffect(() => {
     axios.get('http://localhost/project_END/restaurant-backend/api/menus/index.php')
-      .then(res => setMenus(res.data))
-      .catch(err => console.error(err));
+      .then(res => {
+        console.log('API response:', res.data); // เพิ่มเพื่อ debug
+        if (Array.isArray(res.data)) {
+          setMenus(res.data);
+        } else {
+          console.error("Expected array but got:", res.data);
+          setMenus([]); // fallback
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        setMenus([]); // fallback
+      });
   }, []);
 
   return (
     <>
-      <Grid container spacing={2} padding={2}>
+      <Grid container spacing={2} columns={12} padding={2}>
         {menus.map(menu => (
-          <Grid item xs={12} key={menu.MenuID}>
+          <Grid key={menu.MenuID} span={12}>
             <Card>
               <CardActionArea component={Link} to={`/menu/${menu.MenuID}`}>
                 <CardMedia
@@ -45,7 +56,6 @@ const MenuPage = () => {
           </Grid>
         ))}
       </Grid>
-
       <Fab
         color="primary"
         aria-label="cart"
