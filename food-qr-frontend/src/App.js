@@ -1,24 +1,36 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CartProvider } from './contexts/CartContext';
+
+import CashierLayout from './layouts/CashierLayout';
+import TableManagementPage from './pages/cashier/TableManagementPage';
+import MenuPromoManagement from './pages/cashier/MenuPromoManagement';
+import OrderListPage from './pages/cashier/OrderListPage';
+import ReportPage from './pages/cashier/ReportPage';
 
 import MenuPage from './pages/MenuPage';
+import MenuDetailPage from './pages/MenuDetailPage';
 import CartPage from './pages/CartPage';
 import QRCodePage from './pages/QRCodePage';
-import MenuDetailPage from './pages/MenuDetailPage';
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<MenuPage />} />
-          <Route path="/menu/:id" element={<MenuDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/qr" element={<QRCodePage />} />
-        </Routes>
-      </Router>
-    </CartProvider>
+    <Router>
+      <Routes>
+        {/* ฝั่งลูกค้า */}
+        <Route path="/" element={<MenuPage />} />
+        <Route path="/menu/:id" element={<MenuDetailPage />} />
+        <Route path="/cart" element={<CartPage />} />
+
+        {/* ฝั่งพนักงานแคชเชียร์ */}
+        <Route path="/cashier" element={<CashierLayout />}>
+          <Route path="tables" element={<TableManagementPage />} />
+          <Route path="menu" element={<MenuPromoManagement />} />
+          <Route path="orders" element={<OrderListPage />} />
+          <Route path="reports" element={<ReportPage />} />
+          <Route path="qrcode" element={<QRCodePage />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
