@@ -20,17 +20,24 @@ const OrderListPage = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get('http://localhost/project_END/restaurant-backend/api/orders/index.php');
-      setOrders(res.data);
+      const res = await axios.get('http://localhost/project_END/restaurant-backend/api/orders/index_paid.php');
+      console.log('API response:', res.data); // 🔍 ตรวจสอบค่าที่ได้
+      if (Array.isArray(res.data)) {
+        setOrders(res.data);
+      } else {
+        console.error('Expected array but got:', res.data);
+        setOrders([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Fetch error:', err);
+      setOrders([]);
     }
   };
 
   return (
     <Box>
       <Typography variant="h5" gutterBottom>
-        รายการคำสั่งซื้อทั้งหมด
+        ประวัติคำสั่งซื้อ
       </Typography>
 
       {orders.length === 0 ? (
@@ -51,7 +58,7 @@ const OrderListPage = () => {
                 }
               >
                 <ListItemText
-                  primary={`โต๊ะ: ${order.TableID} — ยอดรวม: ฿${order.TotalAmount.toFixed(2)}`}
+                  primary={`โต๊ะ: ${order.TableID} — ยอดรวม: ฿${Number(order.TotalAmount).toFixed(2)}`}
                   secondary={`สถานะ: ${order.Status} — เวลา: ${new Date(order.OrderTime).toLocaleString()}`}
                 />
               </ListItem>

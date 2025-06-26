@@ -17,9 +17,10 @@ const drawerWidth = 200;
 const menuItems = [
   { label: 'จัดการโต๊ะ', path: '/cashier/tables' },
   { label: 'เมนูและโปรโมชั่น', path: '/cashier/menu' },
-  { label: 'คำสั่งซื้อ', path: '/cashier/orders' },
+  { label: 'ประวัติคำสั่งซื้อ ', path: '/cashier/orders' },
   { label: 'รายงานยอดขาย', path: '/cashier/reports' },
   { label: 'สร้าง QR Code', path: '/cashier/qrcode' },
+  { label: 'ตั้งค่า', path: '/cashier/settings' },
 ];
 
 const CashierLayout = () => {

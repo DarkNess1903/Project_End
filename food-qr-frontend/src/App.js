@@ -6,6 +6,7 @@ import TableManagementPage from './pages/cashier/TableManagementPage';
 import MenuPromoManagement from './pages/cashier/MenuPromoManagement';
 import OrderListPage from './pages/cashier/OrderListPage';
 import ReportPage from './pages/cashier/ReportPage';
+import SettingsPage from './pages/cashier/SettingsPage';
 
 import MenuPage from './pages/MenuPage';
 import MenuDetailPage from './pages/MenuDetailPage';
@@ -28,6 +29,7 @@ function App() {
           <Route path="orders" element={<OrderListPage />} />
           <Route path="reports" element={<ReportPage />} />
           <Route path="qrcode" element={<QRCodePage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Router>

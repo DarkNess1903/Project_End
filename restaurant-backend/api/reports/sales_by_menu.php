@@ -1,5 +1,6 @@
 <?php
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
 require_once '../../config/db.php';
 
 $startDate = $_GET['start_date'] ?? null;
@@ -18,11 +19,11 @@ $sql = "
         SUM(oi.Quantity) AS total_quantity,
         SUM(oi.SubTotal) AS total_sales
     FROM OrderItem oi
-    JOIN `Order` o ON oi.OrderID = o.OrderID
+    JOIN orders o ON oi.OrderID = o.OrderID
     JOIN Menu m ON oi.MenuID = m.MenuID
     JOIN Payment p ON o.OrderID = p.OrderID
     WHERE p.PaymentDate BETWEEN ? AND ?
-    AND o.Status = 'paid'
+      AND o.Status = 'paid'
     GROUP BY m.MenuID, m.Name
     ORDER BY total_sales DESC
 ";
@@ -46,3 +47,4 @@ echo json_encode($data);
 
 $stmt->close();
 $conn->close();
+?>
