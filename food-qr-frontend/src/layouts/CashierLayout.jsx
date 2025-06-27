@@ -1,4 +1,3 @@
-// src/layouts/CashierLayout.jsx
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
@@ -11,6 +10,9 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+
+const logoUrl = "/uploads/logo.png";
+const storeName = "ชื่อร้าน xxxxxx";
 
 const drawerWidth = 200;
 
@@ -35,7 +37,37 @@ const CashierLayout = () => {
           [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
         }}
       >
+        {/* Toolbar ด้านบนกันความสูง */}
         <Toolbar />
+        
+        {/* โลโก้ + ชื่อร้าน */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            p: 2,
+            borderBottom: '1px solid #ddd',
+          }}
+        >
+          <Box
+            component="img"
+            src={logoUrl || '/uploads/default-logo.png'} // fallback
+            alt="store logo"
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: '50%',
+              objectFit: 'cover',
+              mb: 1,
+            }}
+          />
+          <Typography variant="subtitle1" fontWeight="bold" noWrap>
+            {storeName || 'My Store'}
+          </Typography>
+        </Box>
+
+        {/* เมนู */}
         <Box sx={{ overflow: 'auto' }}>
           <List>
             {menuItems.map(item => (
@@ -53,6 +85,7 @@ const CashierLayout = () => {
         </Box>
       </Drawer>
 
+      {/* Main content */}
       <Box
         component="main"
         sx={{
@@ -63,7 +96,7 @@ const CashierLayout = () => {
         }}
       >
         <Toolbar />
-        <Outlet /> {/* เนื้อหาหลักจะอยู่ตรงนี้ */}
+        <Outlet />
       </Box>
     </Box>
   );

@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+import { CartProvider } from './contexts/CartContext'; // <-- import ตรงนี้
+
 import CashierLayout from './layouts/CashierLayout';
 import TableManagementPage from './pages/cashier/TableManagementPage';
 import MenuPromoManagement from './pages/cashier/MenuPromoManagement';
@@ -15,24 +17,26 @@ import QRCodePage from './pages/QRCodePage';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* ฝั่งลูกค้า */}
-        <Route path="/" element={<MenuPage />} />
-        <Route path="/menu/:id" element={<MenuDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
+    <CartProvider>
+      <Router>
+        <Routes>
+          {/* ฝั่งลูกค้า */}
+          <Route path="/" element={<MenuPage />} />
+          <Route path="/menu/:id" element={<MenuDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
 
-        {/* ฝั่งพนักงานแคชเชียร์ */}
-        <Route path="/cashier" element={<CashierLayout />}>
-          <Route path="tables" element={<TableManagementPage />} />
-          <Route path="menu" element={<MenuPromoManagement />} />
-          <Route path="orders" element={<OrderListPage />} />
-          <Route path="reports" element={<ReportPage />} />
-          <Route path="qrcode" element={<QRCodePage />} />
-          <Route path="settings" element={<SettingsPage />} />
-        </Route>
-      </Routes>
-    </Router>
+          {/* ฝั่งพนักงานแคชเชียร์ */}
+          <Route path="/cashier" element={<CashierLayout />}>
+            <Route path="tables" element={<TableManagementPage />} />
+            <Route path="menu" element={<MenuPromoManagement />} />
+            <Route path="orders" element={<OrderListPage />} />
+            <Route path="reports" element={<ReportPage />} />
+            <Route path="qrcode" element={<QRCodePage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 }
 

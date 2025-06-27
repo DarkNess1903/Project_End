@@ -139,8 +139,15 @@ const MenuPromoManagement = () => {
       <Typography variant="h4" mb={3}>
         จัดการเมนูอาหาร
       </Typography>
+      
 
       <Box mb={5}>
+         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6">โปรโมชั่น</Typography>
+          <Button variant="contained">
+            เพิ่มโปรโมชั่น
+          </Button>
+        </Box>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="h6">เมนูอาหาร</Typography>
           <Button variant="contained" onClick={handleAddMenu}>
@@ -220,7 +227,7 @@ const MenuPromoManagement = () => {
               type="number"
             />
             <TextField
-              label="URL รูปภาพ"
+              label="ชื่อไฟล์รูปภาพ (ในโฟลเดอร์ uploads)"
               value={menuForm.imageUrl}
               onChange={(e) => setMenuForm({ ...menuForm, imageUrl: e.target.value })}
               fullWidth
