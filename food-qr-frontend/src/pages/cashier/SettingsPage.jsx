@@ -54,9 +54,6 @@ const SettingsPage = () => {
   const [shopName, setShopName] = useState('');
   const [terms, setTerms] = useState('');
 
-  const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState('');
-
   // Dialog เลือกเมนูแนะนำ
   const [openDialog, setOpenDialog] = useState(false);
   const [tempSelectedMenus, setTempSelectedMenus] = useState([]);
@@ -70,8 +67,14 @@ const SettingsPage = () => {
           const s = res.data.settings;
           setShopName(s.store_name || '');
           setTerms(s.service_policy || '');
-          setRecommendedMenus(s.recommended_menu ? JSON.parse(s.recommended_menu) : []);
-          setCategories(s.categories || []);
+          try {
+            setRecommendedMenus(
+              s.recommended_menu ? JSON.parse(s.recommended_menu) : []
+            );
+          } catch (e) {
+            console.warn("recommended_menu parse error", e);
+            setRecommendedMenus([]);
+          }
           if (s.cover_image_url) setCoverImagePreview(s.cover_image_url);
           if (s.logo_url) setLogoImagePreview(s.logo_url);
         }
@@ -85,6 +88,10 @@ const SettingsPage = () => {
   // เปลี่ยนภาพปก
   const handleCoverImageChange = (e) => {
     const file = e.target.files[0];
+    if (file.size > 2 * 1024 * 1024) {
+      alert("ไฟล์ใหญ่เกิน 2MB");
+      return;
+    }
     if (file) {
       setCoverImage(file);
       setCoverImagePreview(URL.createObjectURL(file));
@@ -94,6 +101,10 @@ const SettingsPage = () => {
   // เปลี่ยนโลโก้ร้าน
   const handleLogoImageChange = (e) => {
     const file = e.target.files[0];
+    if (file.size > 2 * 1024 * 1024) {
+      alert("ไฟล์ใหญ่เกิน 2MB");
+      return;
+    }
     if (file) {
       setLogoImage(file);
       setLogoImagePreview(URL.createObjectURL(file));
@@ -123,18 +134,6 @@ const SettingsPage = () => {
     setOpenDialog(false);
   };
 
-  // เพิ่มหมวดหมู่
-  const addCategory = () => {
-    if (newCategory.trim() !== '') {
-      setCategories([...categories, newCategory.trim()]);
-      setNewCategory('');
-    }
-  };
-  // ลบหมวดหมู่
-  const removeCategory = (index) => {
-    setCategories(categories.filter((_, i) => i !== index));
-  };
-
   // บันทึกข้อมูลทั้งหมด
   const handleSaveSettings = async () => {
     try {
@@ -142,8 +141,6 @@ const SettingsPage = () => {
       formData.append('store_name', shopName);
       formData.append('service_policy', terms);
       formData.append('recommended_menu', JSON.stringify(recommendedMenus));
-      formData.append('categories', JSON.stringify(categories));
-
       if (coverImage) {
         formData.append('cover_image', coverImage);
       }
@@ -301,162 +298,6 @@ const SettingsPage = () => {
           <Typography variant="caption" color="text.secondary" align="right" display="block">
             {terms.length}/500
           </Typography>
-        </Box>
-
-        {/* เมนูแนะนำ */}
-        <Box mb={3}>
-          <Typography variant="h6" gutterBottom>
-            เมนูแนะนำ
-          </Typography>
-          <Typography variant="body1" color="text.secondary" mb={2}>
-            เมนูที่แนะนำให้ลูกค้าดู สร้างความน่าสนใจด้วยภาพเมนูที่โดดเด่น
-          </Typography>
-
-          {/* ภาพเมนูแนะนำตัวแรก (ใหญ่) */}
-          {firstMenu && firstMenu.ImageURL && (
-            <Box
-              component="img"
-              src={firstMenu.ImageURL}
-              alt={firstMenu.Name}
-              sx={{
-                width: '100%',
-                maxHeight: 300,
-                objectFit: 'cover',
-                borderRadius: 2,
-                mb: 2,
-                boxShadow: 3,
-              }}
-            />
-          )}
-
-          {/* รายการเมนูแนะนำแบบ scroll แนวนอน */}
-          <Box
-            sx={{
-              display: 'flex',
-              overflowX: 'auto',
-              gap: 1,
-              mb: 2,
-              py: 1,
-              border: '1px solid #ccc',
-              borderRadius: 1,
-              bgcolor: '#fafafa',
-            }}
-          >
-            {recommendedMenus.length === 0 && (
-              <Typography variant="body2" color="text.secondary" sx={{ px: 2 }}>
-                ยังไม่มีเมนูแนะนำ
-              </Typography>
-            )}
-            {recommendedMenus.map((menuId) => {
-              const menu = allMenus.find((m) => m.MenuID === menuId);
-              if (!menu) return null;
-
-              return (
-                <Box
-                  key={menuId}
-                  sx={{
-                    minWidth: 120,
-                    borderRadius: 1,
-                    overflow: 'hidden',
-                    boxShadow: 1,
-                    bgcolor: 'white',
-                    textAlign: 'center',
-                    cursor: 'default',
-                  }}
-                >
-                  {menu.ImageURL ? (
-                    <Box
-                      component="img"
-                      src={menu.ImageURL}
-                      alt={menu.Name}
-                      sx={{ width: '100%', height: 100, objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <Box
-                      sx={{
-                        width: '100%',
-                        height: 100,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        bgcolor: '#eee',
-                        color: '#999',
-                        fontSize: 14,
-                      }}
-                    >
-                      ไม่มีรูป
-                    </Box>
-                  )}
-                  <Typography variant="body2" noWrap sx={{ px: 0.5, py: 0.5 }}>
-                    {menu.Name}
-                  </Typography>
-                </Box>
-              );
-            })}
-          </Box>
-
-          {/* ปุ่มเปิด Dialog เลือกเมนูแนะนำ */}
-          <Button variant="contained" onClick={handleOpenDialog}>
-            เลือกเมนูแนะนำ
-          </Button>
-
-          {/* Dialog เลือกเมนู */}
-          <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-            <DialogTitle>เลือกเมนูแนะนำ</DialogTitle>
-            <DialogContent dividers>
-              <List>
-                {allMenus.map((menu) => (
-                  <ListItem key={menu.MenuID} button onClick={() => toggleMenu(menu.MenuID)}>
-                    <ListItemIcon>
-                      <Checkbox checked={tempSelectedMenus.includes(menu.MenuID)} />
-                    </ListItemIcon>
-                    <ListItemText primary={menu.Name} />
-                  </ListItem>
-                ))}
-              </List>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog}>ยกเลิก</Button>
-              <Button variant="contained" onClick={handleSaveSelection}>
-                บันทึก
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </Box>
-
-        {/* หมวดหมู่ */}
-        <Box mb={3}>
-          <Typography variant="h6" gutterBottom>
-            หมวดหมู่เมนู
-          </Typography>
-
-          <Stack direction="row" spacing={1} mb={1}>
-            <TextField
-              size="small"
-              placeholder="เพิ่มหมวดหมู่ เช่น อาหาร, เครื่องดื่ม"
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              fullWidth
-            />
-            <Button variant="contained" onClick={addCategory}>
-              เพิ่ม
-            </Button>
-          </Stack>
-
-          <Paper variant="outlined" sx={{ maxHeight: 200, overflowY: 'auto' }}>
-            <List dense>
-              {categories.map((item, index) => (
-                <ListItem key={index} divider>
-                  <ListItemText primary={item} />
-                  <ListItemSecondaryAction>
-                    <IconButton edge="end" onClick={() => removeCategory(index)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
         </Box>
 
         {/* ปุ่มบันทึก */}

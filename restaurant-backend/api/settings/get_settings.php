@@ -1,35 +1,39 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: GET, OPTIONS");
+header("Content-Type: application/json; charset=utf-8");
 
 require_once '../../config/db.php';
 
-// ดึงข้อมูลตั้งค่าร้านอาหารจากตาราง settings สมมติว่าตารางชื่อ settings มีฟิลด์
-// id (primary key), logo_url, cover_image_url, store_name, service_policy, recommended_menu, categories (json/string)
+// รองรับ preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
-$sql = "SELECT * FROM settings WHERE id = 1 LIMIT 1";  // สมมติใช้ id=1 สำหรับข้อมูลตั้งค่าเดียว
-
+// ดึง setting แถวเดียว
+$sql = "SELECT * FROM settings WHERE id=1";
 $result = $conn->query($sql);
 
 if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    
-    // สมมติฟิลด์ categories เก็บเป็น JSON string ในฐานข้อมูล
-    if (!empty($row['categories'])) {
-        $row['categories'] = json_decode($row['categories'], true);
-    } else {
-        $row['categories'] = [];
-    }
 
     echo json_encode([
         "success" => true,
-        "settings" => $row
+        "settings" => [
+            "id" => $row["id"],
+            "logo_url" => $row["logo_url"] ? $row["logo_url"] : null,
+            "cover_image_url" => $row["cover_image_url"] ? $row["cover_image_url"] : null,
+            "store_name" => $row["store_name"] ?? "",
+            "service_policy" => $row["service_policy"] ?? "",
+            "recommended_menu" => $row["recommended_menu"] ?? "[]"
+        ]
     ]);
 } else {
-    http_response_code(404);
     echo json_encode([
         "success" => false,
-        "message" => "Settings not found"
+        "message" => "ไม่พบการตั้งค่า"
     ]);
 }
 

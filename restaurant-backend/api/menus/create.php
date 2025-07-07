@@ -1,17 +1,26 @@
 <?php
+// รองรับ preflight OPTIONS
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Headers: Content-Type");
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    http_response_code(200);
+    exit();
+}
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 
 require_once '../../config/db.php';
 
-// ตรวจสอบข้อมูล POST
 $name = $_POST['name'] ?? null;
 $description = $_POST['description'] ?? null;
-$price = $_POST['price'] ?? null;
-$cost = $_POST['cost'] ?? null;
+$price = isset($_POST['price']) ? floatval($_POST['price']) : null;
+$cost = isset($_POST['cost']) ? floatval($_POST['cost']) : 0;
+$category = $_POST['category'] ?? 'main'; // default main
 
-if (!$name || !$price) {
+if (!$name || $price === null) {
     http_response_code(400);
     echo json_encode(["error" => "Missing required fields (name, price)"]);
     exit;
@@ -19,21 +28,15 @@ if (!$name || !$price) {
 
 $imageUrl = null;
 
-// อัปโหลดไฟล์รูปภาพถ้ามี
+// อัปโหลดรูป
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     $targetDir = "../../uploads/";
-
-    // สร้างโฟลเดอร์ถ้ายังไม่มี
     if (!file_exists($targetDir)) {
         mkdir($targetDir, 0755, true);
     }
-
-    $fileName = basename($_FILES["image"]["name"]);
-    $fileName = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", $fileName); // ป้องกันชื่อไฟล์ไม่ปลอดภัย
-
+    $fileName = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", basename($_FILES["image"]["name"]));
     $targetFilePath = $targetDir . $fileName;
 
-    // ตรวจสอบนามสกุลไฟล์ (เช่น jpg, png)
     $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
     $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
     if (!in_array($fileType, $allowedTypes)) {
@@ -43,7 +46,7 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     }
 
     if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
-        $imageUrl = "uploads/" . $fileName; // เก็บ URL สำหรับดึงรูป
+        $imageUrl = "uploads/" . $fileName;
     } else {
         http_response_code(500);
         echo json_encode(["error" => "Upload failed"]);
@@ -51,9 +54,9 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
-// เตรียม insert
-$stmt = $conn->prepare("INSERT INTO Menu (Name, Description, Price, Cost, ImageURL) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("ssdds", $name, $description, $price, $cost, $imageUrl);
+// ตรวจสอบว่าชื่อ table ในฐานข้อมูลคือ Menu (case sensitive)
+$stmt = $conn->prepare("INSERT INTO Menu (Name, Description, Price, Cost, ImageURL, Category) VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->bind_param("ssddss", $name, $description, $price, $cost, $imageUrl, $category);
 
 if ($stmt->execute()) {
     echo json_encode([
@@ -68,3 +71,4 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
+?>

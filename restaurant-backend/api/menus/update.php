@@ -1,24 +1,49 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit(0);
+}
 
 require_once '../../config/db.php';
 
-if (!isset($_GET['id'])) {
+$menu_id = $_POST['menu_id'] ?? null;
+if (!$menu_id) {
     http_response_code(400);
-    echo json_encode(["error" => "Missing menu id"]);
+    echo json_encode(["error" => "Missing menu_id"]);
     exit;
 }
 
-$menu_id = intval($_GET['id']);
-$data = json_decode(file_get_contents("php://input"), true);
+$name = $_POST['name'] ?? null;
+$description = $_POST['description'] ?? null;
+$price = $_POST['price'] ?? null;
+$cost = $_POST['cost'] ?? null;
+$category = $_POST['category'] ?? null;
 
-$name = $data['name'] ?? null;
-$description = $data['description'] ?? null;
-$price = $data['price'] ?? null;
-$cost = $data['cost'] ?? null;
-$image = $data['image'] ?? null;
+$image = null;
+
+if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    $targetDir = "../../uploads/";
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0755, true);
+    }
+    $fileName = time() . '_' . preg_replace("/[^a-zA-Z0-9\._-]/", "", basename($_FILES["image"]["name"]));
+    $targetFilePath = $targetDir . $fileName;
+
+    $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    if (!in_array($fileType, $allowedTypes)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Invalid file type"]);
+        exit;
+    }
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)) {
+        $image = "uploads/" . $fileName;
+    }
+}
 
 $fields = [];
 $params = [];
@@ -40,12 +65,17 @@ if ($price !== null) {
     $types .= 'd';
 }
 if ($cost !== null) {
-    $fields[] = "cost = ?";
+    $fields[] = "Cost = ?";
     $params[] = $cost;
     $types .= 'd';
 }
+if ($category !== null) {
+    $fields[] = "Category = ?";
+    $params[] = $category;
+    $types .= 's';
+}
 if ($image !== null) {
-    $fields[] = "image = ?";
+    $fields[] = "ImageURL = ?";
     $params[] = $image;
     $types .= 's';
 }
@@ -72,3 +102,4 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
+?>
