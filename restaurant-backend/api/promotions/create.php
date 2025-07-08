@@ -1,32 +1,40 @@
 <?php
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST");
+header("Content-Type: application/json; charset=utf-8");
+
 require_once '../../config/db.php';
 
-$data = json_decode(file_get_contents("php://input"), true);
+$name = $_POST['Name'] ?? '';
+$description = $_POST['Description'] ?? '';
+$discountType = $_POST['DiscountType'] ?? '';
+$discountValue = $_POST['DiscountValue'] ?? 0;
+$startDate = $_POST['StartDate'] ?? '';
+$endDate = $_POST['EndDate'] ?? '';
 
-$name = $data['name'] ?? '';
-$description = $data['description'] ?? '';
-$discountType = $data['discount_type'] ?? '';
-$discountValue = $data['discount_value'] ?? 0;
-$startDate = $data['start_date'] ?? '';
-$endDate = $data['end_date'] ?? '';
-$status = $data['status'] ?? 'active';
+// ตรวจสอบวันที่เพื่อกำหนดสถานะโปรโมชั่น
+$today = date('Y-m-d');
+$status = 'inactive';
+if ($startDate <= $today && $endDate >= $today) {
+    $status = 'active';
+}
 
-if (!$name || !$discountType || !$startDate || !$endDate) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing required fields']);
+$stmt = $conn->prepare("INSERT INTO promotion (Name, Description, DiscountType, DiscountValue, StartDate, EndDate, Status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+if (!$stmt) {
+    http_response_code(500);
+    echo json_encode(["success" => false, "message" => "Prepare failed"]);
     exit;
 }
+$stmt->bind_param("sssisss", $name, $description, $discountType, $discountValue, $startDate, $endDate, $status);
+$success = $stmt->execute();
 
-$stmt = $conn->prepare("INSERT INTO Promotion (Name, Description, DiscountType, DiscountValue, StartDate, EndDate, Status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("sssdsss", $name, $description, $discountType, $discountValue, $startDate, $endDate, $status);
-
-if ($stmt->execute()) {
-    echo json_encode(['success' => true, 'promotion_id' => $stmt->insert_id]);
+if ($success) {
+    echo json_encode(["success" => true, "message" => "เพิ่มโปรโมชั่นสำเร็จ"]);
 } else {
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to create promotion']);
+    echo json_encode(["success" => false, "message" => "เพิ่มโปรโมชั่นล้มเหลว"]);
 }
-
 $stmt->close();
 $conn->close();
+?>

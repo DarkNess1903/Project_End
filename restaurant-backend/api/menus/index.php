@@ -6,7 +6,7 @@ header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 require_once '../../config/db.php';
 
 // ดึงข้อมูลเมนูทั้งหมด
-$sql = "SELECT MenuID, Name, Description, Price, Cost, ImageURL, Status FROM Menu";
+$sql = "SELECT MenuID, Name, Description, Price, Cost, ImageURL, Status,Category FROM Menu";
 $result = $conn->query($sql);
 
 $menus = [];

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
+  Paper,
   Box,
   Typography,
   Grid,
@@ -15,6 +16,7 @@ import {
   InputLabel,
   Tooltip,
   IconButton,
+  Chip,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -30,8 +32,8 @@ const TableManagementPage = () => {
 
   const statusLabel = {
     available: 'ว่าง',
-    occupied: 'กำลังสั่งอาหาร',
-    reserved: 'เสิร์ฟแล้ว',
+    occupied:  'สั่งแล้ว',
+    reserved:  'เสิร์ฟแล้ว',
   };
 
   const statusStyles = {
@@ -130,71 +132,122 @@ const TableManagementPage = () => {
     // TODO: เพิ่ม logic ตรวจสอบบิลที่นี่
   };
 
-  return (
-    <Box display="flex" height="100vh" sx={{ bgcolor: '#f0f4f8' }}>
-      {/* เนื้อหาหลัก */}
-      <Box flex={1} p={3} ml="240px">
-        <Box
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="h5" fontWeight="bold">
-            โต๊ะทั้งหมด
-          </Typography>
-          <Tooltip title="รีเฟรชโต๊ะ">
-            <IconButton color="primary" onClick={fetchTables}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-
-        <Grid container spacing={3}>
-          {tables.map((table) => {
-            const style = statusStyles[table.Status] || {};
-            return (
-              <Grid item xs={6} sm={4} md={3} key={table.TableID}>
-                <Tooltip
-                  title={`สถานะ: ${statusLabel[table.Status] || table.Status}`}
-                >
-                  <Box
-                    onClick={() => handleOpenActionDialog(table)}
-                    sx={{
-                      cursor: 'pointer',
-                      p: 2,
-                      borderRadius: 3,
-                      background: style.bg || '#ddd',
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                      transition: 'transform 0.15s ease-in-out',
-                      '&:hover': {
-                        transform: 'scale(1.05)',
-                        boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                      },
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 1,
-                      minHeight: 120,
-                    }}
-                  >
-                    <Box sx={{ fontSize: 48 }}>
-                      {style.icon || <RadioButtonUncheckedIcon />}
-                    </Box>
-                    <Typography variant="h6" fontWeight="bold">
-                      โต๊ะ {table.TableNumber}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {statusLabel[table.Status] || table.Status}
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              </Grid>
-            );
-          })}
-        </Grid>
+return (
+  <Box display="flex" height="100vh" sx={{ bgcolor: '#f0f4f8' }}>
+    <Box flex={1} p={3}>
+      {/* หัวข้อ */}
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <Typography variant="h4">
+          จัดการโต๊ะ
+        </Typography>
+        <Tooltip title="รีเฟรชโต๊ะ">
+          <IconButton color="primary" onClick={fetchTables}>
+            <RefreshIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
 
+      {/* สรุปสถานะ */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 4,
+          borderRadius: 5,
+          bgcolor: '#ffffff',
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Chip
+          label={`โต๊ะทั้งหมด: ${tables.length}`}
+          color="default"
+          variant="outlined"
+        />
+        <Chip
+          label={`ว่าง: ${tables.filter((t) => t.Status === 'available').length}`}
+          color="success"
+          variant="outlined"
+        />
+        <Chip
+          label={`สั่งอาหารแล้ว: ${tables.filter((t) => t.Status === 'occupied').length}`}
+          color="warning"
+          variant="outlined"
+        />
+        <Chip
+          label={`เสิร์ฟแล้ว: ${tables.filter((t) => t.Status === 'reserved').length}`}
+          color="primary"
+          variant="outlined"
+        />
+      </Paper>
+
+      {/* ตารางแสดงโต๊ะ */}
+      <Grid container spacing={3}>
+        {tables.map((table) => {
+          const style = statusStyles[table.Status] || {};
+          return (
+            <Grid item xs={6} sm={4} md={3} key={table.TableID}>
+              <Tooltip
+                title={`สถานะ: ${statusLabel[table.Status] || table.Status}`}
+              >
+                <Box
+                  onClick={() => handleOpenActionDialog(table)}
+                  sx={{
+                    cursor: 'pointer',
+                    p: 2,
+                    borderRadius: 3,
+                    background: style.bg || '#ddd',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                    transition: 'transform 0.15s ease-in-out',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                      boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                    },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1,
+                    minHeight: 160,
+                    textAlign: 'center',
+                    bgcolor: '#fff',
+                  }}
+                >
+                  <Box sx={{ fontSize: 48 }}>
+                    {style.icon || <RadioButtonUncheckedIcon />}
+                  </Box>
+                  <Typography variant="h6" fontWeight="bold">
+                    โต๊ะ {table.TableNumber}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      minHeight: 24,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {statusLabel[table.Status] || table.Status}
+                  </Typography>
+                </Box>
+              </Tooltip>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Box>
       {/* Dialog แสดงปุ่มคำสั่ง */}
       <Dialog open={openActionDialog} onClose={handleCloseActionDialog}>
         <DialogTitle>

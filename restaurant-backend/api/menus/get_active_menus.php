@@ -1,22 +1,25 @@
-<?php
-header('Content-Type: application/json');
+<?php 
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+
 require_once '../../config/db.php';
 
-try {
-    // Prepare statement
-    $stmt = $conn->prepare("SELECT MenuID, Name FROM menu WHERE Status = 'active'");
-    $stmt->execute();
-    $result = $stmt->get_result(); // ดึงผลลัพธ์จาก mysqli_stmt
+// ✅ ดึงเฉพาะเมนูที่เปิดขาย (Status = 'active')
+$sql = "SELECT MenuID, Name, Description, Price, Cost, ImageURL, Status, Category FROM Menu WHERE Status = 'active'";
+$result = $conn->query($sql);
 
-    $menus = $result->fetch_all(MYSQLI_ASSOC); // fetch_all ของ mysqli_result
+$menus = [];
 
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $menus[] = $row;
+    }
     echo json_encode($menus);
-} catch (Exception $e) {
+} else {
     http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'เกิดข้อผิดพลาดในการดึงข้อมูลเมนู',
-        'error' => $e->getMessage()
-    ]);
+    echo json_encode(["error" => "Failed to fetch menus"]);
 }
+
+$conn->close();
 ?>

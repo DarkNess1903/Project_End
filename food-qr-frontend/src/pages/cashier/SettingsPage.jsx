@@ -147,6 +147,10 @@ const SettingsPage = () => {
       if (logoImage) {
         formData.append('logo_image', logoImage);
       }
+      if (!shopName.trim()) {
+        alert("กรุณากรอกชื่อร้าน");
+        return;
+      }
 
       const res = await axios.post('http://localhost/project_END/restaurant-backend/api/settings/save_settings.php', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -299,6 +303,53 @@ const SettingsPage = () => {
             {terms.length}/500
           </Typography>
         </Box>
+        
+        {/* เมนูแนะนำ */}
+        <Box>
+          <Typography variant="h6" gutterBottom>เมนูแนะนำ</Typography>
+          {recommendedMenus.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">ยังไม่ได้เลือกเมนู</Typography>
+          ) : (
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              {recommendedMenus.map((id) => {
+                const menu = allMenus.find((m) => m.MenuID === id);
+                return menu ? <Chip key={id} label={menu.Name} /> : null;
+              })}
+            </Stack>
+          )}
+          <Box mt={1}>
+            <Button variant="outlined" onClick={handleOpenDialog}>เลือกเมนูแนะนำ</Button>
+          </Box>
+        </Box>
+
+      {/* เพิ่มเมนูแนะนำ */}
+        <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+          <DialogTitle>เลือกเมนูแนะนำ</DialogTitle>
+          <DialogContent>
+            <List dense>
+              {allMenus.map((menu) => (
+                <ListItem
+                  key={menu.MenuID}
+                  button
+                  onClick={() => toggleMenu(menu.MenuID)}
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={tempSelectedMenus.includes(menu.MenuID)}
+                      disableRipple
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={menu.Name} />
+                </ListItem>
+              ))}
+            </List>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDialog}>ยกเลิก</Button>
+            <Button variant="contained" onClick={handleSaveSelection}>บันทึก</Button>
+          </DialogActions>
+        </Dialog>
 
         {/* ปุ่มบันทึก */}
         <Box textAlign="right">
