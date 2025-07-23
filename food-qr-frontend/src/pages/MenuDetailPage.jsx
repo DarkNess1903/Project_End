@@ -8,6 +8,7 @@ import {
   CardMedia,
   CardContent,
   Button,
+  IconButton,
   TextField,
   Stack,
   Fab,
@@ -46,13 +47,9 @@ const MenuDetailPage = () => {
   return (
     <Box p={2} position="relative" minHeight="100vh">
       {/* ปุ่มกลับ */}
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 2 }}
-      >
-        กลับ
-      </Button>
+        <IconButton onClick={() => navigate(-1)}>
+          <ArrowBackIcon />
+        </IconButton>
 
       <Card>
         <CardMedia

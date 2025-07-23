@@ -17,9 +17,12 @@ import {
   TextField,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, clearCart, totalAmount } = useCart();
+  const navigate = useNavigate();
 
   const handleOrder = () => {
     alert('ยังไม่ได้เชื่อม API สั่งอาหาร');
@@ -35,9 +38,15 @@ const CartPage = () => {
         bgcolor: '#fafafa',
       }}
     >
-      <Typography variant="h5" fontWeight="bold" mb={2}>
-        ตะกร้าของคุณ
-      </Typography>
+      <Stack direction="row" alignItems="center" mb={2}>
+        <IconButton onClick={() => navigate('/')}>
+          <ArrowBackIcon />
+        </IconButton>
+
+        <Typography variant="h5" fontWeight="bold">
+          ตะกร้าของคุณ
+        </Typography>
+      </Stack>
 
       {items.length === 0 ? (
         <Typography variant="body1" color="text.secondary">
