@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import {
   Box,
@@ -20,6 +20,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
+import axios from 'axios';
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, clearCart, totalAmount } = useCart();
@@ -27,9 +28,37 @@ const CartPage = () => {
   const [selectedItem, setSelectedItem] = React.useState(null);
   const [note, setNote] = React.useState('');
   const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
+  const { updateNote } = useCart();
 
-  const handleOrder = () => {
-    alert('ยังไม่ได้เชื่อม API สั่งอาหาร');
+  const handleOrder = async () => {
+    const table = localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0';
+
+    const payload = {
+      table_id: parseInt(table),
+      items: items.map(item => ({
+        menu_id: item.MenuID,
+        quantity: item.quantity,
+        note: item.note || ''
+      }))
+    };
+
+    try {
+      const res = await axios.post(
+        'http://localhost/project_END/restaurant-backend/api/orders/create.php',
+        payload
+      );
+
+      if (res.data.success) {
+        alert(`สั่งอาหารเรียบร้อย! หมายเลขออร์เดอร์: ${res.data.order_id}`);
+        clearCart();
+        navigate(`/?table=${table}`);
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + (res.data.error || 'ไม่ทราบสาเหตุ'));
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('เกิดข้อผิดพลาดในการสั่งอาหาร');
+    }
   };
 
   const handleEditNote = (item) => {
@@ -38,6 +67,13 @@ const CartPage = () => {
     setOpenNoteDialog(true);
   };
 
+  const handleSaveNote = () => {
+    if (selectedItem) {
+      updateNote(selectedItem.MenuID, note);
+    }
+    setOpenNoteDialog(false);
+  };
+  
 
   return (
     <Box
@@ -51,7 +87,12 @@ const CartPage = () => {
     >
       {/* Header */}
       <Stack direction="row" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate('/')}>
+        <IconButton
+          onClick={() => {
+            const table = localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0';
+            navigate(`/?table=${table}`);
+          }}
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h5" fontWeight="bold">

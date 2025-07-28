@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import { CartProvider } from './contexts/CartContext'; // <-- import ตรงนี้
+import { CartProvider } from './contexts/CartContext';
 
 import CashierLayout from './layouts/CashierLayout';
 import TableManagementPage from './pages/cashier/TableManagementPage';

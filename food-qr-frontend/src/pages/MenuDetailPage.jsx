@@ -16,6 +16,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../contexts/CartContext';
+import { Badge } from '@mui/material';
 
 const MenuDetailPage = () => {
   const { id } = useParams();
@@ -24,6 +25,7 @@ const MenuDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [note, setNote] = useState('');
   const { addToCart } = useCart();
+  const { totalItems } = useCart();
 
   useEffect(() => {
     axios
@@ -53,14 +55,9 @@ const MenuDetailPage = () => {
     >
       {/* ปุ่มกลับ */}
       <IconButton
-        onClick={() => navigate(-1)}
-        sx={{
-          position: 'absolute',
-          top: 16,
-          left: 16,
-          bgcolor: '#fff',
-          boxShadow: 1,
-          zIndex: 10,
+        onClick={() => {
+          const table = localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0';
+          navigate(`/?table=${table}`);
         }}
       >
         <ArrowBackIcon />
@@ -131,15 +128,11 @@ const MenuDetailPage = () => {
         color="primary"
         aria-label="cart"
         onClick={() => navigate('/cart')}
-        sx={{
-          position: 'fixed',
-          bottom: 16,
-          right: 16,
-          zIndex: 1300,
-          boxShadow: 3,
-        }}
+        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1300 }}
       >
-        <ShoppingCartIcon />
+        <Badge badgeContent={totalItems} color="error">
+          <ShoppingCartIcon />
+        </Badge>
       </Fab>
     </Box>
   );

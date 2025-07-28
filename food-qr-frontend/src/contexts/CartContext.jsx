@@ -6,6 +6,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const addToCart = (menuItem) => {
     setItems(prev => {
@@ -46,14 +47,24 @@ export const CartProvider = ({ children }) => {
   // คำนวณยอดรวมในตะกร้า (optional)
   const totalAmount = items.reduce((sum, item) => sum + item.Price * item.quantity, 0);
 
+  const updateNote = (menuId, note) => {
+  setItems(prev =>
+    prev.map(item =>
+      item.MenuID === menuId ? { ...item, note } : item
+    )
+  );
+};
+
   return (
     <CartContext.Provider value={{
       items,
       addToCart,
       removeFromCart,
       updateQuantity,
+      updateNote,
       clearCart,
       totalAmount,
+      totalItems,
     }}>
       {children}
     </CartContext.Provider>

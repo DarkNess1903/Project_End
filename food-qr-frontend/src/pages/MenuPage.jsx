@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate,useLocation } from 'react-router-dom';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import InfoIcon from '@mui/icons-material/Info';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
@@ -8,12 +8,18 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CloseIcon from '@mui/icons-material/Close';
+import { useCart } from '../contexts/CartContext';
+import { Badge } from '@mui/material';
 
 import {
   Card, CardMedia, CardContent, Typography, Grid, CardActionArea,
   Fab, Box, TextField, InputAdornment, IconButton, Button, Dialog,
-  DialogTitle, DialogContent, DialogActions
+  DialogTitle, DialogContent, DialogActions, Toolbar
 } from '@mui/material';
+
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 const MenuPage = () => {
   const [menus, setMenus] = useState([]);
@@ -26,6 +32,17 @@ const MenuPage = () => {
   const [searchText, setSearchText] = useState('');
 
   const navigate = useNavigate();
+  const query = useQuery();
+  const { totalItems } = useCart();
+
+  // === ส่วนสำคัญ: เก็บ table จาก URL ลง localStorage ===
+  useEffect(() => {
+    const table = query.get('table');
+    if (table) {
+      localStorage.setItem('tableName', `โต๊ะ ${table}`);
+    }
+  }, []);
+
   const tableName = localStorage.getItem('tableName') || 'ไม่ระบุ';
 
   const handleCallStaff = () => {
@@ -88,7 +105,7 @@ const MenuPage = () => {
           fontSize: '1rem',
         }}
       >
-        โต๊ะ: {tableName || 'ไม่ระบุ'}
+        {tableName}
       </Box>
 
       {/* ปุ่มไอคอน */}
@@ -262,7 +279,9 @@ const MenuPage = () => {
         onClick={() => navigate('/cart')}
         sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1300 }}
       >
-        <ShoppingCartIcon />
+        <Badge badgeContent={totalItems} color="error">
+          <ShoppingCartIcon />
+        </Badge>
       </Fab>
     </>
   );
