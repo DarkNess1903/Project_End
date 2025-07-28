@@ -45,13 +45,36 @@ const MenuDetailPage = () => {
   };
 
   return (
-    <Box p={2} position="relative" minHeight="100vh">
+    <Box
+      p={2}
+      position="relative"
+      minHeight="100vh"
+      sx={{ bgcolor: '#f9f9f9' }}
+    >
       {/* ปุ่มกลับ */}
-        <IconButton onClick={() => navigate(-1)}>
-          <ArrowBackIcon />
-        </IconButton>
+      <IconButton
+        onClick={() => navigate(-1)}
+        sx={{
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          bgcolor: '#fff',
+          boxShadow: 1,
+          zIndex: 10,
+        }}
+      >
+        <ArrowBackIcon />
+      </IconButton>
 
-      <Card>
+      {/* Card เมนู */}
+      <Card
+        sx={{
+          borderRadius: 3,
+          boxShadow: 3,
+          overflow: 'hidden',
+          mt: 6,
+        }}
+      >
         <CardMedia
           component="img"
           height="200"
@@ -59,7 +82,9 @@ const MenuDetailPage = () => {
           alt={menu.Name}
         />
         <CardContent>
-          <Typography variant="h5" gutterBottom>{menu.Name}</Typography>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            {menu.Name}
+          </Typography>
           <Typography variant="body2" color="text.secondary" mb={2}>
             {menu.Description}
           </Typography>
@@ -67,7 +92,8 @@ const MenuDetailPage = () => {
             ฿{menu.Price}
           </Typography>
 
-          <Stack spacing={2} mb={2}>
+          {/* จำนวน + หมายเหตุ */}
+          <Stack spacing={2} mb={3}>
             <TextField
               label="จำนวน"
               type="number"
@@ -91,6 +117,8 @@ const MenuDetailPage = () => {
             variant="contained"
             color="primary"
             fullWidth
+            size="large"
+            sx={{ borderRadius: 2 }}
             onClick={handleAddToCart}
           >
             เพิ่มลงตะกร้า
@@ -103,7 +131,13 @@ const MenuDetailPage = () => {
         color="primary"
         aria-label="cart"
         onClick={() => navigate('/cart')}
-        sx={{ position: 'fixed', bottom: 16, right: 16, zIndex: 1300 }}
+        sx={{
+          position: 'fixed',
+          bottom: 16,
+          right: 16,
+          zIndex: 1300,
+          boxShadow: 3,
+        }}
       >
         <ShoppingCartIcon />
       </Fab>

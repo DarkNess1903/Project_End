@@ -19,14 +19,25 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import EditIcon from '@mui/icons-material/Edit';
 
 const CartPage = () => {
   const { items, removeFromCart, updateQuantity, clearCart, totalAmount } = useCart();
   const navigate = useNavigate();
+  const [selectedItem, setSelectedItem] = React.useState(null);
+  const [note, setNote] = React.useState('');
+  const [openNoteDialog, setOpenNoteDialog] = React.useState(false);
 
   const handleOrder = () => {
     alert('ยังไม่ได้เชื่อม API สั่งอาหาร');
   };
+
+  const handleEditNote = (item) => {
+    setSelectedItem(item);
+    setNote(item.note || '');
+    setOpenNoteDialog(true);
+  };
+
 
   return (
     <Box
@@ -38,64 +49,60 @@ const CartPage = () => {
         bgcolor: '#fafafa',
       }}
     >
+      {/* Header */}
       <Stack direction="row" alignItems="center" mb={2}>
         <IconButton onClick={() => navigate('/')}>
           <ArrowBackIcon />
         </IconButton>
-
         <Typography variant="h5" fontWeight="bold">
           ตะกร้าของคุณ
         </Typography>
       </Stack>
 
+      {/* Empty Cart */}
       {items.length === 0 ? (
         <Typography variant="body1" color="text.secondary">
           ตะกร้าว่างเปล่า
         </Typography>
       ) : (
-        <Paper variant="outlined" sx={{ mb: 2 }}>
-          <List>
-            {items.map(item => (
-              <div key={item.MenuID}>
-                <ListItem alignItems="flex-start">
-                  {item.ImageURL && (
-                    <ListItemAvatar>
-                      <Avatar
-                        variant="rounded"
-                        src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
-                        alt={item.Name}
-                        sx={{ width: 56, height: 56, mr: 2 }}
-                      />
-                    </ListItemAvatar>
-                  )}
+        <Stack spacing={2} mb={2}>
+          {items.map(item => (
+            <Paper
+              key={item.MenuID}
+              variant="outlined"
+              sx={{ p: 1.5, display: 'flex', borderRadius: 2 }}
+            >
+              {/* รูปภาพเมนู */}
+              <Box
+                component="img"
+                src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
+                alt={item.Name}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 2,
+                  objectFit: 'cover',
+                  mr: 2,
+                }}
+              />
 
-                  <ListItemText
-                    primary={`${item.Name} × `}
-                    secondary={
-                      <>
-                        <Typography
-                          sx={{ display: 'inline' }}
-                          component="span"
-                          variant="body2"
-                          color="text.primary"
-                        >
-                          ฿{item.Price} × {item.quantity} = ฿{(item.Price * item.quantity).toFixed(2)}
-                        </Typography>
-                        <br />
-                        {item.Description && (
-                          <Typography variant="caption" color="text.secondary">
-                            {item.Description}
-                          </Typography>
-                        )}
-                        {item.note && (
-                          <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                            หมายเหตุ: {item.note}
-                          </Typography>
-                        )}
-                      </>
-                    }
-                  />
+              {/* รายละเอียดเมนู */}
+              <Box flex="1">
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {item.Name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  ฿{item.Price}
+                </Typography>
 
+                {item.note && (
+                  <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mt: 0.5 }}>
+                    หมายเหตุ: {item.note}
+                  </Typography>
+                )}
+
+                {/* จำนวน + ปุ่มแก้ไข */}
+                <Stack direction="row" alignItems="center" spacing={1} mt={1}>
                   <TextField
                     type="number"
                     inputProps={{ min: 1 }}
@@ -105,26 +112,30 @@ const CartPage = () => {
                       if (!isNaN(qty)) updateQuantity(item.MenuID, qty);
                     }}
                     size="small"
-                    sx={{ width: 60, mr: 1 }}
+                    sx={{ width: 60 }}
                   />
-
-                  <ListItemSecondaryAction>
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => removeFromCart(item.MenuID)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <Divider component="li" />
-              </div>
-            ))}
-          </List>
-        </Paper>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => handleEditNote(item)}
+                    startIcon={<EditIcon />}
+                  >
+                    แก้ไขหมายเหตุ
+                  </Button>
+                  <IconButton
+                    aria-label="delete"
+                    onClick={() => removeFromCart(item.MenuID)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
+              </Box>
+            </Paper>
+          ))}
+        </Stack>
       )}
 
+      {/* สรุปยอด */}
       <Stack direction="row" justifyContent="space-between" mb={3} px={1}>
         <Typography variant="h6" fontWeight="bold">
           รวมทั้งหมด:
@@ -134,6 +145,7 @@ const CartPage = () => {
         </Typography>
       </Stack>
 
+      {/* ปุ่มยืนยัน */}
       <Button
         variant="contained"
         color="primary"

@@ -3,18 +3,17 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import InfoIcon from '@mui/icons-material/Info';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import SearchIcon from '@mui/icons-material/Search';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import CloseIcon from '@mui/icons-material/Close';
+
 import {
   Card, CardMedia, CardContent, Typography, Grid, CardActionArea,
-  Fab, Box, TextField, InputAdornment, IconButton, Button
+  Fab, Box, TextField, InputAdornment, IconButton, Button, Dialog,
+  DialogTitle, DialogContent, DialogActions
 } from '@mui/material';
-
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SearchIcon from '@mui/icons-material/Search';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import CloseIcon from '@mui/icons-material/Close';
 
 const MenuPage = () => {
   const [menus, setMenus] = useState([]);
@@ -24,12 +23,20 @@ const MenuPage = () => {
   const [coverImage, setCoverImage] = useState(null);
   const [servicePolicy, setServicePolicy] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchText, setSearchText] = useState(''); 
+  const [searchText, setSearchText] = useState('');
 
   const navigate = useNavigate();
+  const tableName = localStorage.getItem('tableName') || 'ไม่ระบุ';
+
+  const handleCallStaff = () => {
+    alert('พนักงานจะมาที่โต๊ะของคุณในไม่ช้า');
+  };
+
+  const handleViewBill = () => {
+    navigate('/bill');
+  };
 
   useEffect(() => {
-    // โหลดเมนู
     axios.get('http://localhost/project_END/restaurant-backend/api/menus/get_active_menus.php')
       .then(res => {
         if (Array.isArray(res.data)) {
@@ -41,19 +48,14 @@ const MenuPage = () => {
         console.error('โหลดเมนูล้มเหลว:', err);
       });
 
-    // โหลด settings
     axios.get('http://localhost/project_END/restaurant-backend/api/settings/get_settings.php')
       .then(res => {
         if (res.data.success) {
           const s = res.data.settings;
-          setStoreName(s.store_name || ''); 
+          setStoreName(s.store_name || '');
           setServicePolicy(s.service_policy || '');
-          if (s.logo_url) {
-            setLogoUrl(`${s.logo_url}`);
-          }
-          if (s.cover_image_url) {
-            setCoverImage(`${s.cover_image_url}`);
-          }
+          if (s.logo_url) setLogoUrl(`${s.logo_url}`);
+          if (s.cover_image_url) setCoverImage(`${s.cover_image_url}`);
         }
       })
       .catch(err => {
@@ -63,6 +65,43 @@ const MenuPage = () => {
 
   return (
     <>
+    {/* แถบชื่อโต๊ะ + ไอคอน */}
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      p={2}
+      sx={{
+        borderRadius: 2,
+        mb: 2
+      }}
+    >
+      {/* ชื่อโต๊ะ */}
+      <Box
+        px={2}
+        py={1}
+        sx={{
+          border: '1px solid #505151ff',
+          borderRadius: 2,
+          backgroundColor: '#e3f2fd',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+        }}
+      >
+        โต๊ะ: {tableName || 'ไม่ระบุ'}
+      </Box>
+
+      {/* ปุ่มไอคอน */}
+      <Box display="flex" gap={1}>
+        <Fab color="primary" size="small" onClick={handleCallStaff}>
+          <SupportAgentIcon />
+        </Fab>
+        <Fab color="primary" size="small" onClick={handleViewBill}>
+          <ReceiptLongIcon />
+        </Fab>
+      </Box>
+    </Box>
+
       {/* ภาพปกด้านบน */}
       {coverImage && (
         <Box sx={{ width: '100%', height: 300, overflow: 'hidden', mb: 2 }}>
@@ -98,10 +137,23 @@ const MenuPage = () => {
 
     {/* หมวดหมู่ + ค้นหา */}
     <Box mt={4} p={2} sx={{ bgcolor: '#fff', borderTop: '1px solid #ccc', borderBottom: '1px solid #ccc' }}>
+      <Typography variant="h6" display="flex" alignItems="center" mb={2}>
+        <RestaurantMenuIcon sx={{ mr: 1 }} />
+        ค้นหาเมนูตามหมวดหมู่
+      </Typography>
+
       <Box display="flex" flexWrap="wrap" alignItems="center" gap={1}>
+        {/* ไอคอนค้นหา */}
         <IconButton onClick={() => setSearchOpen(true)}>
           <SearchIcon />
         </IconButton>
+
+        {/* ปุ่ม "ทั้งหมด" */}
+        <Button variant="contained" onClick={() => setFilteredMenus(menus)}>
+          ทั้งหมด
+        </Button>
+
+        {/* ปุ่มหมวดหมู่ */}
         {[
           { label: 'เมนูแนะนำ', category: 'recommended' },
           { label: 'อาหารจานหลัก', category: 'main' },
