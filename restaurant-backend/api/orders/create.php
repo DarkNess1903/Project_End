@@ -64,11 +64,17 @@ try {
         $stmt->close();
     }
 
-    // 3. อัปเดตราคารวมใน Order
+        // 3. อัปเดตราคารวมใน Order
     $stmt = $conn->prepare("UPDATE `Order` SET TotalAmount = ? WHERE OrderID = ?");
     $stmt->bind_param("di", $total_amount, $order_id);
     $stmt->execute();
     $stmt->close();
+
+    // 3.5. อัปเดตสถานะโต๊ะให้เป็น 'occupied'
+    $updateTableStmt = $conn->prepare("UPDATE dining SET Status = 'occupied' WHERE TableID = ?");
+    $updateTableStmt->bind_param("i", $table_id);
+    $updateTableStmt->execute();
+    $updateTableStmt->close();
 
     // 4. Commit
     $conn->commit();

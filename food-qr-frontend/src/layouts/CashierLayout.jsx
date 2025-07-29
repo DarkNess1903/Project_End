@@ -18,6 +18,7 @@ const drawerWidth = 200;
 
 const menuItems = [
   { label: 'จัดการโต๊ะ', path: '/cashier/tables' },
+  { label: 'คำสั่งซื้อ ', path: '/cashier/' },
   { label: 'เมนูและโปรโมชั่น', path: '/cashier/menu' },
   { label: 'ประวัติคำสั่งซื้อ ', path: '/cashier/orders' },
   { label: 'รายงานยอดขาย', path: '/cashier/reports' },

@@ -40,17 +40,32 @@ const MenuPage = () => {
     const table = query.get('table');
     if (table) {
       localStorage.setItem('tableName', `โต๊ะ ${table}`);
+      localStorage.setItem('table_id', table); 
     }
   }, []);
 
   const tableName = localStorage.getItem('tableName') || 'ไม่ระบุ';
 
-  const handleCallStaff = () => {
-    alert('พนักงานจะมาที่โต๊ะของคุณในไม่ช้า');
+  const handleCallStaff = async () => {
+    try {
+      const tableId = localStorage.getItem('table_id'); // หรือรับจาก URL เช่น query param
+      const res = await axios.post('ttp://localhost/project_END/restaurant-backend/api/staff_call/create.php', {
+        table_id: tableId
+      });
+      if (res.data.success) {
+        alert('พนักงานจะมาที่โต๊ะของคุณในไม่ช้า');
+      } else {
+        alert('เรียกพนักงานไม่สำเร็จ');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('เกิดข้อผิดพลาด');
+    }
   };
 
   const handleViewBill = () => {
-    navigate('/bill');
+    const tableId = new URLSearchParams(window.location.search).get('table') || '0';
+    navigate(`/bill?table=${tableId}`);
   };
 
   useEffect(() => {
