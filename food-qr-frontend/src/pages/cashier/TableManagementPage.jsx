@@ -17,11 +17,20 @@ import {
   Tooltip,
   IconButton,
   Chip,
+  Badge,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import BuildIcon from '@mui/icons-material/Build';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 
 const TableManagementPage = () => {
   const [tables, setTables] = useState([]);
@@ -29,6 +38,16 @@ const TableManagementPage = () => {
   const [openActionDialog, setOpenActionDialog] = useState(false);
   const [openMoveDialog, setOpenMoveDialog] = useState(false);
   const [targetTableId, setTargetTableId] = useState('');
+  const [callNotifications, setCallNotifications] = useState([]);
+  const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+
+    const handleOpenNotificationDialog = () => {
+    setNotificationDialogOpen(true);
+  };
+
+  const handleCloseNotificationDialog = () => {
+    setNotificationDialogOpen(false);
+  };
 
   const statusLabel = {
     available: 'ว่าง',
@@ -51,9 +70,38 @@ const TableManagementPage = () => {
     },
   };
 
+  const fetchStaffCalls = async () => {
+    try {
+      const res = await axios.get('http://localhost/project_END/restaurant-backend/api/staff_call/read.php');
+      if (res.data.success) {
+        setCallNotifications(res.data.data);
+      }
+    } catch (err) {
+      console.error('โหลดข้อมูลเรียกพนักงานล้มเหลว:', err);
+    }
+  };
+
   useEffect(() => {
     fetchTables();
+    fetchStaffCalls();
+    const interval = setInterval(fetchStaffCalls, 5000); // รีเฟรชทุก 5 วิ
+
+    return () => clearInterval(interval);
   }, []);
+
+  
+  const handleMarkAsHandled = async (callId) => {
+  try {
+    await axios.post('http://localhost/project_END/restaurant-backend/api/staff_call/update_status.php', {
+      call_id: callId,
+    });
+    // รีโหลดรายการใหม่
+    fetchStaffCalls(); // ฟังก์ชันที่คุณใช้โหลดรายการอยู่แล้ว
+  } catch (err) {
+    console.error('อัปเดตสถานะล้มเหลว:', err);
+    alert('ไม่สามารถอัปเดตสถานะได้');
+  }
+};
 
   const fetchTables = async () => {
     try {
@@ -137,19 +185,28 @@ return (
     <Box flex={1} p={3}>
       {/* หัวข้อ */}
       <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={2}
-      >
-        <Typography variant="h4">
-          จัดการโต๊ะ
-        </Typography>
-        <Tooltip title="รีเฟรชโต๊ะ">
-          <IconButton color="primary" onClick={fetchTables}>
-            <RefreshIcon />
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      mb={2}
+    >
+      <Typography variant="h4">
+        จัดการโต๊ะ
+      </Typography>
+        <Box>
+          <Tooltip title="การเรียกพนักงาน">
+          <IconButton color="secondary" onClick={handleOpenNotificationDialog}>
+            <Badge badgeContent={callNotifications.length} color="error">
+              <NotificationsIcon />
+            </Badge>
           </IconButton>
         </Tooltip>
+          <Tooltip title="รีเฟรชโต๊ะ">
+            <IconButton color="primary" onClick={fetchTables}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
 
       {/* สรุปสถานะ */}
@@ -317,6 +374,58 @@ return (
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Dialog เรียกพนักงาน */}
+        <Dialog open={notificationDialogOpen} onClose={handleCloseNotificationDialog} fullWidth maxWidth="sm">
+          <DialogTitle>การเรียกพนักงาน</DialogTitle>
+          <DialogContent dividers>
+            {callNotifications.length === 0 ? (
+              <Typography align="center" color="textSecondary">
+                ไม่มีรายการเรียกพนักงานในขณะนี้
+              </Typography>
+            ) : (
+              <List>
+                {callNotifications.map((call) => {
+                  let IconComponent = ChatBubbleOutlineIcon;
+                  const message = call.message || "";
+
+                  if (message.includes('อุปกรณ์')) {
+                    IconComponent = BuildIcon;
+                  } else if (message.includes('ปรับอากาศ')) {
+                    IconComponent = AcUnitIcon;
+                  }
+
+                  return (
+                    <ListItem
+                      key={call.call_id}
+                      divider
+                      secondaryAction={
+                        <Button
+                          variant="outlined"
+                          color="success"
+                          onClick={() => handleMarkAsHandled(call.call_id)}
+                        >
+                          เคลียร์แล้ว
+                        </Button>
+                      }
+                    >
+                      <ListItemIcon>
+                        <IconComponent color="primary" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`โต๊ะ ${call.table_number}`}
+                        secondary={`ข้อความ: ${message}`}
+                      />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseNotificationDialog}>ปิด</Button>
+          </DialogActions>
+        </Dialog>
     </Box>
   );
 };

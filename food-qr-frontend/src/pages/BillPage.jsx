@@ -77,7 +77,7 @@ const BillPage = () => {
       {orderItems.map((item, index) => (
         <Stack key={index} direction="row" spacing={2} alignItems="center" py={1}>
           <Avatar
-            src={item.ImageURL}
+            src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
             variant="rounded"
             sx={{ width: 64, height: 64 }}
           />

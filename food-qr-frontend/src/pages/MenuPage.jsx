@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate,useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import InfoIcon from '@mui/icons-material/Info';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
@@ -8,13 +8,17 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CloseIcon from '@mui/icons-material/Close';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
+import BuildIcon from '@mui/icons-material/Build';
+
 import { useCart } from '../contexts/CartContext';
 import { Badge } from '@mui/material';
 
 import {
   Card, CardMedia, CardContent, Typography, Grid, CardActionArea,
   Fab, Box, TextField, InputAdornment, IconButton, Button, Dialog,
-  DialogTitle, DialogContent, DialogActions, Toolbar
+  DialogTitle, DialogContent, DialogActions, Toolbar, Stack
 } from '@mui/material';
 
 function useQuery() {
@@ -30,27 +34,28 @@ const MenuPage = () => {
   const [servicePolicy, setServicePolicy] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [callDialogOpen, setCallDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const query = useQuery();
   const { totalItems } = useCart();
 
-  // === ส่วนสำคัญ: เก็บ table จาก URL ลง localStorage ===
   useEffect(() => {
     const table = query.get('table');
     if (table) {
       localStorage.setItem('tableName', `โต๊ะ ${table}`);
-      localStorage.setItem('table_id', table); 
+      localStorage.setItem('table_id', table);
     }
   }, []);
 
   const tableName = localStorage.getItem('tableName') || 'ไม่ระบุ';
 
-  const handleCallStaff = async () => {
+  const sendStaffCall = async (reason) => {
     try {
-      const tableId = localStorage.getItem('table_id'); // หรือรับจาก URL เช่น query param
-      const res = await axios.post('ttp://localhost/project_END/restaurant-backend/api/staff_call/create.php', {
-        table_id: tableId
+      const tableId = localStorage.getItem('table_id');
+      const res = await axios.post('http://localhost/project_END/restaurant-backend/api/staff_call/create.php', {
+        table_id: tableId,
+        service_type: reason
       });
       if (res.data.success) {
         alert('พนักงานจะมาที่โต๊ะของคุณในไม่ช้า');
@@ -58,8 +63,10 @@ const MenuPage = () => {
         alert('เรียกพนักงานไม่สำเร็จ');
       }
     } catch (err) {
-      console.error(err);
-      alert('เกิดข้อผิดพลาด');
+      console.error('เกิดข้อผิดพลาด:', err.message);
+      alert('เกิดข้อผิดพลาดในการเรียกพนักงาน');
+    } finally {
+      setCallDialogOpen(false);
     }
   };
 
@@ -97,42 +104,60 @@ const MenuPage = () => {
 
   return (
     <>
-    {/* แถบชื่อโต๊ะ + ไอคอน */}
-    <Box
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-      p={2}
-      sx={{
-        borderRadius: 2,
-        mb: 2
-      }}
-    >
-      {/* ชื่อโต๊ะ */}
+      {/* แถบชื่อโต๊ะ + ไอคอน */}
       <Box
-        px={2}
-        py={1}
-        sx={{
-          border: '1px solid #505151ff',
-          borderRadius: 2,
-          backgroundColor: '#e3f2fd',
-          fontWeight: 'bold',
-          fontSize: '1rem',
-        }}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        p={2}
+        sx={{ borderRadius: 2, mb: 2 }}
       >
-        {tableName}
+        <Box
+          px={2}
+          py={1}
+          sx={{
+            border: '1px solid #505151ff',
+            borderRadius: 2,
+            backgroundColor: '#e3f2fd',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+          }}
+        >
+          {tableName}
+        </Box>
+
+        <Box display="flex" gap={1}>
+          <Fab color="primary" size="small" onClick={() => setCallDialogOpen(true)}>
+            <SupportAgentIcon />
+          </Fab>
+          <Fab color="primary" size="small" onClick={handleViewBill}>
+            <ReceiptLongIcon />
+          </Fab>
+        </Box>
       </Box>
 
-      {/* ปุ่มไอคอน */}
-      <Box display="flex" gap={1}>
-        <Fab color="primary" size="small" onClick={handleCallStaff}>
-          <SupportAgentIcon />
-        </Fab>
-        <Fab color="primary" size="small" onClick={handleViewBill}>
-          <ReceiptLongIcon />
-        </Fab>
-      </Box>
-    </Box>
+      <Dialog open={callDialogOpen} onClose={() => setCallDialogOpen(false)}>
+        <DialogTitle>คุณต้องการความช่วยเหลือด้านใด?</DialogTitle>
+        <DialogContent>
+          <Stack direction="row" spacing={2} justifyContent="center" mt={1}>
+            <Button variant="outlined" onClick={() => sendStaffCall('ขออุปกรณ์')} startIcon={<MiscellaneousServicesIcon />}>
+              ขออุปกรณ์
+            </Button>
+            <Button variant="outlined" onClick={() => sendStaffCall('ขอเครื่องปรุง')} startIcon={<AcUnitIcon />}>
+              ขอเครื่องปรุง
+            </Button>
+            <Button variant="outlined" onClick={() => sendStaffCall('ชำระเงิน')} startIcon={<MiscellaneousServicesIcon />}>
+              ชำระเงิน
+            </Button>
+            <Button variant="outlined" onClick={() => sendStaffCall('อื่นๆ')} startIcon={<BuildIcon />}>
+              อื่นๆ
+            </Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCallDialogOpen(false)}>ยกเลิก</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* ภาพปกด้านบน */}
       {coverImage && (

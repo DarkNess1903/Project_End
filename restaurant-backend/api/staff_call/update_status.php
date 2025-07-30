@@ -13,17 +13,16 @@ require_once '../../config/db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['table_id']) || !isset($data['service_type'])) {
+if (!isset($data['call_id'])) {
     http_response_code(400);
-    echo json_encode(["success" => false, "error" => "Missing parameters"]);
+    echo json_encode(["success" => false, "error" => "Missing call_id"]);
     exit();
 }
 
-$table_id = $data['table_id'];
-$service_type = $data['service_type'];
+$call_id = $data['call_id'];
 
-$stmt = $conn->prepare("INSERT INTO staff_calls (TableID, ServiceType, Status, CallTime) VALUES (?, ?, 'pending', NOW())");
-$stmt->bind_param("is", $table_id, $service_type);
+$stmt = $conn->prepare("UPDATE staff_calls SET Status = 'done' WHERE CallID = ?");
+$stmt->bind_param("i", $call_id);
 
 if ($stmt->execute()) {
     echo json_encode(["success" => true]);
