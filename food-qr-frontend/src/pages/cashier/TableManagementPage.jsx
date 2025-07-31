@@ -21,7 +21,11 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon
+  ListItemIcon,
+  Avatar,
+  Divider,
+  ListItemAvatar,
+
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -40,6 +44,8 @@ const TableManagementPage = () => {
   const [targetTableId, setTargetTableId] = useState('');
   const [callNotifications, setCallNotifications] = useState([]);
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+  const [billDialogOpen, setBillDialogOpen] = useState(false);
+  const [billData, setBillData] = useState(null);
 
     const handleOpenNotificationDialog = () => {
     setNotificationDialogOpen(true);
@@ -170,15 +176,58 @@ const TableManagementPage = () => {
     // TODO: เพิ่ม logic พิมพ์ใบแจ้งหนี้ที่นี่
   };
 
-  const handlePayBill = () => {
-    alert(`จ่ายเงินโต๊ะ ${selectedTable.TableNumber}`);
-    // TODO: เพิ่ม logic จ่ายเงินที่นี่
+  const handleConfirmPayment = async () => {
+    if (!billData?.order?.OrderID) return;
+
+    const confirm = window.confirm("ยืนยันการชำระเงิน?");
+    if (!confirm) return;
+
+    try {
+      const res = await axios.post("http://localhost/project_END/restaurant-backend/api/order/confirm_payment.php", {
+        order_id: billData.order.OrderID,
+      });
+
+      if (res.data.success) {
+        alert("ชำระเงินเรียบร้อยแล้ว");
+        setBillDialogOpen(false);
+        fetchTables(); // โหลดสถานะโต๊ะใหม่
+      } else {
+        alert("เกิดข้อผิดพลาดขณะชำระเงิน");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
+    }
   };
 
-  const handleCheckBill = () => {
-    alert(`ตรวจสอบบิลโต๊ะ ${selectedTable.TableNumber}`);
-    // TODO: เพิ่ม logic ตรวจสอบบิลที่นี่
+  const handleCheckBill = async () => {
+    if (!selectedTable) return;
+    try {
+      const res = await axios.get(`http://localhost/project_END/restaurant-backend/api/orders/get_order_by_table.php?table_id=${selectedTable.TableID}`);
+      if (res.data.success) {
+        setBillData(res.data);
+        setBillDialogOpen(true);
+      } else {
+        alert('ไม่พบข้อมูลบิลของโต๊ะนี้');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('เกิดข้อผิดพลาดในการโหลดข้อมูลบิล');
+    }
   };
+
+ const handleToggleItemStatus = async (orderItemId, currentStatus) => {
+  const newStatus = currentStatus === "cooking" ? "served" : "cooking";
+  try {
+    await axios.post(`http://localhost/project_END/restaurant-backend/api/order/update_item_status.php`, {
+      order_item_id: orderItemId,
+      status: newStatus
+    });
+    handleCheckBill(); // รีเฟรช
+  } catch (err) {
+    alert("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
+  }
+};
 
 return (
   <Box display="flex" height="100vh" sx={{ bgcolor: '#f0f4f8' }}>
@@ -330,7 +379,7 @@ return (
           <Button variant="outlined" onClick={handlePrintInvoice}>
             พิมพ์ใบแจ้งหนี้พร้อม QR Code
           </Button>
-          <Button variant="contained" color="primary" onClick={handlePayBill}>
+          <Button variant="contained" color="success" onClick={handleConfirmPayment}>
             จ่ายเงิน
           </Button>
           <Button variant="contained" onClick={handleCheckBill}>
@@ -424,6 +473,56 @@ return (
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseNotificationDialog}>ปิด</Button>
+          </DialogActions>
+        </Dialog>
+
+      {/* Dialog บิล */}
+        <Dialog open={billDialogOpen} onClose={() => setBillDialogOpen(false)} fullWidth maxWidth="md">
+          <DialogTitle>บิลของโต๊ะ {selectedTable?.TableNumber}</DialogTitle>
+          <DialogContent>
+            {billData ? (
+              <>
+                <Typography variant="subtitle1">เวลาสั่ง: {billData.order.OrderTime}</Typography>
+                <Typography variant="subtitle1">จำนวนเมนู: {billData.items.length}</Typography>
+                <Typography variant="subtitle1">ยอดรวม: ฿{parseFloat(billData.order.TotalAmount).toFixed(2)}</Typography>
+                
+                <Divider sx={{ my: 2 }} />
+
+                <List>
+                  {billData.items.map((item) => (
+                    <ListItem key={item.OrderItemID} alignItems="flex-start" sx={{ mb: 1 }}>
+                      <ListItemAvatar>
+                        <Avatar variant="rounded" src={item.ImageURL} />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={`${item.MenuName} x ${item.Quantity}`}
+                        secondary={
+                          <>
+                            หมายเหตุ: {item.Note || "-"}<br />
+                            ราคา: ฿{parseFloat(item.SubTotal).toFixed(2)}
+                          </>
+                        }
+                      />
+                      <Button
+                        variant="outlined"
+                        color={item.Status === "served" ? "success" : "warning"}
+                        onClick={() => handleToggleItemStatus(item.OrderItemID, item.Status)}
+                      >
+                        {item.Status === "served" ? "เสิร์ฟแล้ว" : "กำลังทำ → เสิร์ฟ"}
+                      </Button>
+                    </ListItem>
+                  ))}
+                </List>
+              </>
+            ) : (
+              <Typography>กำลังโหลด...</Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="success" onClick={handleConfirmPayment}>
+              จ่ายเงิน
+            </Button>
+            <Button onClick={() => setBillDialogOpen(false)}>ปิด</Button>
           </DialogActions>
         </Dialog>
     </Box>
