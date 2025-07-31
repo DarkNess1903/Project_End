@@ -25,7 +25,7 @@ if (!in_array($new_status, $valid_statuses)) {
 }
 
 // อัปเดตสถานะ
-$stmt = $conn->prepare("UPDATE `Order` SET Status = ? WHERE OrderID = ?");
+$stmt = $conn->prepare("UPDATE `order` SET Status = ? WHERE OrderID = ?");
 $stmt->bind_param("si", $new_status, $order_id);
 
 if ($stmt->execute()) {

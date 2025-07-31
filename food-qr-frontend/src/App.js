@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
 import { CartProvider } from './contexts/CartContext';
 
 import CashierLayout from './layouts/CashierLayout';
@@ -9,6 +8,7 @@ import MenuPromoManagement from './pages/cashier/MenuPromoManagement';
 import OrderListPage from './pages/cashier/OrderListPage';
 import ReportPage from './pages/cashier/ReportPage';
 import SettingsPage from './pages/cashier/SettingsPage';
+import PaymentPage from './pages/cashier/PaymentPage';
 
 import MenuPage from './pages/MenuPage';
 import MenuDetailPage from './pages/MenuDetailPage';
@@ -35,6 +35,7 @@ function App() {
             <Route path="reports" element={<ReportPage />} />
             <Route path="qrcode" element={<QRCodePage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="payment/:orderId" element={<PaymentPage />} />
           </Route>
         </Routes>
       </Router>

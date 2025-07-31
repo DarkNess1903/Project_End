@@ -1,6 +1,5 @@
 <?php
 header('Content-Type: application/json');
-// CORS Headers
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST");

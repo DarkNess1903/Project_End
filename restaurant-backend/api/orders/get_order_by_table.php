@@ -19,7 +19,7 @@ $order_id = $order['OrderID'];
 
 // ดึง Order Items
 $sql_items = "SELECT oi.*, m.Name AS MenuName, m.ImageURL 
-              FROM order_items oi 
+              FROM orderitem oi 
               JOIN menu m ON oi.MenuID = m.MenuID 
               WHERE oi.OrderID = $order_id";
 

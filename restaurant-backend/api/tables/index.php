@@ -7,14 +7,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// ปกติ ก็เพิ่ม header CORS
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
 require_once '../../config/db.php';
 
-$sql = "SELECT TableID, TableNumber, Status, Capacity FROM dining ORDER BY TableNumber ASC";
+// ปรับ SQL ให้ดึง OrderID ของคำสั่งซื้อที่ยังไม่จ่าย
+$sql = "
+    SELECT 
+        d.TableID, 
+        d.TableNumber, 
+        d.Status, 
+        d.Capacity,
+        o.OrderID
+    FROM dining d
+    LEFT JOIN `order` o 
+        ON d.TableID = o.TableID 
+        AND o.Status IN ('active', 'pending')  -- เงื่อนไขเฉพาะออร์เดอร์ที่ยังเปิดอยู่
+    ORDER BY d.TableNumber ASC
+";
+
 $result = $conn->query($sql);
 
 $tables = [];

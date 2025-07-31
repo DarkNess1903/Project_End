@@ -5,7 +5,11 @@ header("Access-Control-Allow-Methods: GET");
 
 require_once '../../config/db.php';
 
-$sql = "SELECT OrderID, TableID, OrderTime, TotalAmount, Status FROM `order` WHERE Status = 'paid'";
+$sql = "SELECT o.OrderID, o.TableID, o.OrderTime, o.TotalAmount, o.Status, p.PaymentMethod
+        FROM `order` o
+        LEFT JOIN payment p ON o.OrderID = p.OrderID
+        WHERE o.Status = 'paid'
+        ORDER BY o.OrderTime DESC";
 $result = $conn->query($sql);
 
 $orders = [];

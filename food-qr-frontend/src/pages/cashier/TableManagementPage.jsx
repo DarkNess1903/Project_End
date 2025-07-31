@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   Paper,
@@ -47,7 +48,8 @@ const TableManagementPage = () => {
   const [billDialogOpen, setBillDialogOpen] = useState(false);
   const [billData, setBillData] = useState(null);
 
-    const handleOpenNotificationDialog = () => {
+  const navigate = useNavigate();
+  const handleOpenNotificationDialog = () => {
     setNotificationDialogOpen(true);
   };
 
@@ -111,9 +113,7 @@ const TableManagementPage = () => {
 
   const fetchTables = async () => {
     try {
-      const res = await axios.get(
-        'http://localhost/project_END/restaurant-backend/api/tables/index.php'
-      );
+      const res = await axios.get('http://localhost/project_END/restaurant-backend/api/tables/index.php');
       setTables(res.data);
     } catch (err) {
       console.error(err);
@@ -166,38 +166,13 @@ const TableManagementPage = () => {
     // TODO: เพิ่ม logic ยกเลิกโต๊ะที่นี่
   };
 
-  const handleCombineTable = () => {
-    alert(`รวมโต๊ะกับโต๊ะอื่นๆ (โต๊ะ ${selectedTable.TableNumber})`);
-    // TODO: เพิ่ม logic รวมโต๊ะที่นี่
-  };
-
-  const handlePrintInvoice = () => {
-    alert(`พิมพ์ใบแจ้งหนี้พร้อม QR Code โต๊ะ ${selectedTable.TableNumber}`);
-    // TODO: เพิ่ม logic พิมพ์ใบแจ้งหนี้ที่นี่
-  };
-
-  const handleConfirmPayment = async () => {
-    if (!billData?.order?.OrderID) return;
-
-    const confirm = window.confirm("ยืนยันการชำระเงิน?");
-    if (!confirm) return;
-
-    try {
-      const res = await axios.post("http://localhost/project_END/restaurant-backend/api/order/confirm_payment.php", {
-        order_id: billData.order.OrderID,
-      });
-
-      if (res.data.success) {
-        alert("ชำระเงินเรียบร้อยแล้ว");
-        setBillDialogOpen(false);
-        fetchTables(); // โหลดสถานะโต๊ะใหม่
-      } else {
-        alert("เกิดข้อผิดพลาดขณะชำระเงิน");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
+  const handleClick = (orderId) => {
+    if (!orderId) {
+      alert('ไม่มีคำสั่งซื้อสำหรับโต๊ะนี้');
+      return;
     }
+    // เติม prefix /cashier
+    navigate(`/cashier/payment/${orderId}`);
   };
 
   const handleCheckBill = async () => {
@@ -216,18 +191,32 @@ const TableManagementPage = () => {
     }
   };
 
- const handleToggleItemStatus = async (orderItemId, currentStatus) => {
-  const newStatus = currentStatus === "cooking" ? "served" : "cooking";
-  try {
-    await axios.post(`http://localhost/project_END/restaurant-backend/api/order/update_item_status.php`, {
-      order_item_id: orderItemId,
-      status: newStatus
-    });
-    handleCheckBill(); // รีเฟรช
-  } catch (err) {
-    alert("เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
-  }
-};
+  const handleToggleItemStatus = async (orderItemID, currentStatus) => {
+    const newStatus = currentStatus === "served" ? "cooking" : "served";
+
+    try {
+      const response = await axios.post(
+        "http://localhost/project_END/restaurant-backend/api/orders/update_item_status.php",
+        {
+          order_item_id: orderItemID,
+          status: newStatus,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (response.data.success) {
+        console.log("อัปเดตสถานะสำเร็จ:", response.data);
+        // 🔁 รีเฟรชข้อมูลบิล
+        handleCheckBill();
+      } else {
+        alert("ไม่สามารถอัปเดตสถานะได้");
+      }
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ:", error);
+    }
+  };
 
 return (
   <Box display="flex" height="100vh" sx={{ bgcolor: '#f0f4f8' }}>
@@ -358,34 +347,39 @@ return (
       <Dialog open={openActionDialog} onClose={handleCloseActionDialog}>
         <DialogTitle>
           จัดการโต๊ะ {selectedTable?.TableNumber}
-          <Typography variant="caption" display="block" color="text.secondary">
-            {/* ตัวอย่าง แสดงเวลาที่สั่ง */}
-            เวลาที่สั่ง: 12:30 น. {/* TODO: ดึงข้อมูลเวลาจริงจาก backend */}
+          <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
+            {/* TODO: ดึงเวลาที่สั่งจริงจาก backend มาแสดง */}
+            เวลาที่สั่ง: {selectedTable?.OrderTime ?? 'ไม่พบข้อมูล'}
           </Typography>
         </DialogTitle>
-        <DialogContent
-          dividers
-          sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 300 }}
-        >
+
+        <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 320 }}>
           <Button variant="outlined" color="error" onClick={handleCancelTable}>
             ยกเลิกโต๊ะ
           </Button>
           <Button variant="outlined" onClick={handleOpenMoveDialog}>
             ย้ายเมนู / ย้ายโต๊ะ
           </Button>
-          <Button variant="outlined" onClick={handleCombineTable}>
-            รวมโต๊ะ
-          </Button>
-          <Button variant="outlined" onClick={handlePrintInvoice}>
-            พิมพ์ใบแจ้งหนี้พร้อม QR Code
-          </Button>
-          <Button variant="contained" color="success" onClick={handleConfirmPayment}>
-            จ่ายเงิน
-          </Button>
           <Button variant="contained" onClick={handleCheckBill}>
             ตรวจสอบบิล
           </Button>
+
+          {/* ปุ่มจ่ายเงิน */}
+          {selectedTable?.OrderID ? (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => handleClick(selectedTable.OrderID)}
+            >
+              จ่ายเงิน
+            </Button>
+          ) : (
+            <Button variant="contained" color="success" disabled>
+              ไม่มีออร์เดอร์ที่ต้องจ่าย
+            </Button>
+          )}
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleCloseActionDialog}>ปิด</Button>
         </DialogActions>
@@ -492,7 +486,10 @@ return (
                   {billData.items.map((item) => (
                     <ListItem key={item.OrderItemID} alignItems="flex-start" sx={{ mb: 1 }}>
                       <ListItemAvatar>
-                        <Avatar variant="rounded" src={item.ImageURL} />
+                        <Avatar
+                          variant="rounded"
+                          src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
+                        />
                       </ListItemAvatar>
                       <ListItemText
                         primary={`${item.MenuName} x ${item.Quantity}`}
@@ -519,9 +516,6 @@ return (
             )}
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" color="success" onClick={handleConfirmPayment}>
-              จ่ายเงิน
-            </Button>
             <Button onClick={() => setBillDialogOpen(false)}>ปิด</Button>
           </DialogActions>
         </Dialog>
