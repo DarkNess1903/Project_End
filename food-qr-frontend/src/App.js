@@ -9,6 +9,7 @@ import OrderListPage from './pages/cashier/OrderListPage';
 import ReportPage from './pages/cashier/ReportPage';
 import SettingsPage from './pages/cashier/SettingsPage';
 import PaymentPage from './pages/cashier/PaymentPage';
+import ExpensePage from './pages/cashier/ExpensePage';
 
 import MenuPage from './pages/MenuPage';
 import MenuDetailPage from './pages/MenuDetailPage';
@@ -32,6 +33,7 @@ function App() {
             <Route path="tables" element={<TableManagementPage />} />
             <Route path="menu" element={<MenuPromoManagement />} />
             <Route path="orders" element={<OrderListPage />} />
+            <Route path="expensePage" element={<ExpensePage />} />
             <Route path="reports" element={<ReportPage />} />
             <Route path="qrcode" element={<QRCodePage />} />
             <Route path="settings" element={<SettingsPage />} />

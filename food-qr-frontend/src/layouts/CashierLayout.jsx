@@ -21,6 +21,7 @@ const menuItems = [
   { label: 'เมนูและโปรโมชั่น', path: '/cashier/menu' },
   { label: 'ประวัติคำสั่งซื้อ ', path: '/cashier/orders' },
   { label: 'รายงานยอดขาย', path: '/cashier/reports' },
+  { label: 'รายจ่าย', path: '/cashier/expensePage' },
   { label: 'สร้าง QR Code', path: '/cashier/qrcode' },
   { label: 'ตั้งค่า', path: '/cashier/settings' },
 ];
