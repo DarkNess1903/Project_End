@@ -1,39 +1,52 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
+header("Content-Type: application/json");
 require_once '../../config/db.php';
 
-// SQL ดึงยอดขายรวมตามวัน (เฉพาะ order ที่จ่ายแล้ว)
-$sql = "
-  SELECT 
-    DATE(OrderTime) AS sale_date,
-    SUM(TotalAmount) AS total_amount
-  FROM orders
-  WHERE Status = 'paid'
-  GROUP BY DATE(OrderTime)
-  ORDER BY sale_date ASC
-";
+// รับค่า GET
+$period = $_GET['period'] ?? 'daily';
+$startDate = $_GET['start_date'] ?? null;
+$endDate = $_GET['end_date'] ?? null;
 
-$result = $conn->query($sql);
-
-$sales_by_date = [];
-$total_sales = 0;
-
-if ($result) {
-    while ($row = $result->fetch_assoc()) {
-        $row['total_amount'] = floatval($row['total_amount']);
-        $sales_by_date[] = $row;
-        $total_sales += $row['total_amount'];
-    }
-    
-    echo json_encode([
-        "sales_by_date" => $sales_by_date,
-        "total_sales" => $total_sales
-    ]);
-} else {
-    http_response_code(500);
-    echo json_encode(["error" => "Failed to fetch sales by date"]);
+switch ($period) {
+    case 'monthly':
+        $groupBy = "DATE_FORMAT(OrderTime, '%Y-%m')";
+        $where = "Status = 'paid'";
+        break;
+    case 'yearly':
+        $groupBy = "YEAR(OrderTime)";
+        $where = "Status = 'paid'";
+        break;
+    case 'week':
+        $groupBy = "DATE(OrderTime)";
+        $where = "Status = 'paid' AND OrderTime >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)";
+        break;
+    case 'custom':
+        $groupBy = "DATE(OrderTime)";
+        $where = "Status = 'paid'";
+        if ($startDate && $endDate) {
+            $where .= " AND DATE(OrderTime) BETWEEN '$startDate' AND '$endDate'";
+        }
+        break;
+    default:
+        $groupBy = "DATE(OrderTime)";
+        $where = "Status = 'paid'";
+        break;
 }
 
-$conn->close();
+$sql = "SELECT $groupBy AS period, SUM(TotalAmount) AS total_sales 
+        FROM `order`
+        WHERE $where
+        GROUP BY period
+        ORDER BY period ASC";
+
+
+$result = $conn->query($sql);
+$data = [];
+
+while ($row = $result->fetch_assoc()) {
+    $data[] = $row;
+}
+
+echo json_encode($data);
 ?>

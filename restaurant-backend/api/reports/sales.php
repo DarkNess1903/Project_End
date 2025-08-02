@@ -1,40 +1,28 @@
 <?php
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
 require_once '../../config/db.php';
 
-// รับพารามิเตอร์ช่วงเวลา (option)
-$startDate = $_GET['start_date'] ?? null; // format: YYYY-MM-DD
-$endDate = $_GET['end_date'] ?? null;
+// ยอดขายรวม
+$totalSql = "SELECT SUM(TotalAmount) AS total_sales FROM `order` WHERE Status = 'paid'";
+$totalResult = $conn->query($totalSql)->fetch_assoc();
 
-if (!$startDate || !$endDate) {
-    http_response_code(400);
-    echo json_encode(["error" => "Missing start_date or end_date"]);
-    exit;
-}
+// จำนวนออเดอร์
+$countSql = "SELECT COUNT(*) AS order_count FROM `order` WHERE Status = 'paid'";
+$countResult = $conn->query($countSql)->fetch_assoc();
 
-// Query รวมยอดเงินและจำนวนคำสั่งซื้อที่ชำระแล้วในช่วงเวลานี้
-$sql = "
-    SELECT 
-        COUNT(DISTINCT o.OrderID) AS total_orders,
-        SUM(p.Amount) AS total_sales
-    FROM `Order` o
-    JOIN Payment p ON o.OrderID = p.OrderID
-    WHERE p.PaymentDate BETWEEN ? AND ?
-    AND o.Status = 'paid'
-";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $startDate, $endDate);
-$stmt->execute();
-$result = $stmt->get_result();
-$data = $result->fetch_assoc();
+// รายได้เฉลี่ยต่อวัน
+$avgSql = "SELECT AVG(daily_total) AS avg_daily_sales FROM (
+            SELECT DATE(OrderTime) AS date, SUM(TotalAmount) AS daily_total
+            FROM `order`
+            WHERE Status = 'paid'
+            GROUP BY DATE(OrderTime)
+          ) AS daily";
+$avgResult = $conn->query($avgSql)->fetch_assoc();
 
 echo json_encode([
-    "start_date" => $startDate,
-    "end_date" => $endDate,
-    "total_orders" => intval($data['total_orders']),
-    "total_sales" => floatval($data['total_sales']),
+    'total_sales' => $totalResult['total_sales'] ?? 0,
+    'order_count' => $countResult['order_count'] ?? 0,
+    'avg_daily_sales' => round($avgResult['avg_daily_sales'] ?? 0, 2)
 ]);
-
-$stmt->close();
-$conn->close();
+?>

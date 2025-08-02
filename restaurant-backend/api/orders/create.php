@@ -45,21 +45,22 @@ try {
         $quantity = $item['quantity'];
         $note = $item['note'] ?? '';
 
-        // ดึงราคาเมนูจากฐานข้อมูล
-        $menuQuery = $conn->prepare("SELECT Price FROM Menu WHERE MenuID = ?");
+        // ดึงราคาและต้นทุนจากฐานข้อมูล
+        $menuQuery = $conn->prepare("SELECT Price, Cost FROM Menu WHERE MenuID = ?");
         $menuQuery->bind_param("i", $menu_id);
         $menuQuery->execute();
         $result = $menuQuery->get_result();
         $menu = $result->fetch_assoc();
         $menuQuery->close();
-        
+
         $price = $menu['Price'];
+        $cost = $menu['Cost'];
         $subtotal = $price * $quantity;
         $total_amount += $subtotal;
 
-        // บันทึก OrderItem
-        $stmt = $conn->prepare("INSERT INTO OrderItem (OrderID, MenuID, Quantity, SubTotal, Note) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiids", $order_id, $menu_id, $quantity, $subtotal, $note);
+        // บันทึก OrderItem พร้อม Cost
+        $stmt = $conn->prepare("INSERT INTO OrderItem (OrderID, MenuID, Quantity, SubTotal, Cost, Note) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iiidds", $order_id, $menu_id, $quantity, $subtotal, $cost, $note);
         $stmt->execute();
         $stmt->close();
     }

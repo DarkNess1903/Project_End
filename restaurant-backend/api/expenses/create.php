@@ -8,30 +8,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// รับข้อมูล JSON
 $data = json_decode(file_get_contents("php://input"), true);
 
 require_once '../../config/db.php';
 
-// ตรวจสอบว่ามีค่าครบหรือไม่
-if (!empty($data['Name']) && !empty($data['Amount']) && !empty($data['Category']) && !empty($data['ExpenseDate'])) {
+if (!empty($data['Description']) && !empty($data['Amount']) && !empty($data['ExpenseType']) && !empty($data['ExpenseDate'])) {
 
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // เตรียมคำสั่ง SQL
     $stmt = $conn->prepare("INSERT INTO expenses (ExpenseType, Description, Amount, ExpenseDate) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssds", $data['Category'], $data['Note'], $data['Amount'], $data['ExpenseDate']);
+    $stmt->bind_param("ssds", $data['ExpenseType'], $data['Description'], $data['Amount'], $data['ExpenseDate']);
 
     if ($stmt->execute()) {
         echo json_encode(["message" => "Expense saved successfully."]);
     } else {
-        echo json_encode(["message" => "Failed to save expense."]);
+        echo json_encode(["message" => "Failed to save expense", "error" => $stmt->error]);
     }
 
     $stmt->close();
     $conn->close();
 } else {
-    echo json_encode(["message" => "Missing required fields."]);
+    echo json_encode(["message" => "Missing required fields"]);
 }
+?>
