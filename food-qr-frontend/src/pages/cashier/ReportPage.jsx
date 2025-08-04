@@ -26,6 +26,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import thLocale from 'date-fns/locale/th';
 
+const API_BASE = 'http://localhost/project_END/restaurant-backend/api/reports';
+
 const ReportPage = () => {
   const [salesByDate, setSalesByDate] = useState([]);
   const [menuSales, setMenuSales] = useState([]);
@@ -37,34 +39,41 @@ const ReportPage = () => {
     total_orders: 0,
   });
   const [filterType, setFilterType] = useState('day');
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     fetchSalesReport();
     fetchMenuSales();
-  }, [filterType]);
+  }, [filterType, selectedDate]);
 
   const fetchSalesReport = async () => {
     try {
       let res;
 
-      if (filterType === 'custom') {
-        const start = startDate?.toISOString().split('T')[0];
-        const end = endDate?.toISOString().split('T')[0];
-        res = await axios.get(`http://localhost/project_END/restaurant-backend/api/reports/sales_by_date.php`, {
+      if (filterType === 'custom' && selectedDate) {
+        const date = selectedDate.toISOString().split('T')[0];
+        res = await axios.get(`${API_BASE}/sales_by_date.php`, {
           params: {
             period: 'custom',
-            start_date: start,
-            end_date: end
-          }
+            start_date: date,
+            end_date: date,
+          },
+        });
+      } else if (filterType === 'day') {
+        const today = new Date().toISOString().split('T')[0];
+        res = await axios.get(`${API_BASE}/sales_by_date.php`, {
+          params: {
+            period: 'custom',
+            start_date: today,
+            end_date: today,
+          },
         });
       } else {
-        res = await axios.get(`http://localhost/project_END/restaurant-backend/api/reports/sales_by_date.php?period=${filterType}`);
+        res = await axios.get(`${API_BASE}/sales_by_date.php?period=${filterType}`);
       }
 
-      setSalesByDate(res.data);
+      setSalesByDate(res.data.sales || []);
+      setSummary(res.data.summary || {});
     } catch (error) {
       console.error('Error fetching sales report:', error);
     }
@@ -72,79 +81,81 @@ const ReportPage = () => {
 
   const fetchMenuSales = async () => {
     try {
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDateObj = new Date();
-      startDateObj.setDate(startDateObj.getDate() - 30);
-      const startDate = startDateObj.toISOString().split('T')[0];
+      let start, end;
 
-      const res = await axios.get(
-        `http://localhost/project_END/restaurant-backend/api/reports/sales_by_menu.php?start_date=${startDate}&end_date=${endDate}`
-      );
+      if (filterType === 'custom' && selectedDate) {
+        start = end = selectedDate.toISOString().split('T')[0];
+      } else if (filterType === 'day') {
+        start = end = new Date().toISOString().split('T')[0];
+      } else {
+        const now = new Date();
+        end = now.toISOString().split('T')[0];
+        const past = new Date();
+        past.setDate(now.getDate() - 30);
+        start = past.toISOString().split('T')[0];
+      }
 
-      const dataFormatted = res.data.map(item => ({
+      const res = await axios.get(`${API_BASE}/sales_by_menu.php`, {
+        params: { start_date: start, end_date: end },
+      });
+
+      const formatted = res.data.map((item) => ({
         menu_name: item.name,
         total_sales: parseFloat(item.total_sales),
       }));
-
-      setMenuSales(dataFormatted);
+      setMenuSales(formatted);
     } catch (err) {
       console.error('Fetch sales by menu error:', err);
     }
   };
 
-  const formatCurrency = (value) => `฿${Number(value).toFixed(2)}`;
+  const formatCurrency = (value) => `฿${Number(value || 0).toFixed(2)}`;
 
   return (
     <Box p={3}>
       <Typography variant="h5" gutterBottom>
         รายงานยอดขาย
       </Typography>
-      {filterType === 'custom' && (
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
-          <Stack direction="row" spacing={2} mb={2}>
-            <DatePicker
-              label="วันที่เริ่มต้น"
-              value={startDate}
-              onChange={(newValue) => setStartDate(newValue)}
-              format="yyyy-MM-dd"
-            />
-            <DatePicker
-              label="วันที่สิ้นสุด"
-              value={endDate}
-              onChange={(newValue) => setEndDate(newValue)}
-              format="yyyy-MM-dd"
-            />
-            <Button
-              variant="contained"
-              onClick={fetchSalesReport}
-              disabled={!startDate || !endDate}
-            >
-              แสดงรายงาน
-            </Button>
-          </Stack>
-        </LocalizationProvider>
-      )}
 
-      {/* ปุ่มเลือกช่วงเวลา */}
-      <Stack direction="row" spacing={1} mb={2}>
-        {['day', 'week', 'month', 'year', 'custom'].map(type => (
+      {/* ปุ่มช่วงเวลา */}
+      <Stack direction="row" spacing={1} mb={2} flexWrap="wrap">
+        {['day', 'week', 'month', 'year', 'custom'].map((type) => (
           <Button
             key={type}
             variant={filterType === type ? 'contained' : 'outlined'}
-            onClick={() => setFilterType(type)}
+            onClick={() => {
+              setFilterType(type);
+              if (type !== 'custom') {
+                setSelectedDate(null);
+              }
+            }}
           >
             {{
               day: 'รายวัน',
               week: 'รายสัปดาห์',
               month: 'รายเดือน',
               year: 'รายปี',
-              custom: 'กำหนดเอง'
+              custom: 'กำหนดเอง',
             }[type]}
           </Button>
         ))}
       </Stack>
 
-      {/* ข้อมูลสรุปยอดขาย */}
+      {/* ปฏิทินเลือกวัน */}
+      {filterType === 'custom' && (
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
+          <Stack direction="row" spacing={2} mb={2} alignItems="center">
+            <DatePicker
+              label="เลือกวันที่"
+              value={selectedDate}
+              onChange={(newValue) => setSelectedDate(newValue)}
+              format="yyyy-MM-dd"
+            />
+          </Stack>
+        </LocalizationProvider>
+      )}
+
+      {/* สรุปยอดรวม */}
       <Grid container spacing={2} mb={3}>
         <Grid item xs={6} sm={4}>
           <Paper sx={{ p: 2, textAlign: 'center' }}>
@@ -182,7 +193,6 @@ const ReportPage = () => {
 
       {/* กราฟ */}
       <Grid container spacing={3}>
-        {/* กราฟยอดขายตามช่วงเวลา */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
@@ -191,7 +201,7 @@ const ReportPage = () => {
                 week: 'รายสัปดาห์',
                 month: 'รายเดือน',
                 year: 'รายปี',
-                custom: 'ช่วงวันที่กำหนดเอง'
+                custom: 'ช่วงวันที่กำหนดเอง',
               }[filterType]})
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
@@ -201,17 +211,21 @@ const ReportPage = () => {
                 <YAxis />
                 <Tooltip formatter={(v) => formatCurrency(v)} />
                 <Legend />
-                <Line type="monotone" dataKey="total_amount" name="ยอดขายรวม" stroke="#1976d2" />
+                <Line
+                  type="monotone"
+                  dataKey="total_sales"
+                  name="ยอดขายรวม"
+                  stroke="#1976d2"
+                />
               </LineChart>
             </ResponsiveContainer>
           </Paper>
         </Grid>
 
-        {/* กราฟยอดขายเมนู */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
-              เมนูขายดี (30 วันล่าสุด)
+              เมนูขายดี ({filterType === 'custom' || filterType === 'day' ? 'วันที่เลือก' : '30 วันล่าสุด'})
             </Typography>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={menuSales}>

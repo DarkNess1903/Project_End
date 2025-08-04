@@ -1,41 +1,45 @@
 <?php
-header('Content-Type: application/json');
 require_once '../../config/db.php';
+header('Content-Type: application/json');
 
-// รับค่าจาก JSON body
-$data = json_decode(file_get_contents("php://input"), true);
+$data = json_decode(file_get_contents("php://input"));
 
-$fromTableId = $data['from_table_id'] ?? null;
-$toTableId = $data['to_table_id'] ?? null;
+$fromTableId = $data->fromTableId;
+$toTableId = $data->toTableId;
 
-if (!$fromTableId || !$toTableId || $fromTableId === $toTableId) {
-    echo json_encode(["error" => "ข้อมูลไม่ครบหรือโต๊ะซ้ำกัน"]);
+// ตรวจสอบว่าโต๊ะปลายทางว่างอยู่หรือไม่
+$checkTarget = $conn->prepare("SELECT Status FROM dining WHERE TableID = ?");
+$checkTarget->bind_param("i", $toTableId);
+$checkTarget->execute();
+$targetResult = $checkTarget->get_result()->fetch_assoc();
+
+if (!$targetResult || $targetResult['Status'] !== 'empty') {
     http_response_code(400);
+    echo json_encode(['error' => 'โต๊ะปลายทางไม่ว่าง']);
     exit;
 }
 
-// ตรวจสอบว่ามี order ที่ active อยู่บนโต๊ะต้นทาง
-$sql = "SELECT * FROM `order` WHERE TableID = ? AND Status != 'จบรายการ' ORDER BY ordertime DESC LIMIT 1";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $fromTableId);
-$stmt->execute();
-$result = $stmt->get_result();
+// ค้นหาออเดอร์ที่ยังไม่ชำระของโต๊ะต้นทาง
+$getOrder = $conn->prepare("SELECT OrderID FROM `order` WHERE TableID = ? AND Status IN ('pending','preparing','served') ORDER BY OrderTime DESC LIMIT 1");
+$getOrder->bind_param("i", $fromTableId);
+$getOrder->execute();
+$orderResult = $getOrder->get_result()->fetch_assoc();
 
-if ($result->num_rows === 0) {
-    echo json_encode(["error" => "ไม่พบคำสั่งซื้อในโต๊ะต้นทาง"]);
+if (!$orderResult) {
     http_response_code(404);
+    echo json_encode(['error' => 'ไม่พบออเดอร์ที่ยังไม่จ่ายในโต๊ะนี้']);
     exit;
 }
 
-$order = $result->fetch_assoc();
+$orderId = $orderResult['OrderID'];
 
-// อัปเดต Order ให้เปลี่ยน TableID ไปโต๊ะปลายทาง
-$update = $conn->prepare("UPDATE `order` SET TableID = ? WHERE OrderID = ?");
-$update->bind_param("ii", $toTableId, $order['OrderID']);
-$update->execute();
+// อัปเดต TableID ในตาราง order
+$updateOrder = $conn->prepare("UPDATE `order` SET TableID = ? WHERE OrderID = ?");
+$updateOrder->bind_param("ii", $toTableId, $orderId);
+$updateOrder->execute();
 
 // เปลี่ยนสถานะโต๊ะ
-$conn->query("UPDATE dining SET Status = 'ว่าง' WHERE TableID = $fromTableId");
-$conn->query("UPDATE dining SET Status = 'สั่งอาหารแล้ว' WHERE TableID = $toTableId");
+$conn->query("UPDATE dining SET Status = 'empty' WHERE TableID = $fromTableId");
+$conn->query("UPDATE dining SET Status = 'occupied' WHERE TableID = $toTableId");
 
-echo json_encode(["success" => true, "message" => "ย้ายโต๊ะเรียบร้อยแล้ว"]);
+echo json_encode(['success' => true]);

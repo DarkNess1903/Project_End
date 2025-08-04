@@ -122,8 +122,14 @@ const TableManagementPage = () => {
 
   // เปิด dialog แสดงเมนูปุ่มต่างๆ
   const handleOpenActionDialog = (table) => {
-    setSelectedTable(table);
-    setOpenActionDialog(true);
+    // เปิด dialog เฉพาะโต๊ะสถานะ occupied หรือ reserved เท่านั้น
+    if (table.Status === 'occupied' || table.Status === 'reserved') {
+      setSelectedTable(table);
+      setOpenActionDialog(true);
+    } else {
+      // อาจจะแจ้งเตือนผู้ใช้ว่าไม่สามารถจัดการโต๊ะนี้ได้
+      alert('ไม่สามารถจัดการโต๊ะที่สถานะว่างได้');
+    }
   };
 
   // ปิด dialog เมนูปุ่มต่างๆ
@@ -145,17 +151,15 @@ const TableManagementPage = () => {
 
   const handleMoveTable = async () => {
     try {
-      await axios.post(
-        'http://localhost/project_END/restaurant-backend/api/tables/move.php',
-        {
-          fromTableId: selectedTable.TableID,
-          toTableId: targetTableId,
-        }
-      );
+      await axios.post('http://localhost/project_END/restaurant-backend/api/tables/move.php', {
+        fromTableId: selectedTable.TableID,
+        toTableId: targetTableId,
+      });
       setOpenMoveDialog(false);
       setOpenActionDialog(false);
       fetchTables();
     } catch (err) {
+      alert(err?.response?.data?.error || 'เกิดข้อผิดพลาด');
       console.error(err);
     }
   };
@@ -343,6 +347,7 @@ return (
         })}
       </Grid>
     </Box>
+    
       {/* Dialog แสดงปุ่มคำสั่ง */}
       <Dialog open={openActionDialog} onClose={handleCloseActionDialog}>
         <DialogTitle>
@@ -379,7 +384,6 @@ return (
             </Button>
           )}
         </DialogContent>
-
         <DialogActions>
           <Button onClick={handleCloseActionDialog}>ปิด</Button>
         </DialogActions>
@@ -397,10 +401,13 @@ return (
               label="เลือกโต๊ะใหม่"
             >
               {tables
-                .filter((t) => t.TableID !== selectedTable?.TableID)
+                .filter(
+                  (t) =>
+                    t.Status === 'empty' && t.TableID !== selectedTable?.TableID
+                )
                 .map((t) => (
                   <MenuItem key={t.TableID} value={t.TableID}>
-                    โต๊ะ {t.TableNumber} ({statusLabel[t.Status] || t.Status})
+                    โต๊ะ {t.TableNumber}
                   </MenuItem>
                 ))}
             </Select>

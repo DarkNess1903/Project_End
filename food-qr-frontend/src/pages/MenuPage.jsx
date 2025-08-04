@@ -39,14 +39,31 @@ const MenuPage = () => {
   const navigate = useNavigate();
   const query = useQuery();
   const { totalItems } = useCart();
+  const location = useLocation();
 
   useEffect(() => {
-    const table = query.get('table');
+    const params = new URLSearchParams(location.search);
+    const table = params.get('table');
     if (table) {
-      localStorage.setItem('tableName', `โต๊ะ ${table}`);
-      localStorage.setItem('table_id', table);
+      if (localStorage.getItem('table_id') !== table) {
+        axios.get(`http://localhost/project_END/restaurant-backend/api/tables/check_table.php?table=${table}`)
+          .then(res => {
+            if (res.data.exists) {
+              localStorage.setItem('tableName', `โต๊ะ ${table}`);
+              localStorage.setItem('table_id', table);
+            } else {
+              alert('ไม่พบโต๊ะนี้ในระบบ');
+              localStorage.removeItem('tableName');
+              localStorage.removeItem('table_id');
+            }
+          })
+          .catch(err => {
+            console.error('เช็คโต๊ะล้มเหลว:', err);
+            alert('เกิดข้อผิดพลาดในการตรวจสอบโต๊ะ');
+          });
+      }
     }
-  }, []);
+  }, [query]);
 
   const tableName = localStorage.getItem('tableName') || 'ไม่ระบุ';
 

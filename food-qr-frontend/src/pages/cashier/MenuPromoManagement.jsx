@@ -76,6 +76,8 @@ const MenuPromoManagement = () => {
   const MENU_TOGGLE_STATUS_API = 'http://localhost/project_END/restaurant-backend/api/menus/toggle_status.php';
   const PROMO_API = 'http://localhost/project_END/restaurant-backend/api/promotions/index.php';
   const PROMO_CREATE_API = 'http://localhost/project_END/restaurant-backend/api/promotions/create.php';
+  const PROMO_UPDATE_API = 'http://localhost/project_END/restaurant-backend/api/promotions/update.php';
+  const PROMO_DELETE_API = 'http://localhost/project_END/restaurant-backend/api/promotions/delete.php';
 
   // โหลดข้อมูล
   useEffect(() => {
@@ -193,7 +195,7 @@ const handleSave = async () => {
       alert("เกิดข้อผิดพลาดในการบันทึกเมนู");
     }
   } else if (dialogMode === 'promo') {
-    // ===== บันทึกโปรโมชั่น =====
+    // เช็คข้อมูลเหมือนเดิม
     if (!form.Name || !form.DiscountValue || !form.StartDate || !form.EndDate) {
       alert("กรุณากรอกข้อมูลโปรโมชั่นให้ครบถ้วน");
       return;
@@ -207,15 +209,18 @@ const handleSave = async () => {
     formData.append("StartDate", form.StartDate);
     formData.append("EndDate", form.EndDate);
 
+    if (editItem) {
+      formData.append("PromotionID", editItem.PromotionID);
+    }
+
     try {
       await axios.post(
-        PROMO_CREATE_API,
+        editItem ? PROMO_UPDATE_API : PROMO_CREATE_API,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       setOpenDialog(false);
       fetchPromotions();
-      // reset form
       setForm({
         Name: '',
         Description: '',
@@ -224,10 +229,27 @@ const handleSave = async () => {
         StartDate: '',
         EndDate: '',
       });
+      setEditItem(null);
     } catch (error) {
       console.error("Save promo error:", error);
       alert("เกิดข้อผิดพลาดในการบันทึกโปรโมชั่น");
     }
+  }
+};
+
+const handleDeletePromo = async (id) => {
+  if (!window.confirm('ลบโปรโมชั่นนี้จริงหรือไม่?')) return;
+
+  try {
+    await axios.post(
+      PROMO_DELETE_API,
+      { PromotionID: id },
+      { headers: { "Content-Type": "application/json" } }
+    );
+    fetchPromotions();
+  } catch (error) {
+    console.error('Delete promo error:', error);
+    alert('ลบโปรโมชั่นไม่สำเร็จ');
   }
 };
 
@@ -269,6 +291,7 @@ const handleSave = async () => {
               <TableCell>เริ่ม</TableCell>
               <TableCell>สิ้นสุด</TableCell>
               <TableCell>สถานะ</TableCell>
+              <TableCell align="right">จัดการ</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -285,6 +308,11 @@ const handleSave = async () => {
                 <TableCell>{promo.EndDate}</TableCell>
                 <TableCell sx={{ color: promo.Status === 'active' ? 'green' : 'gray' }}>
                   {promo.Status === 'active' ? 'กำลังใช้งาน' : 'หมดอายุ'}
+                </TableCell>
+                <TableCell align="right">
+                  <IconButton size="small" onClick={() => handleDeletePromo(promo.PromotionID)}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
@@ -358,7 +386,7 @@ const handleSave = async () => {
         </TableContainer>
       </Box>
 
-            {/* Dialog ฟอร์มเพิ่มโปรโมชั่น */}
+    {/* Dialog ฟอร์มเพิ่มโปรโมชั่น */}
       <Dialog open={openDialog && dialogMode === 'promo'} onClose={() => setOpenDialog(false)} fullWidth>
         <DialogTitle>เพิ่มโปรโมชั่น</DialogTitle>
         <DialogContent>
