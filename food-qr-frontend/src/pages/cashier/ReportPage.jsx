@@ -66,7 +66,6 @@ const ReportPage = () => {
     total_sales: 0,
     total_cost: 0,
     net_revenue: 0,
-    tax: 0,
     total_orders: 0,
   });
   const [filterType, setFilterType] = useState('day');
@@ -268,20 +267,17 @@ const ReportPage = () => {
               icon: <TrendingUp sx={{ fontSize: 32 }} />,
               format: formatCurrency
             },
-            {
-              title: 'ภาษี 7%',
-              value: summary.tax,
-              color: theme.colors.error,
-              icon: <Receipt sx={{ fontSize: 32 }} />,
-              format: formatCurrency
-            },
           ].map((item, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
               <Card
                 sx={{
-                  height: '140px',
+                  minHeight: 140,
                   boxShadow: 3,
                   border: `2px solid ${item.color}`,
+                  p: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
                   transition: 'transform 0.2s',
                   '&:hover': {
                     transform: 'translateY(-2px)',
@@ -303,7 +299,7 @@ const ReportPage = () => {
                       variant="subtitle2"
                       sx={{
                         color: theme.colors.text.secondary,
-                        fontSize: '14px',
+                        fontSize: '18px',
                         fontWeight: 500,
                         lineHeight: 1.2,
                       }}

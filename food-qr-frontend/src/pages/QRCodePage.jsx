@@ -223,38 +223,6 @@ const TableQRManagement = () => {
       </AppBar>
 
       <Container maxWidth="xl" sx={{ px: 3 }}>
-        {/* Status Summary Cards */}
-        <Grid container spacing={3} mb={4}>
-          {statusOptions.map((status) => (
-            <Grid item xs={12} sm={4} key={status.value}>
-              <Card sx={{ 
-                boxShadow: 3, 
-                border: `2px solid ${status.color}`,
-                transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                }
-              }}>
-                <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                  <Box display="flex" justifyContent="center" mb={2}>
-                    {React.cloneElement(status.icon, { 
-                      sx: { fontSize: 40, color: status.color } 
-                    })}
-                  </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, color: status.color, mb: 1 }}>
-                    {status.label}
-                  </Typography>
-                  <Typography variant="h3" sx={{ fontWeight: 700, color: status.color }}>
-                    {statusCounts[status.value]}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mt: 1 }}>
-                    โต๊ะ
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
 
         {/* Action Bar */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>

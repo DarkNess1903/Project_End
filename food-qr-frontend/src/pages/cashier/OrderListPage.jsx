@@ -17,6 +17,7 @@ import {
   Avatar,
   IconButton,
   Tooltip,
+  TextField
 } from '@mui/material';
 import {
   Receipt as ReceiptIcon,
@@ -26,6 +27,10 @@ import {
   Print as PrintIcon,
 } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+
 
 // ธีม Business/Dashboard สำหรับ iPad
 const cashierTheme = createTheme({
@@ -128,14 +133,44 @@ const OrderListPage = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [filter, setFilter] = useState('week');
+  const [customDate, setCustomDate] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderItems, setOrderItems] = useState([]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [filter, customDate, orders]);
 
   useEffect(() => {
     filterOrders();
   }, [orders, filter]);
+
+  const handleViewDetails = async (order) => {
+    try {
+      const res = await axios.get(`http://localhost/project_END/restaurant-backend/api/orders/order_detail.php?order_id=${order.OrderID}`);
+      console.log('API response:', res.data);
+
+      setSelectedOrder(order);
+
+      const items = res.data;
+
+      if (Array.isArray(items)) {
+        setOrderItems(items);
+      } else if (typeof items === 'object') {
+        // บางที PHP อาจ encode array associative แล้วกลายเป็น object
+        const values = Object.values(items);
+        console.log('Converted to array:', values);
+        setOrderItems(values);
+      } else {
+        setOrderItems([]);
+      }
+
+      setOpenDialog(true);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -160,7 +195,14 @@ const OrderListPage = () => {
 
     filtered = orders.filter(order => {
       const orderDate = new Date(order.OrderTime);
-      if (filter === 'week') {
+
+      if (filter === 'today') {
+        return (
+          orderDate.getDate() === now.getDate() &&
+          orderDate.getMonth() === now.getMonth() &&
+          orderDate.getFullYear() === now.getFullYear()
+        );
+      } else if (filter === 'week') {
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(now.getDate() - 7);
         return orderDate >= oneWeekAgo;
@@ -171,7 +213,15 @@ const OrderListPage = () => {
         );
       } else if (filter === 'year') {
         return orderDate.getFullYear() === now.getFullYear();
+      } else if (filter === 'custom' && customDate) {
+        const selectedDate = new Date(customDate);
+        return (
+          orderDate.getDate() === selectedDate.getDate() &&
+          orderDate.getMonth() === selectedDate.getMonth() &&
+          orderDate.getFullYear() === selectedDate.getFullYear()
+        );
       }
+
       return true;
     });
 
@@ -267,10 +317,21 @@ const OrderListPage = () => {
                 },
               }}
             >
+              <ToggleButton value="today">วันนี้</ToggleButton>
               <ToggleButton value="week">สัปดาห์นี้</ToggleButton>
               <ToggleButton value="month">เดือนนี้</ToggleButton>
               <ToggleButton value="year">ปีนี้</ToggleButton>
+              <ToggleButton value="custom">กำหนดเอง</ToggleButton>
             </ToggleButtonGroup>
+            {filter === 'custom' && (
+              <TextField
+                type="date"
+                value={customDate}
+                onChange={(e) => setCustomDate(e.target.value)}
+                sx={{ mt: 2 }}
+                fullWidth
+              />
+            )}
 
             {/* Summary Stats */}
             <Stack direction="row" spacing={3} mt={3}>
@@ -367,7 +428,7 @@ const OrderListPage = () => {
                             color="primary"
                             fullWidth
                             startIcon={<ViewIcon />}
-                            onClick={() => alert(`ดูรายละเอียด OrderID: ${order.OrderID}`)}
+                            onClick={() => handleViewDetails(order)}
                             sx={{ flex: 2 }}
                           >
                             รายละเอียด
@@ -390,6 +451,39 @@ const OrderListPage = () => {
                         </Stack>
                       </CardContent>
                     </Card>
+
+                    <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="md">
+                      <DialogTitle>รายละเอียดออร์เดอร์</DialogTitle>
+                      <DialogContent dividers>
+                        {selectedOrder && (
+                          <Box mb={2}>
+                            <Typography>หมายเลขโต๊ะ: {selectedOrder.TableID}</Typography>
+                            <Typography>เวลาสั่ง: {formatDateTime(selectedOrder.OrderTime).date} {formatDateTime(selectedOrder.OrderTime).time}</Typography>
+                            <Typography>ราคารวม: {formatCurrency(selectedOrder.TotalAmount)}</Typography>
+                          </Box>
+                        )}
+                        <Typography variant="h6" gutterBottom>รายการอาหาร</Typography>
+                        {orderItems.length === 0 ? (
+                          <Typography>ไม่มีรายการ</Typography>
+                        ) : (
+                          <Grid container spacing={2}>
+                            {orderItems.map((item, index) => (
+                              <Grid item xs={12} key={index}>
+                                <Card variant="outlined">
+                                  <CardContent>
+                                    <Typography>เมนู ID: {item.MenuID}</Typography>
+                                    <Typography>จำนวน: {item.Quantity}</Typography>
+                                    <Typography>ราคา: {formatCurrency(item.SubTotal)}</Typography>
+                                    <Typography>หมายเหตุ: {item.Note || '-'}</Typography>
+                                  </CardContent>
+                                </Card>
+                              </Grid>
+                            ))}
+                          </Grid>
+                        )}
+                      </DialogContent>
+                    </Dialog>
+
                   </Grid>
                 );
               })}
