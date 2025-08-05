@@ -356,12 +356,6 @@ const MenuPage = () => {
           >
             {storeName}
           </Typography>
-          <Box display="flex" alignItems="center" justifyContent="center" gap={0.5}>
-            <StarIcon sx={{ color: theme.warning, fontSize: '1rem' }} />
-            <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-              4.8 • ร้านอาหารยอดนิยม
-            </Typography>
-          </Box>
         </Box>
       </Box>
 

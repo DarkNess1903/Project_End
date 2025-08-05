@@ -424,10 +424,14 @@ const MenuPromoManagement = () => {
 
           <Grid container spacing={3}>
             {menus.map((menu) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={menu.MenuID}>
+              <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={menu.MenuID}>
                 <Card
                   elevation={0}
                   sx={{
+                    height: '100%', // ทำให้ card สูงเท่ากัน
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
                     borderRadius: 3,
                     border: `1px solid ${themeColors.divider}`,
                     transition: 'all 0.3s ease-in-out',
@@ -464,7 +468,7 @@ const MenuPromoManagement = () => {
                     ) : (
                       <ImageIcon sx={{ fontSize: 64, color: themeColors.textSecondary }} />
                     )}
-                    
+
                     {/* Status Badge */}
                     <Chip
                       icon={menu.Status === 'active' ? <VisibilityIcon /> : <VisibilityOffIcon />}
