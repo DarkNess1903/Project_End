@@ -1,9 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Grid, TextField, Button, Card, CardContent, Divider, Avatar,
+  Box,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  Avatar,
+  AppBar,
+  Toolbar,
+  Container,
+  Stack,
+  Chip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  ListItemSecondaryAction,
+  Badge,
+  Paper,
 } from '@mui/material';
+import {
+  Payment,
+  ArrowBack,
+  CreditCard,
+  AccountBalance,
+  LocalOffer,
+  Calculate,
+  Receipt,
+  MonetizationOn,
+  Discount,
+  CheckCircle,
+  Print,
+} from '@mui/icons-material';
 import axios from 'axios';
+
+// Custom theme colors for iPad cashier (consistent with other pages)
+const theme = {
+  colors: {
+    primary: '#1565c0', // น้ำเงินเข้ม
+    secondary: '#37474f', // เทาเข้ม
+    success: '#2e7d32', // เขียวเข้ม
+    warning: '#f57c00', // ส้มเข้ม
+    error: '#d32f2f', // แดงเข้ม
+    background: '#f8f9fa', // เทาอ่อน
+    surface: '#ffffff',
+    text: {
+      primary: '#212121',
+      secondary: '#757575',
+    }
+  }
+};
 
 const PaymentPage = () => {
   const { orderId } = useParams();
@@ -17,14 +75,23 @@ const PaymentPage = () => {
   const [change, setChange] = useState(0);
   const [promoCode, setPromoCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [paymentDialog, setPaymentDialog] = useState({ open: false, type: '' });
+  const [discountDialog, setDiscountDialog] = useState(false);
+  const [manualDiscount, setManualDiscount] = useState('');
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+
+  // Preset cash amounts for quick selection
+  const quickCashAmounts = [100, 200, 500, 1000];
 
   // โหลดข้อมูลคำสั่งซื้อ
   useEffect(() => {
     const fetchOrder = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`http://localhost/project_END/restaurant-backend/api/orders/read_single_order.php?order_id=${orderId}`);
         if (!res.data || !res.data.items) {
           console.error('ข้อมูลไม่ครบ:', res.data);
+          showNotification('ไม่พบข้อมูลออเดอร์', 'error');
           return;
         }
         setOrderItems(res.data.items);
@@ -33,26 +100,43 @@ const PaymentPage = () => {
         setFinalTotal(parseFloat(res.data.final_total));
       } catch (err) {
         console.error('โหลดข้อมูลผิดพลาด:', err);
+        showNotification('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+      } finally {
+        setLoading(false);
       }
     };
     fetchOrder();
   }, [orderId]);
 
+  const showNotification = (message, severity = 'success') => {
+    setNotification({ open: true, message, severity });
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
+
   // คำนวณเงินทอนเมื่อเงินที่รับมาเปลี่ยน
-  const handleCashChange = (e) => {
-    const value = parseFloat(e.target.value) || 0;
-    setCustomerCash(value);
-    setChange(value - finalTotal);
+  const handleCashChange = (value) => {
+    const numValue = parseFloat(value) || 0;
+    setCustomerCash(numValue);
+    setChange(numValue - finalTotal);
+  };
+
+  // เลือกจำนวนเงินแบบด่วน
+  const handleQuickCash = (amount) => {
+    const total = Math.ceil(finalTotal / amount) * amount; // ปัดขึ้นให้เป็นหลัก amount
+    handleCashChange(total);
   };
 
   // ฟังก์ชันจ่ายเงินจริง
   const handlePayment = async (type) => {
     if (finalTotal <= 0) {
-      alert('ยอดชำระต้องมากกว่า 0');
+      showNotification('ยอดชำระต้องมากกว่า 0', 'warning');
       return;
     }
     if (type === 'cash' && (customerCash === '' || customerCash < finalTotal)) {
-      alert('กรุณาใส่จำนวนเงินที่รับมามากกว่าหรือเท่ากับยอดชำระ');
+      showNotification('กรุณาใส่จำนวนเงินที่รับมามากกว่าหรือเท่ากับยอดชำระ', 'warning');
       return;
     }
 
@@ -60,22 +144,26 @@ const PaymentPage = () => {
     try {
       const payload = {
         order_id: orderId,
-        payment_type: type,  // 'cash' หรือ 'transfer'
+        payment_type: type,
         amount_paid: finalTotal,
         promo_code: promoCode || null,
       };
-      console.log("จ่ายเงินด้วย:", payload);
+      
       const res = await axios.post('http://localhost/project_END/restaurant-backend/api/payments/pay_order.php', payload);
 
       if (res.data.success) {
-        alert('ชำระเงินสำเร็จ');
-        navigate('/cashier/orders');  // กลับไปหน้าออเดอร์
+        setPaymentDialog({ open: true, type: 'success' });
+        showNotification('ชำระเงินสำเร็จ', 'success');
+        // Auto redirect after 3 seconds
+        setTimeout(() => {
+          navigate('/cashier/orders');
+        }, 3000);
       } else {
-        alert('ชำระเงินไม่สำเร็จ: ' + (res.data.message || ''));
+        showNotification('ชำระเงินไม่สำเร็จ: ' + (res.data.message || ''), 'error');
       }
     } catch (error) {
       console.error('ชำระเงินล้มเหลว:', error);
-      alert('เกิดข้อผิดพลาดในการชำระเงิน');
+      showNotification('เกิดข้อผิดพลาดในการชำระเงิน', 'error');
     } finally {
       setLoading(false);
     }
@@ -84,9 +172,11 @@ const PaymentPage = () => {
   // ฟังก์ชันใช้โปรโมชั่น/ลดราคา
   const applyPromotion = async () => {
     if (!promoCode) {
-      alert('กรุณาใส่โค้ดโปรโมชั่น');
+      showNotification('กรุณาใส่โค้ดโปรโมชั่น', 'warning');
       return;
     }
+    
+    setLoading(true);
     try {
       const res = await axios.post('http://localhost/project_END/restaurant-backend/api/promotion/apply_promo.php', {
         order_id: orderId,
@@ -95,125 +185,471 @@ const PaymentPage = () => {
       if (res.data.success) {
         setDiscount(parseFloat(res.data.discount));
         setFinalTotal(parseFloat(res.data.final_total));
-        alert('ใช้โปรโมชั่นสำเร็จ');
+        showNotification('ใช้โปรโมชั่นสำเร็จ', 'success');
+        // Recalculate change if cash amount is entered
+        if (customerCash) {
+          setChange(customerCash - parseFloat(res.data.final_total));
+        }
       } else {
-        alert('โปรโมชั่นไม่ถูกต้องหรือหมดอายุ');
+        showNotification('โปรโมชั่นไม่ถูกต้องหรือหมดอายุ', 'error');
       }
     } catch (error) {
       console.error('ใช้โปรโมชั่นล้มเหลว:', error);
-      alert('เกิดข้อผิดพลาดในการใช้โปรโมชั่น');
+      showNotification('เกิดข้อผิดพลาดในการใช้โปรโมชั่น', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ฟังก์ชันลดราคาแบบ manual (เช่นลดเพิ่มเอง)
+  // ฟังก์ชันลดราคาแบบ manual
   const applyManualDiscount = () => {
-    const manualDiscount = prompt('กรุณาใส่จำนวนเงินส่วนลด (บาท):', '0');
     const discVal = parseFloat(manualDiscount);
     if (isNaN(discVal) || discVal < 0) {
-      alert('กรุณาใส่จำนวนเงินที่ถูกต้อง');
+      showNotification('กรุณาใส่จำนวนเงินที่ถูกต้อง', 'warning');
       return;
     }
     const newFinal = totalPrice - discVal;
     if (newFinal < 0) {
-      alert('ส่วนลดมากกว่ายอดรวมไม่ได้');
+      showNotification('ส่วนลดมากกว่ายอดรวมไม่ได้', 'warning');
       return;
     }
     setDiscount(discVal);
     setFinalTotal(newFinal);
+    setDiscountDialog(false);
+    setManualDiscount('');
+    showNotification('ใช้ส่วนลดสำเร็จ', 'success');
+    // Recalculate change if cash amount is entered
+    if (customerCash) {
+      setChange(customerCash - newFinal);
+    }
   };
 
+  const formatCurrency = (value) => `฿${Number(value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+
+  if (loading && orderItems.length === 0) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress size={60} sx={{ color: theme.colors.primary }} />
+      </Box>
+    );
+  }
+
   return (
-    <Box p={2}>
-      <Typography variant="h5" gutterBottom>ชำระเงิน Order #{orderId}</Typography>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      backgroundColor: theme.colors.background,
+      fontFamily: 'Prompt, Roboto, sans-serif'
+    }}>
+      {/* App Bar */}
+      <AppBar position="static" sx={{ backgroundColor: theme.colors.success, mb: 3 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', minHeight: '80px !important' }}>
+          <Box display="flex" alignItems="center" gap={2}>
+            <IconButton 
+              color="inherit" 
+              size="large"
+              onClick={() => navigate('/cashier/orders')}
+            >
+              <ArrowBack sx={{ fontSize: 28 }} />
+            </IconButton>
+            <Payment sx={{ fontSize: 32 }} />
+            <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: '24px' }}>
+              ชำระเงิน Order #{orderId}
+            </Typography>
+          </Box>
+          <Box display="flex" gap={1}>
+            <Chip 
+              label={formatCurrency(finalTotal)} 
+              sx={{ 
+                backgroundColor: 'rgba(255,255,255,0.2)', 
+                color: 'white',
+                fontSize: '18px',
+                height: 48,
+                fontWeight: 700,
+                px: 2
+              }} 
+            />
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-      <Grid container spacing={2}>
-        {/* ซ้าย: รายการอาหาร */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">รายการอาหาร</Typography>
-              <Divider sx={{ my: 1 }} />
-              {orderItems.map((item, i) => (
-                <Box
-                  key={i}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  mb={1}
-                >
-                  <Avatar
-                    variant="rounded"
-                    src={item.ImageURL ? `http://localhost/project_END/restaurant-backend/${item.ImageURL}` : undefined}
-                    alt={item.name}
-                    sx={{ width: 56, height: 56, mr: 1 }}
-                  />
-                  <Typography sx={{ flex: 1 }}>{item.name} x {item.quantity}</Typography>
-                  <Typography>{item.sub_total.toFixed(2)} บาท</Typography>
+      <Container maxWidth="xl" sx={{ px: 3 }}>
+        <Grid container spacing={4}>
+          {/* ซ้าย: รายการอาหาร */}
+          <Grid item xs={12} lg={5}>
+            <Card sx={{ boxShadow: 3, height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+              <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                <Box display="flex" alignItems="center" gap={2} mb={3}>
+                  <Receipt sx={{ color: theme.colors.primary, fontSize: 28 }} />
+                  <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                    รายการอาหาร ({orderItems.length} รายการ)
+                  </Typography>
                 </Box>
-              ))}
-              <Divider sx={{ my: 1 }} />
-              <Typography>ราคารวม: {totalPrice.toFixed(2)} บาท</Typography>
-              <Typography>ส่วนลด: {discount.toFixed(2)} บาท</Typography>
-              <Typography variant="h6">ยอดชำระสุทธิ: {finalTotal.toFixed(2)} บาท</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* ขวา: เครื่องคิดเลขและปุ่มจ่ายเงิน */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>ลูกค้าชำระ</Typography>
-              <TextField
-                label="จำนวนเงินที่รับมา (บาท)"
-                type="number"
-                fullWidth
-                value={customerCash}
-                onChange={handleCashChange}
-                sx={{ mb: 2 }}
-              />
-
-              <Typography variant="body1">
-                เงินทอน: {change >= 0 ? change.toFixed(2) : 0} บาท
-              </Typography>
-
-              <Box mt={3} display="flex" flexDirection="column" gap={1}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  disabled={loading}
-                  onClick={() => handlePayment('cash')}
-                >
-                  จ่ายเงินสด
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  disabled={loading}
-                  onClick={() => handlePayment('transfer')}
-                >
-                  โอนเงิน
-                </Button>
-                <Box mt={2} display="flex" gap={1}>
-                  <TextField
-                    label="ใส่โค้ดโปรโมชั่น"
-                    value={promoCode}
-                    onChange={e => setPromoCode(e.target.value)}
-                    fullWidth
-                    size="small"
-                  />
-                  <Button variant="outlined" color="warning" onClick={applyPromotion} disabled={loading}>
-                    โปรโมชั่น
-                  </Button>
-                  <Button variant="outlined" color="secondary" onClick={applyManualDiscount} disabled={loading}>
-                    ลดราคา
-                  </Button>
-                </Box>
+                
+                <List sx={{ maxHeight: 'calc(100vh - 400px)', overflow: 'auto' }}>
+                  {orderItems.map((item, i) => (
+                    <ListItem key={i} sx={{ px: 0, py: 1 }}>
+                      <ListItemAvatar>
+                        <Avatar
+                          variant="rounded"
+                          src={item.ImageURL ? `http://localhost/project_END/restaurant-backend/${item.ImageURL}` : undefined}
+                          alt={item.name}
+                          sx={{ width: 64, height: 64, border: `2px solid ${theme.colors.primary}` }}
+                        >
+                          <Receipt />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Typography sx={{ fontWeight: 600, fontSize: '16px', mb: 0.5 }}>
+                            {item.name}
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography sx={{ color: theme.colors.text.secondary, fontSize: '14px' }}>
+                            จำนวน: {item.quantity} | ราคา: {formatCurrency(item.sub_total / item.quantity)}
+                          </Typography>
+                        }
+                        sx={{ ml: 2 }}
+                      />
+                      <ListItemSecondaryAction>
+                        <Typography sx={{ fontWeight: 700, fontSize: '16px', color: theme.colors.primary }}>
+                          {formatCurrency(item.sub_total)}
+                        </Typography>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+              
+              {/* Summary */}
+              <Box sx={{ p: 3, backgroundColor: theme.colors.background, borderTop: '1px solid #e0e0e0' }}>
+                <Stack spacing={2}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography sx={{ fontSize: '16px' }}>ราคารวม:</Typography>
+                    <Typography sx={{ fontSize: '16px', fontWeight: 600 }}>
+                      {formatCurrency(totalPrice)}
+                    </Typography>
+                  </Box>
+                  {discount > 0 && (
+                    <Box display="flex" justifyContent="space-between">
+                      <Typography sx={{ fontSize: '16px', color: theme.colors.success }}>ส่วนลด:</Typography>
+                      <Typography sx={{ fontSize: '16px', fontWeight: 600, color: theme.colors.success }}>
+                        -{formatCurrency(discount)}
+                      </Typography>
+                    </Box>
+                  )}
+                  <Divider />
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography sx={{ fontSize: '20px', fontWeight: 700, color: theme.colors.error }}>
+                      ยอดชำระสุทธิ:
+                    </Typography>
+                    <Typography sx={{ fontSize: '24px', fontWeight: 700, color: theme.colors.error }}>
+                      {formatCurrency(finalTotal)}
+                    </Typography>
+                  </Box>
+                </Stack>
               </Box>
-            </CardContent>
-          </Card>
+            </Card>
+          </Grid>
+
+          {/* ขวา: การชำระเงิน */}
+          <Grid item xs={12} lg={7}>
+            <Stack spacing={3}>
+              {/* Payment Calculator */}
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" gap={2} mb={3}>
+                    <Calculate sx={{ color: theme.colors.warning, fontSize: 28 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                      คำนวณเงินทอน
+                    </Typography>
+                  </Box>
+
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        label="จำนวนเงินที่ลูกค้าจ่าย (บาท)"
+                        type="number"
+                        fullWidth
+                        value={customerCash}
+                        onChange={(e) => handleCashChange(e.target.value)}
+                        sx={{
+                          '& .MuiInputBase-root': {
+                            height: 64,
+                            fontSize: '18px',
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Box>
+                        <Typography variant="body2" sx={{ mb: 1, color: theme.colors.text.secondary }}>
+                          จำนวนเงินแบบด่วน:
+                        </Typography>
+                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                          {quickCashAmounts.map(amount => (
+                            <Button
+                              key={amount}
+                              variant="outlined"
+                              size="small"
+                              onClick={() => handleQuickCash(amount)}
+                              sx={{
+                                minWidth: 70,
+                                height: 40,
+                                fontSize: '14px',
+                                borderColor: theme.colors.primary,
+                                color: theme.colors.primary
+                              }}
+                            >
+                              {amount}฿
+                            </Button>
+                          ))}
+                        </Stack>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  {customerCash && (
+                    <Box mt={3} p={2} sx={{ backgroundColor: theme.colors.background, borderRadius: 2 }}>
+                      <Typography variant="h5" sx={{ 
+                        fontWeight: 700, 
+                        color: change >= 0 ? theme.colors.success : theme.colors.error,
+                        textAlign: 'center'
+                      }}>
+                        เงินทอน: {change >= 0 ? formatCurrency(change) : 'ไม่เพียงพอ'}
+                      </Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Payment Methods */}
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" gap={2} mb={3}>
+                    <MonetizationOn sx={{ color: theme.colors.success, fontSize: 28 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                      วิธีการชำระเงิน
+                    </Typography>
+                  </Box>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        size="large"
+                        startIcon={<MonetizationOn />}
+                        disabled={loading}
+                        onClick={() => handlePayment('cash')}
+                        sx={{
+                          height: 72,
+                          fontSize: '18px',
+                          fontWeight: 600,
+                          backgroundColor: theme.colors.success,
+                          '&:hover': { backgroundColor: theme.colors.success }
+                        }}
+                      >
+                        จ่ายเงินสด
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Button
+                        variant="contained"
+                        fullWidth
+                        size="large"
+                        startIcon={<CreditCard />}
+                        disabled={loading}
+                        onClick={() => handlePayment('transfer')}
+                        sx={{
+                          height: 72,
+                          fontSize: '18px',
+                          fontWeight: 600,
+                          backgroundColor: theme.colors.primary,
+                          '&:hover': { backgroundColor: theme.colors.primary }
+                        }}
+                      >
+                        โอนเงิน/บัตร
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+
+              {/* Promotions & Discounts */}
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Box display="flex" alignItems="center" gap={2} mb={3}>
+                    <LocalOffer sx={{ color: theme.colors.warning, fontSize: 28 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                      โปรโมชั่นและส่วนลด
+                    </Typography>
+                  </Box>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={8}>
+                      <TextField
+                        label="โค้ดโปรโมชั่น"
+                        value={promoCode}
+                        onChange={e => setPromoCode(e.target.value)}
+                        fullWidth
+                        sx={{
+                          '& .MuiInputBase-root': {
+                            height: 56,
+                            fontSize: '16px',
+                          }
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Button 
+                          variant="outlined" 
+                          fullWidth
+                          startIcon={<LocalOffer />}
+                          onClick={applyPromotion} 
+                          disabled={loading}
+                          sx={{
+                            height: 56,
+                            fontSize: '14px',
+                            borderColor: theme.colors.warning,
+                            color: theme.colors.warning,
+                            '&:hover': { 
+                              backgroundColor: theme.colors.warning + '10',
+                              borderColor: theme.colors.warning 
+                            }
+                          }}
+                        >
+                          ใช้โปรโมชั่น
+                        </Button>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+
+                  <Box mt={2}>
+                    <Button 
+                      variant="outlined" 
+                      startIcon={<Discount />}
+                      onClick={() => setDiscountDialog(true)} 
+                      disabled={loading}
+                      sx={{
+                        height: 48,
+                        fontSize: '16px',
+                        borderColor: theme.colors.error,
+                        color: theme.colors.error,
+                        '&:hover': { 
+                          backgroundColor: theme.colors.error + '10',
+                          borderColor: theme.colors.error 
+                        }
+                      }}
+                    >
+                      ลดราคาเพิ่มเติม
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
+      </Container>
+
+      {/* Manual Discount Dialog */}
+      <Dialog 
+        open={discountDialog} 
+        onClose={() => setDiscountDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle sx={{ 
+          backgroundColor: theme.colors.error, 
+          color: 'white',
+          fontSize: '20px',
+          fontWeight: 600
+        }}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Discount />
+            ลดราคาเพิ่มเติม
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          <TextField
+            label="จำนวนเงินที่ต้องการลด (บาท)"
+            type="number"
+            fullWidth
+            value={manualDiscount}
+            onChange={(e) => setManualDiscount(e.target.value)}
+            sx={{
+              mt: 1,
+              '& .MuiInputBase-root': {
+                height: 56,
+                fontSize: '16px',
+              }
+            }}
+          />
+          <Typography variant="body2" sx={{ mt: 2, color: theme.colors.text.secondary }}>
+            ยอดรวมปัจจุบัน: {formatCurrency(totalPrice)} <br/>
+            ส่วนลดปัจจุบัน: {formatCurrency(discount)} <br/>
+            ยอดชำระปัจจุบัน: {formatCurrency(finalTotal)}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3, gap: 1 }}>
+          <Button 
+            onClick={() => setDiscountDialog(false)}
+            sx={{ 
+              height: 48,
+              fontSize: '16px',
+              minWidth: 100
+            }}
+          >
+            ยกเลิก
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={applyManualDiscount}
+            sx={{ 
+              height: 48,
+              fontSize: '16px',
+              minWidth: 120,
+              backgroundColor: theme.colors.error
+            }}
+          >
+            ใช้ส่วนลด
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Payment Success Dialog */}
+      <Dialog 
+        open={paymentDialog.open} 
+        onClose={() => setPaymentDialog({ open: false, type: '' })}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogContent sx={{ p: 4, textAlign: 'center' }}>
+          <CheckCircle sx={{ fontSize: 80, color: theme.colors.success, mb: 2 }} />
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: theme.colors.success }}>
+            ชำระเงินสำเร็จ!
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3, color: theme.colors.text.secondary }}>
+            ระบบกำลังพาคุณกลับไปหน้าออเดอร์...
+          </Typography>
+          <CircularProgress sx={{ color: theme.colors.success }} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Notification Snackbar */}
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={4000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseNotification} severity={notification.severity}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

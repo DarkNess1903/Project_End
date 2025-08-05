@@ -26,7 +26,10 @@ import {
   Avatar,
   Divider,
   ListItemAvatar,
-
+  Card,
+  CardContent,
+  Stack,
+  LinearProgress,
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -36,6 +39,13 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import BuildIcon from '@mui/icons-material/Build';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
+import PaymentIcon from '@mui/icons-material/Payment';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import PeopleIcon from '@mui/icons-material/People';
+import TimerIcon from '@mui/icons-material/Timer';
 
 const TableManagementPage = () => {
   const [tables, setTables] = useState([]);
@@ -49,6 +59,22 @@ const TableManagementPage = () => {
   const [billData, setBillData] = useState(null);
 
   const navigate = useNavigate();
+
+  // ธีมสีแบบเดียวกับ Layout
+  const themeColors = {
+    primary: '#1565c0',
+    primaryLight: '#1976d2',
+    secondary: '#37474f',
+    background: '#f8fafc',
+    surface: '#ffffff',
+    textPrimary: '#263238',
+    textSecondary: '#546e7a',
+    success: '#2e7d32',
+    warning: '#f57c00',
+    error: '#d32f2f',
+    divider: '#e1e5e9',
+  };
+
   const handleOpenNotificationDialog = () => {
     setNotificationDialogOpen(true);
   };
@@ -59,22 +85,28 @@ const TableManagementPage = () => {
 
   const statusLabel = {
     available: 'ว่าง',
-    occupied:  'สั่งแล้ว',
-    reserved:  'เสิร์ฟแล้ว',
+    occupied: 'สั่งแล้ว',
+    reserved: 'เสิร์ฟแล้ว',
   };
 
   const statusStyles = {
     available: {
-      bg: 'linear-gradient(135deg, #ffffff 0%, #e0f7fa 100%)',
-      icon: <RadioButtonUncheckedIcon color="disabled" />,
+      bg: 'linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)',
+      borderColor: themeColors.divider,
+      icon: <RadioButtonUncheckedIcon sx={{ fontSize: 48, color: '#90a4ae' }} />,
+      chipColor: 'default',
     },
     occupied: {
-      bg: 'linear-gradient(135deg, #fff9c4 0%, #fdd835 100%)',
-      icon: <RestaurantIcon color="warning" />,
+      bg: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)',
+      borderColor: themeColors.warning,
+      icon: <RestaurantIcon sx={{ fontSize: 48, color: themeColors.warning }} />,
+      chipColor: 'warning',
     },
     reserved: {
-      bg: 'linear-gradient(135deg, #a5d6a7 0%, #4caf50 100%)',
-      icon: <CheckCircleIcon color="success" />,
+      bg: 'linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%)',
+      borderColor: themeColors.success,
+      icon: <CheckCircleIcon sx={{ fontSize: 48, color: themeColors.success }} />,
+      chipColor: 'success',
     },
   };
 
@@ -92,24 +124,21 @@ const TableManagementPage = () => {
   useEffect(() => {
     fetchTables();
     fetchStaffCalls();
-    const interval = setInterval(fetchStaffCalls, 5000); // รีเฟรชทุก 5 วิ
-
+    const interval = setInterval(fetchStaffCalls, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  
   const handleMarkAsHandled = async (callId) => {
-  try {
-    await axios.post('http://localhost/project_END/restaurant-backend/api/staff_call/update_status.php', {
-      call_id: callId,
-    });
-    // รีโหลดรายการใหม่
-    fetchStaffCalls(); // ฟังก์ชันที่คุณใช้โหลดรายการอยู่แล้ว
-  } catch (err) {
-    console.error('อัปเดตสถานะล้มเหลว:', err);
-    alert('ไม่สามารถอัปเดตสถานะได้');
-  }
-};
+    try {
+      await axios.post('http://localhost/project_END/restaurant-backend/api/staff_call/update_status.php', {
+        call_id: callId,
+      });
+      fetchStaffCalls();
+    } catch (err) {
+      console.error('อัปเดตสถานะล้มเหลว:', err);
+      alert('ไม่สามารถอัปเดตสถานะได้');
+    }
+  };
 
   const fetchTables = async () => {
     try {
@@ -120,31 +149,25 @@ const TableManagementPage = () => {
     }
   };
 
-  // เปิด dialog แสดงเมนูปุ่มต่างๆ
   const handleOpenActionDialog = (table) => {
-    // เปิด dialog เฉพาะโต๊ะสถานะ occupied หรือ reserved เท่านั้น
     if (table.Status === 'occupied' || table.Status === 'reserved') {
       setSelectedTable(table);
       setOpenActionDialog(true);
     } else {
-      // อาจจะแจ้งเตือนผู้ใช้ว่าไม่สามารถจัดการโต๊ะนี้ได้
       alert('ไม่สามารถจัดการโต๊ะที่สถานะว่างได้');
     }
   };
 
-  // ปิด dialog เมนูปุ่มต่างๆ
   const handleCloseActionDialog = () => {
     setSelectedTable(null);
     setOpenActionDialog(false);
   };
 
-  // เปิด dialog ย้ายโต๊ะ
   const handleOpenMoveDialog = () => {
     setTargetTableId('');
     setOpenMoveDialog(true);
   };
 
-  // ปิด dialog ย้ายโต๊ะ
   const handleCloseMoveDialog = () => {
     setOpenMoveDialog(false);
   };
@@ -164,10 +187,8 @@ const TableManagementPage = () => {
     }
   };
 
-  // ตัวอย่างฟังก์ชันสำหรับแต่ละปุ่ม (เพิ่มตามความต้องการ)
   const handleCancelTable = () => {
     alert(`ยกเลิกโต๊ะ ${selectedTable.TableNumber}`);
-    // TODO: เพิ่ม logic ยกเลิกโต๊ะที่นี่
   };
 
   const handleClick = (orderId) => {
@@ -175,7 +196,6 @@ const TableManagementPage = () => {
       alert('ไม่มีคำสั่งซื้อสำหรับโต๊ะนี้');
       return;
     }
-    // เติม prefix /cashier
     navigate(`/cashier/payment/${orderId}`);
   };
 
@@ -212,7 +232,6 @@ const TableManagementPage = () => {
 
       if (response.data.success) {
         console.log("อัปเดตสถานะสำเร็จ:", response.data);
-        // 🔁 รีเฟรชข้อมูลบิล
         handleCheckBill();
       } else {
         alert("ไม่สามารถอัปเดตสถานะได้");
@@ -222,183 +241,367 @@ const TableManagementPage = () => {
     }
   };
 
-return (
-  <Box display="flex" height="100vh" sx={{ bgcolor: '#f0f4f8' }}>
-    <Box flex={1} p={3}>
-      {/* หัวข้อ */}
-      <Box
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-      mb={2}
-    >
-      <Typography variant="h4">
-        จัดการโต๊ะ
-      </Typography>
-        <Box>
-          <Tooltip title="การเรียกพนักงาน">
-          <IconButton color="secondary" onClick={handleOpenNotificationDialog}>
-            <Badge badgeContent={callNotifications.length} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
-        </Tooltip>
-          <Tooltip title="รีเฟรชโต๊ะ">
-            <IconButton color="primary" onClick={fetchTables}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-
-      {/* สรุปสถานะ */}
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          mb: 4,
-          borderRadius: 5,
-          bgcolor: '#ffffff',
-          display: 'flex',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          gap: 2,
+  return (
+    <Box sx={{ bgcolor: themeColors.background, minHeight: '100vh', p: 3 }}>
+      {/* Header Section */}
+      <Card 
+        elevation={0} 
+        sx={{ 
+          mb: 3, 
+          borderRadius: 3, 
+          border: `1px solid ${themeColors.divider}`,
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
         }}
       >
-        <Chip
-          label={`โต๊ะทั้งหมด: ${tables.length}`}
-          color="default"
-          variant="outlined"
-        />
-        <Chip
-          label={`ว่าง: ${tables.filter((t) => t.Status === 'available').length}`}
-          color="success"
-          variant="outlined"
-        />
-        <Chip
-          label={`สั่งอาหารแล้ว: ${tables.filter((t) => t.Status === 'occupied').length}`}
-          color="warning"
-          variant="outlined"
-        />
-        <Chip
-          label={`เสิร์ฟแล้ว: ${tables.filter((t) => t.Status === 'reserved').length}`}
-          color="primary"
-          variant="outlined"
-        />
-      </Paper>
+        <CardContent sx={{ p: 3 }}>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box display="flex" alignItems="center" gap={2}>
+              <Box
+                sx={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 3,
+                  background: `linear-gradient(135deg, ${themeColors.primary} 0%, ${themeColors.primaryLight} 100%)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <TableRestaurantIcon sx={{ fontSize: 32, color: 'white' }} />
+              </Box>
+              <Box>
+                <Typography variant="h4" fontWeight="700" color={themeColors.textPrimary}>
+                  จัดการโต๊ะ
+                </Typography>
+                <Typography variant="subtitle1" color={themeColors.textSecondary}>
+                  ระบบจัดการโต๊ะและออเดอร์
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Stack direction="row" spacing={2}>
+              <Tooltip title="การเรียกพนักงาน">
+                <IconButton 
+                  color="error" 
+                  onClick={handleOpenNotificationDialog}
+                  sx={{ 
+                    width: 56, 
+                    height: 56,
+                    borderRadius: 2,
+                    bgcolor: callNotifications.length > 0 ? '#ffebee' : 'transparent',
+                  }}
+                >
+                  <Badge badgeContent={callNotifications.length} color="error">
+                    <NotificationsIcon sx={{ fontSize: 28 }} />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+              
+              <Tooltip title="รีเฟรชโต๊ะ">
+                <IconButton 
+                  color="primary" 
+                  onClick={fetchTables}
+                  sx={{ 
+                    width: 56, 
+                    height: 56,
+                    borderRadius: 2,
+                    bgcolor: '#e3f2fd',
+                  }}
+                >
+                  <RefreshIcon sx={{ fontSize: 28 }} />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
 
-      {/* ตารางแสดงโต๊ะ */}
+      {/* Summary Statistics */}
+      <Card 
+        elevation={0} 
+        sx={{ 
+          mb: 4, 
+          borderRadius: 3,
+          border: `1px solid ${themeColors.divider}`,
+          background: themeColors.surface,
+        }}
+      >
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" fontWeight="600" mb={2} color={themeColors.textPrimary}>
+            สรุปสถานะโต๊ะ
+          </Typography>
+          
+          <Grid container spacing={3}>
+            <Grid item xs={3}>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight="700" color={themeColors.primary}>
+                  {tables.length}
+                </Typography>
+                <Typography variant="body1" color={themeColors.textSecondary}>
+                  โต๊ะทั้งหมด
+                </Typography>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={3}>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight="700" color={themeColors.success}>
+                  {tables.filter((t) => t.Status === 'available').length}
+                </Typography>
+                <Typography variant="body1" color={themeColors.textSecondary}>
+                  โต๊ะว่าง
+                </Typography>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={3}>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight="700" color={themeColors.warning}>
+                  {tables.filter((t) => t.Status === 'occupied').length}
+                </Typography>
+                <Typography variant="body1" color={themeColors.textSecondary}>
+                  สั่งแล้ว
+                </Typography>
+              </Box>
+            </Grid>
+            
+            <Grid item xs={3}>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight="700" color={themeColors.primary}>
+                  {tables.filter((t) => t.Status === 'reserved').length}
+                </Typography>
+                <Typography variant="body1" color={themeColors.textSecondary}>
+                  เสิร์ฟแล้ว
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* Tables Grid */}
       <Grid container spacing={3}>
         {tables.map((table) => {
           const style = statusStyles[table.Status] || {};
           return (
-            <Grid item xs={6} sm={4} md={3} key={table.TableID}>
-              <Tooltip
-                title={`สถานะ: ${statusLabel[table.Status] || table.Status}`}
+            <Grid item xs={6} sm={4} md={3} lg={2} key={table.TableID}>
+              <Card
+                onClick={() => handleOpenActionDialog(table)}
+                elevation={0}
+                sx={{
+                  cursor: table.Status !== 'available' ? 'pointer' : 'default',
+                  borderRadius: 3,
+                  border: `2px solid ${style.borderColor || themeColors.divider}`,
+                  background: style.bg || '#f5f5f5',
+                  transition: 'all 0.3s ease-in-out',
+                  minHeight: 200,
+                  '&:hover': table.Status !== 'available' ? {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                    borderColor: themeColors.primary,
+                  } : {},
+                }}
               >
-                <Box
-                  onClick={() => handleOpenActionDialog(table)}
-                  sx={{
-                    cursor: 'pointer',
-                    p: 2,
-                    borderRadius: 3,
-                    background: style.bg || '#ddd',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                    transition: 'transform 0.15s ease-in-out',
-                    '&:hover': {
-                      transform: 'scale(1.05)',
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-                    },
+                <CardContent 
+                  sx={{ 
+                    p: 3,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 1,
-                    minHeight: 160,
+                    justifyContent: 'center',
                     textAlign: 'center',
-                    bgcolor: '#fff',
+                    height: '100%',
                   }}
                 >
-                  <Box sx={{ fontSize: 48 }}>
-                    {style.icon || <RadioButtonUncheckedIcon />}
+                  {/* Icon */}
+                  <Box sx={{ mb: 2 }}>
+                    {style.icon || <RadioButtonUncheckedIcon sx={{ fontSize: 48 }} />}
                   </Box>
-                  <Typography variant="h6" fontWeight="bold">
+                  
+                  {/* Table Number */}
+                  <Typography 
+                    variant="h5" 
+                    fontWeight="700"
+                    color={themeColors.textPrimary}
+                    sx={{ mb: 1 }}
+                  >
                     โต๊ะ {table.TableNumber}
                   </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
+                  
+                  {/* Status Chip */}
+                  <Chip
+                    label={statusLabel[table.Status] || table.Status}
+                    color={style.chipColor || 'default'}
+                    size="small"
                     sx={{
-                      minHeight: 24,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
+                      fontWeight: '600',
+                      fontSize: '12px',
+                      borderRadius: 2,
                     }}
-                  >
-                    {statusLabel[table.Status] || table.Status}
-                  </Typography>
-                </Box>
-              </Tooltip>
+                  />
+                  
+                  {/* Additional Info for Occupied/Reserved Tables */}
+                  {(table.Status === 'occupied' || table.Status === 'reserved') && (
+                    <Box sx={{ mt: 1, width: '100%' }}>
+                      <Typography variant="caption" color={themeColors.textSecondary}>
+                        แตะเพื่อจัดการ
+                      </Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
             </Grid>
           );
         })}
       </Grid>
-    </Box>
-    
-      {/* Dialog แสดงปุ่มคำสั่ง */}
-      <Dialog open={openActionDialog} onClose={handleCloseActionDialog}>
-        <DialogTitle>
-          จัดการโต๊ะ {selectedTable?.TableNumber}
-          <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
-            {/* TODO: ดึงเวลาที่สั่งจริงจาก backend มาแสดง */}
-            เวลาที่สั่ง: {selectedTable?.OrderTime ?? 'ไม่พบข้อมูล'}
-          </Typography>
+
+      {/* Action Dialog */}
+      <Dialog 
+        open={openActionDialog} 
+        onClose={handleCloseActionDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            minHeight: 400,
+          }
+        }}
+      >
+        <DialogTitle sx={{ pb: 1 }}>
+          <Box display="flex" alignItems="center" gap={2}>
+            <TableRestaurantIcon color="primary" sx={{ fontSize: 32 }} />
+            <Box>
+              <Typography variant="h5" fontWeight="600">
+                จัดการโต๊ะ {selectedTable?.TableNumber}
+              </Typography>
+              <Typography variant="body2" color={themeColors.textSecondary}>
+                เวลาที่สั่ง: {selectedTable?.OrderTime ?? 'ไม่พบข้อมูล'}
+              </Typography>
+            </Box>
+          </Box>
         </DialogTitle>
 
-        <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 320 }}>
-          <Button variant="outlined" color="error" onClick={handleCancelTable}>
-            ยกเลิกโต๊ะ
-          </Button>
-          <Button variant="outlined" onClick={handleOpenMoveDialog}>
-            ย้ายเมนู / ย้ายโต๊ะ
-          </Button>
-          <Button variant="contained" onClick={handleCheckBill}>
-            ตรวจสอบบิล
-          </Button>
-
-          {/* ปุ่มจ่ายเงิน */}
-          {selectedTable?.OrderID ? (
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Stack spacing={2}>
+            <Button
+              variant="outlined"
+              color="error"
+              size="large"
+              startIcon={<CancelIcon />}
+              onClick={handleCancelTable}
+              sx={{ 
+                py: 2,
+                borderRadius: 2,
+                fontSize: '16px',
+                fontWeight: '600',
+              }}
+            >
+              ยกเลิกโต๊ะ
+            </Button>
+            
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              startIcon={<SwapHorizIcon />}
+              onClick={handleOpenMoveDialog}
+              sx={{ 
+                py: 2,
+                borderRadius: 2,
+                fontSize: '16px',
+                fontWeight: '600',
+              }}
+            >
+              ย้ายเมนู / ย้ายโต๊ะ
+            </Button>
+            
             <Button
               variant="contained"
-              color="success"
-              onClick={() => handleClick(selectedTable.OrderID)}
+              color="primary"
+              size="large"
+              startIcon={<ReceiptIcon />}
+              onClick={handleCheckBill}
+              sx={{ 
+                py: 2,
+                borderRadius: 2,
+                fontSize: '16px',
+                fontWeight: '600',
+              }}
             >
-              จ่ายเงิน
+              ตรวจสอบบิล
             </Button>
-          ) : (
-            <Button variant="contained" color="success" disabled>
-              ไม่มีออร์เดอร์ที่ต้องจ่าย
-            </Button>
-          )}
+
+            {selectedTable?.OrderID ? (
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                startIcon={<PaymentIcon />}
+                onClick={() => handleClick(selectedTable.OrderID)}
+                sx={{ 
+                  py: 2,
+                  borderRadius: 2,
+                  fontSize: '16px',
+                  fontWeight: '600',
+                }}
+              >
+                จ่ายเงิน
+              </Button>
+            ) : (
+              <Button 
+                variant="contained" 
+                color="success" 
+                size="large"
+                disabled
+                sx={{ 
+                  py: 2,
+                  borderRadius: 2,
+                  fontSize: '16px',
+                }}
+              >
+                ไม่มีออร์เดอร์ที่ต้องจ่าย
+              </Button>
+            )}
+          </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseActionDialog}>ปิด</Button>
+        
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={handleCloseActionDialog}
+            size="large"
+            sx={{ 
+              px: 4,
+              borderRadius: 2,
+              fontSize: '16px',
+            }}
+          >
+            ปิด
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Dialog ย้ายโต๊ะ */}
-      <Dialog open={openMoveDialog} onClose={handleCloseMoveDialog}>
-        <DialogTitle>ย้ายลูกค้าจากโต๊ะ {selectedTable?.TableNumber}</DialogTitle>
-        <DialogContent>
+      {/* Move Table Dialog */}
+      <Dialog 
+        open={openMoveDialog} 
+        onClose={handleCloseMoveDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
+      >
+        <DialogTitle>
+          ย้ายลูกค้าจากโต๊ะ {selectedTable?.TableNumber}
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
           <FormControl fullWidth sx={{ mt: 2 }}>
             <InputLabel>เลือกโต๊ะใหม่</InputLabel>
             <Select
               value={targetTableId}
               onChange={(e) => setTargetTableId(e.target.value)}
               label="เลือกโต๊ะใหม่"
+              sx={{ borderRadius: 2 }}
             >
               {tables
                 .filter(
@@ -413,119 +616,293 @@ return (
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseMoveDialog}>ยกเลิก</Button>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={handleCloseMoveDialog}
+            size="large"
+            sx={{ borderRadius: 2 }}
+          >
+            ยกเลิก
+          </Button>
           <Button
             variant="contained"
             onClick={handleMoveTable}
             disabled={!targetTableId}
+            size="large"
+            sx={{ borderRadius: 2 }}
           >
             ยืนยันการย้าย
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Dialog เรียกพนักงาน */}
-        <Dialog open={notificationDialogOpen} onClose={handleCloseNotificationDialog} fullWidth maxWidth="sm">
-          <DialogTitle>การเรียกพนักงาน</DialogTitle>
-          <DialogContent dividers>
-            {callNotifications.length === 0 ? (
-              <Typography align="center" color="textSecondary">
+      {/* Staff Call Dialog */}
+      <Dialog 
+        open={notificationDialogOpen} 
+        onClose={handleCloseNotificationDialog} 
+        fullWidth 
+        maxWidth="md"
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={2}>
+            <NotificationsIcon color="error" sx={{ fontSize: 32 }} />
+            <Typography variant="h5" fontWeight="600">
+              การเรียกพนักงาน
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          {callNotifications.length === 0 ? (
+            <Box textAlign="center" py={4}>
+              <PeopleIcon sx={{ fontSize: 64, color: themeColors.textSecondary, mb: 2 }} />
+              <Typography variant="h6" color={themeColors.textSecondary}>
                 ไม่มีรายการเรียกพนักงานในขณะนี้
               </Typography>
-            ) : (
-              <List>
-                {callNotifications.map((call) => {
-                  let IconComponent = ChatBubbleOutlineIcon;
-                  const message = call.message || "";
+            </Box>
+          ) : (
+            <List>
+              {callNotifications.map((call) => {
+                let IconComponent = ChatBubbleOutlineIcon;
+                const message = call.message || "";
 
-                  if (message.includes('อุปกรณ์')) {
-                    IconComponent = BuildIcon;
-                  } else if (message.includes('ปรับอากาศ')) {
-                    IconComponent = AcUnitIcon;
-                  }
+                if (message.includes('อุปกรณ์')) {
+                  IconComponent = BuildIcon;
+                } else if (message.includes('ปรับอากาศ')) {
+                  IconComponent = AcUnitIcon;
+                }
 
-                  return (
-                    <ListItem
-                      key={call.call_id}
-                      divider
-                      secondaryAction={
-                        <Button
-                          variant="outlined"
-                          color="success"
-                          onClick={() => handleMarkAsHandled(call.call_id)}
-                        >
-                          เคลียร์แล้ว
-                        </Button>
-                      }
-                    >
-                      <ListItemIcon>
-                        <IconComponent color="primary" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={`โต๊ะ ${call.table_number}`}
-                        secondary={`ข้อความ: ${message}`}
-                      />
-                    </ListItem>
-                  );
-                })}
-              </List>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseNotificationDialog}>ปิด</Button>
-          </DialogActions>
-        </Dialog>
-
-      {/* Dialog บิล */}
-        <Dialog open={billDialogOpen} onClose={() => setBillDialogOpen(false)} fullWidth maxWidth="md">
-          <DialogTitle>บิลของโต๊ะ {selectedTable?.TableNumber}</DialogTitle>
-          <DialogContent>
-            {billData ? (
-              <>
-                <Typography variant="subtitle1">เวลาสั่ง: {billData.order.OrderTime}</Typography>
-                <Typography variant="subtitle1">จำนวนเมนู: {billData.items.length}</Typography>
-                <Typography variant="subtitle1">ยอดรวม: ฿{parseFloat(billData.order.TotalAmount).toFixed(2)}</Typography>
-                
-                <Divider sx={{ my: 2 }} />
-
-                <List>
-                  {billData.items.map((item) => (
-                    <ListItem key={item.OrderItemID} alignItems="flex-start" sx={{ mb: 1 }}>
-                      <ListItemAvatar>
-                        <Avatar
-                          variant="rounded"
-                          src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
-                        />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={`${item.MenuName} x ${item.Quantity}`}
-                        secondary={
-                          <>
-                            หมายเหตุ: {item.Note || "-"}<br />
-                            ราคา: ฿{parseFloat(item.SubTotal).toFixed(2)}
-                          </>
-                        }
-                      />
+                return (
+                  <ListItem
+                    key={call.call_id}
+                    divider
+                    sx={{
+                      borderRadius: 2,
+                      mb: 1,
+                      bgcolor: '#fff3e0',
+                      '&:hover': {
+                        bgcolor: '#ffe0b2',
+                      },
+                    }}
+                    secondaryAction={
                       <Button
-                        variant="outlined"
-                        color={item.Status === "served" ? "success" : "warning"}
-                        onClick={() => handleToggleItemStatus(item.OrderItemID, item.Status)}
+                        variant="contained"
+                        color="success"
+                        onClick={() => handleMarkAsHandled(call.call_id)}
+                        sx={{ borderRadius: 2 }}
                       >
-                        {item.Status === "served" ? "เสิร์ฟแล้ว" : "กำลังทำ → เสิร์ฟ"}
+                        เคลียร์แล้ว
                       </Button>
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            ) : (
-              <Typography>กำลังโหลด...</Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setBillDialogOpen(false)}>ปิด</Button>
-          </DialogActions>
-        </Dialog>
+                    }
+                  >
+                    <ListItemIcon>
+                      <IconComponent color="primary" sx={{ fontSize: 32 }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="h6" fontWeight="600">
+                          โต๊ะ {call.table_number}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography variant="body1" color={themeColors.textSecondary}>
+                          {message}
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                );
+              })}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={handleCloseNotificationDialog}
+            size="large"
+            sx={{ borderRadius: 2 }}
+          >
+            ปิด
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Bill Dialog */}
+      <Dialog 
+        open={billDialogOpen} 
+        onClose={() => setBillDialogOpen(false)} 
+        fullWidth 
+        maxWidth="lg"
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={2}>
+            <ReceiptIcon color="primary" sx={{ fontSize: 32 }} />
+            <Typography variant="h5" fontWeight="600">
+              บิลของโต๊ะ {selectedTable?.TableNumber}
+            </Typography>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 3 }}>
+          {billData ? (
+            <>
+              {/* Bill Summary */}
+              <Card elevation={0} sx={{ mb: 3, bgcolor: themeColors.background, borderRadius: 2 }}>
+                <CardContent>
+                  <Grid container spacing={3}>
+                    <Grid item xs={4}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <TimerIcon color="primary" />
+                        <Box>
+                          <Typography variant="caption" color={themeColors.textSecondary}>
+                            เวลาสั่ง
+                          </Typography>
+                          <Typography variant="h6" fontWeight="600">
+                            {billData.order.OrderTime}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <RestaurantIcon color="primary" />
+                        <Box>
+                          <Typography variant="caption" color={themeColors.textSecondary}>
+                            จำนวนเมนู
+                          </Typography>
+                          <Typography variant="h6" fontWeight="600">
+                            {billData.items.length} รายการ
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <PaymentIcon color="primary" />
+                        <Box>
+                          <Typography variant="caption" color={themeColors.textSecondary}>
+                            ยอดรวม
+                          </Typography>
+                          <Typography variant="h6" fontWeight="600" color={themeColors.primary}>
+                            ฿{parseFloat(billData.order.TotalAmount).toFixed(2)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+
+              {/* Items List */}
+              <Typography variant="h6" fontWeight="600" mb={2}>
+                รายการอาหาร
+              </Typography>
+              
+              <List sx={{ bgcolor: themeColors.surface, borderRadius: 2 }}>
+                {billData.items.map((item, index) => (
+                  <ListItem 
+                    key={item.OrderItemID} 
+                    alignItems="flex-start" 
+                    sx={{ 
+                      mb: 1,
+                      borderRadius: 2,
+                      '&:hover': {
+                        bgcolor: themeColors.background,
+                      },
+                    }}
+                  >
+                    <ListItemAvatar>
+                      <Avatar
+                        variant="rounded"
+                        src={`http://localhost/project_END/restaurant-backend/${item.ImageURL}`}
+                        sx={{ width: 64, height: 64, borderRadius: 2 }}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      sx={{ ml: 2 }}
+                      primary={
+                        <Typography variant="h6" fontWeight="600">
+                          {item.MenuName} x {item.Quantity}
+                        </Typography>
+                      }
+                      secondary={
+                        <Box mt={1}>
+                          <Typography variant="body2" color={themeColors.textSecondary} mb={1}>
+                            หมายเหตุ: {item.Note || "ไม่มี"}
+                          </Typography>
+                          <Typography variant="h6" fontWeight="600" color={themeColors.primary}>
+                            ฿{parseFloat(item.SubTotal).toFixed(2)}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <Button
+                      variant={item.Status === "served" ? "contained" : "outlined"}
+                      color={item.Status === "served" ? "success" : "warning"}
+                      size="large"
+                      onClick={() => handleToggleItemStatus(item.OrderItemID, item.Status)}
+                      sx={{ 
+                        borderRadius: 2,
+                        minWidth: 140,
+                        fontWeight: '600',
+                      }}
+                    >
+                      {item.Status === "served" ? "เสิร์ฟแล้ว" : "กำลังทำ → เสิร์ฟ"}
+                    </Button>
+                  </ListItem>
+                ))}
+              </List>
+
+              {/* Progress Indicator */}
+              <Box sx={{ mt: 3 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                  <Typography variant="body1" fontWeight="600">
+                    ความคืบหน้าการเสิร์ฟ
+                  </Typography>
+                  <Typography variant="body2" color={themeColors.textSecondary}>
+                    {billData.items.filter(item => item.Status === "served").length}/{billData.items.length} รายการ
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={(billData.items.filter(item => item.Status === "served").length / billData.items.length) * 100}
+                  sx={{
+                    height: 8,
+                    borderRadius: 4,
+                    bgcolor: themeColors.divider,
+                    '& .MuiLinearProgress-bar': {
+                      borderRadius: 4,
+                      bgcolor: themeColors.success,
+                    },
+                  }}
+                />
+              </Box>
+            </>
+          ) : (
+            <Box textAlign="center" py={4}>
+              <Typography variant="h6" color={themeColors.textSecondary}>
+                กำลังโหลดข้อมูลบิล...
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={() => setBillDialogOpen(false)}
+            size="large"
+            sx={{ 
+              borderRadius: 2,
+              px: 4,
+            }}
+          >
+            ปิด
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
