@@ -261,7 +261,7 @@ const ReportPage = () => {
               format: formatCurrency
             },
             {
-              title: 'กำไรขั้นต้น',
+              title: 'กําไรสุทธิ',
               value: summary.net_revenue,
               color: theme.colors.success,
               icon: <TrendingUp sx={{ fontSize: 32 }} />,
@@ -290,31 +290,35 @@ const ReportPage = () => {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
                     p: 2,
                   }}
                 >
-                  <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        color: theme.colors.text.secondary,
-                        fontSize: '18px',
-                        fontWeight: 500,
-                        lineHeight: 1.2,
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
-                    <Box sx={{ color: item.color }}>{item.icon}</Box>
-                  </Box>
+                  {/* Icon ด้านบน */}
+                  <Box sx={{ color: item.color, mb: 1 }}>{item.icon}</Box>
+
+                  {/* หัวข้อ */}
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontSize: '16px',
+                      fontWeight: 500,
+                      color: item.color, // สีเดียวกับข้อมูล
+                      mb: 0.5,
+                    }}
+                  >
+                    {item.title}
+                  </Typography>
+
+                  {/* ค่าข้อมูล */}
                   <Typography
                     variant="h5"
                     sx={{
                       fontWeight: 700,
-                      color: item.color,
                       fontSize: '20px',
-                      mt: 1,
+                      color: item.color, // สีเดียวกับหัวข้อ
                     }}
                   >
                     {item.format(item.value)}

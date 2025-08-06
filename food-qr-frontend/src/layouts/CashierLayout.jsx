@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 
 const logoUrl = "/uploads/logo.png";
-const storeName = "ชื่อร้าน xxxxxx";
+const storeName = "เนื้อหอมมาลองเซ่บีฟ";
 
 // เพิ่มขนาด drawer สำหรับ iPad
 const drawerWidth = 280;

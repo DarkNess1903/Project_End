@@ -149,7 +149,7 @@ const ExpensePage = () => {
         <Toolbar sx={{ justifyContent: 'space-between', minHeight: '80px !important' }}>
           <Box display="flex" alignItems="center" gap={2}>
             <AccountBalanceWallet sx={{ fontSize: 32 }} />
-            <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: '24px' }}>
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 600, fontSize: '24px' }}>
               จัดการรายจ่าย - แคชเชียร์
             </Typography>
           </Box>
@@ -178,7 +178,7 @@ const ExpensePage = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.error }}>
                   รายจ่ายวันนี้
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: theme.colors.error }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.error }}>
                   {formatCurrency(
                     expenses
                       .filter(exp => format(new Date(exp.ExpenseDate), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'))
@@ -195,7 +195,7 @@ const ExpensePage = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.warning }}>
                   จำนวนรายการ
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: theme.colors.warning }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.warning }}>
                   {expenses.length}
                 </Typography>
               </CardContent>
@@ -208,7 +208,7 @@ const ExpensePage = () => {
                 <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.primary }}>
                   รายจ่ายรวมทั้งหมด
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: theme.colors.primary }}>
+                <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.primary }}>
                   {formatCurrency(total)}
                 </Typography>
               </CardContent>
