@@ -452,14 +452,14 @@ const OrderListPage = () => {
                       </CardContent>
                     </Card>
 
-                    <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="md">
-                      <DialogTitle>รายละเอียดออร์เดอร์</DialogTitle>
-                      <DialogContent dividers>
+                    <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="md" >
+                      <DialogTitle variant="h4" color="#ffffff" sx ={{background: '#1976d2',}} >รายละเอียดออเดอร์</DialogTitle>
+                      <DialogContent dividers >
                         {selectedOrder && (
-                          <Box mb={2}>
-                            <Typography>หมายเลขโต๊ะ: {selectedOrder.TableID}</Typography>
-                            <Typography>เวลาสั่ง: {formatDateTime(selectedOrder.OrderTime).date} {formatDateTime(selectedOrder.OrderTime).time}</Typography>
-                            <Typography>ราคารวม: {formatCurrency(selectedOrder.TotalAmount)}</Typography>
+                          <Box mb={2}  variant="h5" >
+                            <Typography variant="h6" >หมายเลขโต๊ะ: {selectedOrder.TableID}</Typography>
+                            <Typography variant="h6" >เวลาสั่ง: {formatDateTime(selectedOrder.OrderTime).date} {formatDateTime(selectedOrder.OrderTime).time}</Typography>
+                            <Typography color="success.main" variant="h6" >ราคารวม: {formatCurrency(selectedOrder.TotalAmount)}</Typography>
                           </Box>
                         )}
                         <Typography variant="h6" gutterBottom>รายการอาหาร</Typography>
@@ -470,7 +470,7 @@ const OrderListPage = () => {
                             {orderItems.map((item, index) => (
                               <Grid item xs={12} key={index}>
                                 <Card variant="outlined">
-                                  <CardContent>
+                                  <CardContent sx= {{p:3, textAlign: 'center' }}>
                                     <Typography>เมนู ID: {item.MenuID}</Typography>
                                     <Typography>จำนวน: {item.Quantity}</Typography>
                                     <Typography>ราคา: {formatCurrency(item.SubTotal)}</Typography>

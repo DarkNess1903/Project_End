@@ -529,7 +529,7 @@ const TableManagementPage = () => {
                 fontWeight: '600',
               }}
             >
-              ตรวจสอบบิล
+              ตรวจสอบคำสั่งซื้อ
             </Button>
 
             {selectedTable?.OrderID ? (
