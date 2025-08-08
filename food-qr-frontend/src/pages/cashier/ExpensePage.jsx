@@ -25,6 +25,7 @@ import {
   TableContainer,
   Paper,
   Fab,
+  ButtonGroup,
 } from '@mui/material';
 import {
   AccountBalanceWallet,
@@ -36,8 +37,12 @@ import {
   CalendarMonth,
   TrendingDown,
   Category,
+  Today,
+  DateRange,
+  CalendarToday,
+  Schedule,
 } from '@mui/icons-material';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 
 // Custom theme colors for iPad cashier (consistent with ReportPage)
 const theme = {
@@ -68,6 +73,7 @@ const ExpensePage = () => {
     startDate: '',
     endDate: '',
     type: '',
+    quickFilter: '', // เพิ่ม state สำหรับ quick filter
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
@@ -84,6 +90,41 @@ const ExpensePage = () => {
     'ซ่อมแซม',
     'อื่นๆ'
   ];
+
+  // ฟังก์ชันสำหรับ quick date filters
+  const handleQuickFilter = (period) => {
+    const now = new Date();
+    let startDate, endDate;
+
+    switch (period) {
+      case 'today':
+        startDate = startOfDay(now);
+        endDate = endOfDay(now);
+        break;
+      case 'week':
+        startDate = startOfWeek(now, { weekStartsOn: 1 }); // เริ่มต้นที่วันจันทร์
+        endDate = endOfWeek(now, { weekStartsOn: 1 });
+        break;
+      case 'month':
+        startDate = startOfMonth(now);
+        endDate = endOfMonth(now);
+        break;
+      case 'year':
+        startDate = startOfYear(now);
+        endDate = endOfYear(now);
+        break;
+      default:
+        startDate = '';
+        endDate = '';
+    }
+
+    setFilter({
+      ...filter,
+      startDate: startDate ? format(startDate, 'yyyy-MM-dd') : '',
+      endDate: endDate ? format(endDate, 'yyyy-MM-dd') : '',
+      quickFilter: period
+    });
+  };
 
   const fetchExpenses = async () => {
     try {
@@ -132,7 +173,16 @@ const ExpensePage = () => {
   };
 
   const clearFilters = () => {
-    setFilter({ startDate: '', endDate: '', type: '' });
+    setFilter({ startDate: '', endDate: '', type: '', quickFilter: '' });
+  };
+
+  // ฟังก์ชันสำหรับจัดการการเปลี่ยนวันที่แบบ manual
+  const handleDateChange = (field, value) => {
+    setFilter({ 
+      ...filter, 
+      [field]: value,
+      quickFilter: '' // ล้าง quick filter เมื่อเปลี่ยนวันที่แบบ manual
+    });
   };
 
   const total = expenses.reduce((sum, exp) => sum + parseFloat(exp.Amount || 0), 0);
@@ -153,163 +203,161 @@ const ExpensePage = () => {
               จัดการรายจ่าย - แคชเชียร์
             </Typography>
           </Box>
-          <Box display="flex" gap={1}>
-            <Chip 
-              label={`รวม ${formatCurrency(total)}`} 
-              sx={{ 
-                backgroundColor: 'rgba(255,255,255,0.2)', 
-                color: 'white',
-                fontSize: '16px',
-                height: 40,
-                fontWeight: 600
-              }} 
-            />
-          </Box>
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="xl" sx={{ px: 3 }}>
-        {/* Quick Stats */}
-        <Grid container spacing={3} mb={3}>
-          <Grid item xs={12} sm={4}>
-            <Card sx={{ boxShadow: 3, border: `2px solid ${theme.colors.error}` }}>
-              <CardContent sx={{ textAlign: 'center', p: 2 }}>
-                <TrendingDown sx={{ fontSize: 40, color: theme.colors.error, mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.error }}>
-                  รายจ่ายวันนี้
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.error }}>
-                  {formatCurrency(
-                    expenses
-                      .filter(exp => format(new Date(exp.ExpenseDate), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'))
-                      .reduce((sum, exp) => sum + parseFloat(exp.Amount || 0), 0)
-                  )}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Card sx={{ boxShadow: 3, border: `2px solid ${theme.colors.warning}` }}>
-              <CardContent sx={{ textAlign: 'center', p: 2 }}>
-                <Receipt sx={{ fontSize: 40, color: theme.colors.warning, mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.warning }}>
-                  จำนวนรายการ
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.warning }}>
-                  {expenses.length}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Card sx={{ boxShadow: 3, border: `2px solid ${theme.colors.primary}` }}>
-              <CardContent sx={{ textAlign: 'center', p: 2 }}>
-                <CalendarMonth sx={{ fontSize: 40, color: theme.colors.primary, mb: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.primary }}>
-                  รายจ่ายรวมทั้งหมด
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.primary }}>
-                  {formatCurrency(total)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
+      <Container maxWidth="xl" sx={{ px: 2 }}>
         {/* Filter Section */}
         <Card sx={{ mb: 3, boxShadow: 3 }}>
           <CardContent sx={{ p: 3 }}>
-            <Box display="flex" alignItems="center" gap={2} mb={2}>
+            <Box display="flex" alignItems="center" gap={2} mb={3}>
               <FilterList sx={{ color: theme.colors.primary }} />
               <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '18px' }}>
                 ตัวกรองข้อมูล
               </Typography>
             </Box>
             
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField 
-                  label="จากวันที่" 
-                  type="date" 
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  value={filter.startDate}
-                  onChange={(e) => setFilter({ ...filter, startDate: e.target.value })}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      height: 56,
-                      fontSize: '16px',
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField 
-                  label="ถึงวันที่" 
-                  type="date" 
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                  value={filter.endDate}
-                  onChange={(e) => setFilter({ ...filter, endDate: e.target.value })}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      height: 56,
-                      fontSize: '16px',
-                    }
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <TextField 
-                  label="ประเภทรายจ่าย"
-                  select
-                  fullWidth
-                  SelectProps={{ native: true }}
-                  value={filter.type}
-                  onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-                  sx={{
-                    '& .MuiInputBase-root': {
-                      height: 56,
-                      fontSize: '16px',
-                    }
+            {/* Quick Filter Buttons */}
+            <Box mb={3}>
+              <Typography variant="subtitle2" sx={{ mb: 2, color: theme.colors.text.secondary }}>
+                เลือกช่วงเวลาด่วน:
+              </Typography>
+              <ButtonGroup variant="outlined" sx={{ flexWrap: 'wrap', gap: 1 }}>
+                <Button
+                  variant={filter.quickFilter === 'today' ? 'contained' : 'outlined'}
+                  startIcon={<Today />}
+                  onClick={() => handleQuickFilter('today')}
+                  sx={{ 
+                    minWidth: 120,
+                    height: 40,
+                    fontSize: '14px',
+                    ...(filter.quickFilter === 'today' && {
+                      backgroundColor: theme.colors.primary,
+                      color: 'white'
+                    })
                   }}
                 >
-                  <option value="">ทั้งหมด</option>
-                  {expenseTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Stack direction="row" spacing={1} height="56px">
-                  <Button 
-                    variant="contained" 
-                    startIcon={<Search />}
-                    onClick={fetchExpenses}
-                    sx={{ 
-                      height: '100%',
-                      fontSize: '16px',
-                      minWidth: 120,
-                      backgroundColor: theme.colors.primary
+                  วันนี้
+                </Button>
+                <Button
+                  variant={filter.quickFilter === 'week' ? 'contained' : 'outlined'}
+                  startIcon={<DateRange />}
+                  onClick={() => handleQuickFilter('week')}
+                  sx={{ 
+                    minWidth: 120,
+                    height: 40,
+                    fontSize: '14px',
+                    ...(filter.quickFilter === 'week' && {
+                      backgroundColor: theme.colors.primary,
+                      color: 'white'
+                    })
+                  }}
+                >
+                  สัปดาห์นี้
+                </Button>
+                <Button
+                  variant={filter.quickFilter === 'month' ? 'contained' : 'outlined'}
+                  startIcon={<CalendarMonth />}
+                  onClick={() => handleQuickFilter('month')}
+                  sx={{ 
+                    minWidth: 120,
+                    height: 40,
+                    fontSize: '14px',
+                    ...(filter.quickFilter === 'month' && {
+                      backgroundColor: theme.colors.primary,
+                      color: 'white'
+                    })
+                  }}
+                >
+                  เดือนนี้
+                </Button>
+                <Button
+                  variant={filter.quickFilter === 'year' ? 'contained' : 'outlined'}
+                  startIcon={<Schedule />}
+                  onClick={() => handleQuickFilter('year')}
+                  sx={{ 
+                    minWidth: 120,
+                    height: 40,
+                    fontSize: '14px',
+                    ...(filter.quickFilter === 'year' && {
+                      backgroundColor: theme.colors.primary,
+                      color: 'white'
+                    })
+                  }}
+                >
+                  ปีนี้
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleQuickFilter('')}
+                  sx={{ 
+                    minWidth: 100,
+                    height: 40,
+                    fontSize: '14px',
+                    borderColor: theme.colors.secondary,
+                    color: theme.colors.secondary
+                  }}
+                >
+                  ทั้งหมด
+                </Button>
+              </ButtonGroup>
+            </Box>
+
+            {/* Filter by Type */}
+            <Box mt={3}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={6} md={4}>
+                  <TextField 
+                    label="ประเภทรายจ่าย"
+                    select
+                    fullWidth
+                    SelectProps={{ native: true }}
+                    value={filter.type}
+                    onChange={(e) => setFilter({ ...filter, type: e.target.value })}
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        height: 48,
+                        fontSize: '14px',
+                      }
                     }}
                   >
-                    ค้นหา
-                  </Button>
-                  <Button 
-                    variant="outlined" 
-                    onClick={clearFilters}
-                    sx={{ 
-                      height: '100%',
-                      fontSize: '16px',
-                      minWidth: 80,
-                      borderColor: theme.colors.secondary
-                    }}
-                  >
-                    ล้าง
-                  </Button>
-                </Stack>
+                    <option value="">ทั้งหมด</option>
+                    {expenseTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6} md={4}>
+                  <Stack direction="row" spacing={1} height="48px">
+                    <Button 
+                      variant="contained" 
+                      startIcon={<Search />}
+                      onClick={fetchExpenses}
+                      sx={{ 
+                        height: '100%',
+                        fontSize: '14px',
+                        minWidth: 100,
+                        backgroundColor: theme.colors.primary
+                      }}
+                    >
+                      ค้นหา
+                    </Button>
+                    <Button 
+                      variant="outlined" 
+                      onClick={clearFilters}
+                      sx={{ 
+                        height: '100%',
+                        fontSize: '14px',
+                        minWidth: 80,
+                        borderColor: theme.colors.secondary
+                      }}
+                    >
+                      ล้าง
+                    </Button>
+                  </Stack>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </CardContent>
         </Card>
 
@@ -427,12 +475,41 @@ const ExpensePage = () => {
           </Card>
         )}
 
+        {/* Summary Card */}
+        {/* <Card sx={{ mb: 3, boxShadow: 2, backgroundColor: theme.colors.error + '10' }}>
+          <CardContent sx={{ p: 2 }}>
+            <Box display="flex" justifyContent="between" alignItems="center">
+              <Typography variant="h6" sx={{ fontWeight: 600, color: theme.colors.error }}>
+                สรุปรายจ่าย {filter.quickFilter && (
+                  <Chip 
+                    label={
+                      filter.quickFilter === 'today' ? 'วันนี้' :
+                      filter.quickFilter === 'week' ? 'สัปดาห์นี้' :
+                      filter.quickFilter === 'month' ? 'เดือนนี้' :
+                      filter.quickFilter === 'year' ? 'ปีนี้' : ''
+                    }
+                    size="small"
+                    sx={{ 
+                      ml: 1,
+                      backgroundColor: theme.colors.primary,
+                      color: 'white'
+                    }}
+                  />
+                )}
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 700, color: theme.colors.error }}>
+                {formatCurrency(total)}
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card> */}
+
         {/* Expenses Table */}
         <Card sx={{ boxShadow: 3 }}>
           <CardContent sx={{ p: 3 }}>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
               <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '18px' }}>
-                รายการรายจ่าย
+                รายการรายจ่าย ({expenses.length} รายการ)
               </Typography>
               {!showAddForm && (
                 <Button 
@@ -442,7 +519,8 @@ const ExpensePage = () => {
                   sx={{ 
                     height: 48,
                     fontSize: '16px',
-                    backgroundColor: theme.colors.success
+                    backgroundColor: theme.colors.success,
+                    display: { xs: 'none', md: 'flex' }
                   }}
                 >
                   เพิ่มรายจ่าย
@@ -450,47 +528,59 @@ const ExpensePage = () => {
               )}
             </Box>
 
-            <TableContainer component={Paper} sx={{ boxShadow: 1 }}>
-              <Table sx={{ minWidth: 650 }}>
+            <TableContainer component={Paper} sx={{ boxShadow: 1, maxHeight: 600 }}>
+              <Table stickyHeader sx={{ minWidth: 650 }}>
                 <TableHead>
-                  <TableRow sx={{ backgroundColor: theme.colors.background }}>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '16px' }}>วันที่</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '16px' }}>รายการ</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '16px' }}>ประเภท</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600, fontSize: '16px' }}>จำนวนเงิน</TableCell>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: theme.colors.background }}>วันที่</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: theme.colors.background }}>รายการ</TableCell>
+                    <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: theme.colors.background }}>ประเภท</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: theme.colors.background }}>จำนวนเงิน</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {expenses.map((exp) => (
-                    <TableRow key={exp.ExpenseID} hover>
-                      <TableCell sx={{ fontSize: '14px' }}>
-                        {format(new Date(exp.ExpenseDate), 'dd/MM/yyyy')}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '14px' }}>{exp.Description}</TableCell>
-                      <TableCell sx={{ fontSize: '14px' }}>
-                        <Chip 
-                          label={exp.ExpenseType} 
-                          size="small" 
-                          sx={{ 
-                            backgroundColor: theme.colors.warning + '20',
-                            color: theme.colors.warning,
-                            fontWeight: 500
-                          }} 
-                        />
-                      </TableCell>
-                      <TableCell align="right" sx={{ fontSize: '14px', fontWeight: 600 }}>
-                        {formatCurrency(exp.Amount)}
+                  {expenses.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center" sx={{ py: 4, color: theme.colors.text.secondary }}>
+                        <Typography variant="body1">
+                          ไม่พบข้อมูลรายจ่ายในช่วงเวลาที่เลือก
+                        </Typography>
                       </TableCell>
                     </TableRow>
-                  ))}
-                  <TableRow sx={{ backgroundColor: theme.colors.background }}>
-                    <TableCell colSpan={3} align="right" sx={{ fontWeight: 700, fontSize: '18px' }}>
-                      รวมทั้งหมด
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700, fontSize: '18px', color: theme.colors.error }}>
-                      {formatCurrency(total)}
-                    </TableCell>
-                  </TableRow>
+                  ) : (
+                    expenses.map((exp) => (
+                      <TableRow key={exp.ExpenseID} hover>
+                        <TableCell sx={{ fontSize: '14px' }}>
+                          {format(new Date(exp.ExpenseDate), 'dd/MM/yyyy')}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: '14px' }}>{exp.Description}</TableCell>
+                        <TableCell sx={{ fontSize: '14px' }}>
+                          <Chip 
+                            label={exp.ExpenseType} 
+                            size="small" 
+                            sx={{ 
+                              backgroundColor: theme.colors.warning + '20',
+                              color: theme.colors.warning,
+                              fontWeight: 500
+                            }} 
+                          />
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontSize: '14px', fontWeight: 600 }}>
+                          {formatCurrency(exp.Amount)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                  {expenses.length > 0 && (
+                    <TableRow sx={{ backgroundColor: theme.colors.background }}>
+                      <TableCell colSpan={3} align="right" sx={{ fontWeight: 700, fontSize: '18px' }}>
+                        รวมทั้งหมด
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, fontSize: '18px', color: theme.colors.error }}>
+                        {formatCurrency(total)}
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

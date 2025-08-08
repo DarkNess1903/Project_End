@@ -14,8 +14,25 @@ if (!isset($_GET['order_id'])) {
 
 $order_id = $_GET['order_id'];
 
+// แก้ไข SQL ให้ JOIN กับตาราง menu เพื่อดึงชื่อเมนู
+$sql = "SELECT 
+    oi.OrderItemID,
+    oi.OrderID,
+    oi.MenuID,
+    oi.Quantity,
+    oi.SubTotal,
+    oi.Cost,
+    oi.Note,
+    oi.Status,
+    m.Name AS MenuName,
+    m.Description,
+    m.Price
+FROM orderitem oi 
+LEFT JOIN menu m ON oi.MenuID = m.MenuID 
+WHERE oi.OrderID = ?";
+
 // เตรียม statement ด้วย mysqli
-$stmt = $conn->prepare("SELECT * FROM orderitem WHERE OrderID = ?");
+$stmt = $conn->prepare($sql);
 if (!$stmt) {
     http_response_code(500);
     echo json_encode(["error" => "Prepare failed: " . $conn->error]);

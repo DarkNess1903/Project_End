@@ -4,10 +4,7 @@ import {
   Box,
   Typography,
   Grid,
-  Paper,
-  Button,
   Stack,
-  Divider,
   Card,
   CardContent,
   Chip,
@@ -16,18 +13,6 @@ import {
   Toolbar,
   IconButton,
 } from '@mui/material';
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  BarChart,
-  Bar,
-  Legend,
-} from 'recharts';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -38,25 +23,27 @@ import {
   Receipt,
   CalendarToday,
   Print,
+  TrendingDown,
+  DateRange,
+  Schedule,
+  CalendarMonth
 } from '@mui/icons-material';
 
 const API_BASE = 'http://localhost/project_END/restaurant-backend/api/reports';
 
-// Custom theme colors for iPad cashier
 const theme = {
   colors: {
-    primary: '#1565c0', // น้ำเงินเข้ม
-    secondary: '#37474f', // เทาเข้ม
-    success: '#2e7d32', // เขียวเข้ม
-    warning: '#f57c00', // ส้มเข้ม
-    error: '#d32f2f', // แดงเข้ม
-    background: '#f8f9fa', // เทาอ่อน
-    surface: '#ffffff',
+    primary: '#1565c0',
+    secondary: '#37474f',
+    success: '#2e7d32',
+    warning: '#f57c00',
+    error: '#d32f2f',
+    background: '#f8f9fa',
     text: {
       primary: '#212121',
       secondary: '#757575',
-    }
-  }
+    },
+  },
 };
 
 const ReportPage = () => {
@@ -65,17 +52,76 @@ const ReportPage = () => {
   const [summary, setSummary] = useState({
     total_sales: 0,
     total_cost: 0,
-    net_revenue: 0,
     total_orders: 0,
   });
   const [filterType, setFilterType] = useState('day');
   const [selectedDate, setSelectedDate] = useState(null);
+  const [expenses, setExpenses] = useState([]);
+  const [totalExpense, setTotalExpense] = useState(0);
+  
+  const netProfit = summary.total_sales - summary.total_cost - totalExpense;
+
+  const formatLocalDate = (date) => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
   useEffect(() => {
     fetchSalesReport();
     fetchMenuSales();
+
+    let startDate, endDate;
+    const today = new Date();
+
+    if (filterType === 'custom' && selectedDate) {
+      // กำหนดเอง 1 วัน
+      startDate = formatLocalDate(selectedDate);
+      endDate = formatLocalDate(selectedDate);
+    } else if (filterType === 'day') {
+      startDate = formatLocalDate(today);
+      endDate = formatLocalDate(today);
+    } else if (filterType === 'week') {
+      // เริ่มต้นสัปดาห์ (เช่น วันจันทร์) ถึงวันนี้
+      const dayOfWeek = today.getDay(); // 0=อาทิตย์ ... 6=เสาร์
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7)); // หาวันจันทร์ของสัปดาห์นี้
+      startDate = formatLocalDate(monday);
+      endDate = formatLocalDate(today);
+    } else if (filterType === 'month') {
+      // เดือนนี้ ตั้งแต่วันที่ 1 ถึงวันนี้
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      startDate = formatLocalDate(firstDay);
+      endDate = formatLocalDate(today);
+    } else if (filterType === 'year') {
+      // ปีนี้ ตั้งแต่วันที่ 1 ม.ค. ถึงวันนี้
+      const firstJan = new Date(today.getFullYear(), 0, 1);
+      startDate = formatLocalDate(firstJan);
+      endDate = formatLocalDate(today);
+    }
+
+    fetchExpenses(startDate, endDate);
   }, [filterType, selectedDate]);
 
+  const fetchExpenses = async (startDate, endDate) => {
+    try {
+      const params = {};
+      if (startDate) params.start_date = startDate;
+      if (endDate) params.end_date = endDate;
+
+      const res = await axios.get(`${API_BASE}/sales_by_expenses.php`, { params });
+
+      const total = res.data.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+
+      setExpenses(res.data);
+      setTotalExpense(total);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
+
+  // ดึงข้อมูลรายงานยอดขายตามช่วงเวลา
   const fetchSalesReport = async () => {
     try {
       let res;
@@ -99,7 +145,9 @@ const ReportPage = () => {
           },
         });
       } else {
-        res = await axios.get(`${API_BASE}/sales_by_date.php?period=${filterType}`);
+        res = await axios.get(`${API_BASE}/sales_by_date.php`, {
+          params: { period: filterType }
+        });
       }
 
       setSalesByDate(res.data.sales || []);
@@ -109,6 +157,7 @@ const ReportPage = () => {
     }
   };
 
+  // ดึงข้อมูลยอดขายแยกตามเมนู
   const fetchMenuSales = async () => {
     try {
       let start, end;
@@ -139,22 +188,22 @@ const ReportPage = () => {
     }
   };
 
-  const formatCurrency = (value) => `฿${Number(value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+  // แปลงตัวเลขเป็นสกุลเงินบาทไทย
+  const formatCurrency = (value) =>
+    `฿${Number(value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
 
-  const getFilterChipColor = (type) => {
-    return filterType === type ? 'primary' : 'default';
-  };
-
-  const getFilterChipVariant = (type) => {
-    return filterType === type ? 'filled' : 'outlined';
-  };
+  // ชื่อสีปุ่มกรองแบบชัดเจน (ใช้กับ Chip)
+  const getFilterChipColor = (type) => (filterType === type ? 'primary' : 'default');
+  const getFilterChipVariant = (type) => (filterType === type ? 'filled' : 'outlined');
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      backgroundColor: theme.colors.background,
-      fontFamily: 'Prompt, Roboto, sans-serif'
-    }}>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: theme.colors.background,
+        fontFamily: 'Prompt, Roboto, sans-serif',
+      }}
+    >
       {/* App Bar */}
       <AppBar position="static" sx={{ backgroundColor: theme.colors.primary, mb: 3 }}>
         <Toolbar sx={{ justifyContent: 'space-between', minHeight: '80px !important' }}>
@@ -173,31 +222,28 @@ const ReportPage = () => {
       </AppBar>
 
       <Container maxWidth="xl" sx={{ px: 3 }}>
-        {/* Filter Section */}
+        {/* ตัวเลือกช่วงเวลา */}
         <Card sx={{ mb: 3, boxShadow: 3 }}>
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
               เลือกช่วงเวลา
             </Typography>
-            
-            {/* Period Buttons */}
+
             <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
               {[
                 { key: 'day', label: 'รายวัน', icon: <CalendarToday /> },
-                { key: 'week', label: 'รายสัปดาห์', icon: null },
-                { key: 'month', label: 'รายเดือน', icon: null },
-                { key: 'year', label: 'รายปี', icon: null },
-                { key: 'custom', label: 'กำหนดเอง', icon: null },
+                { key: 'week', label: 'รายสัปดาห์', icon: <DateRange />},
+                { key: 'month', label: 'รายเดือน', icon: <CalendarMonth /> },
+                { key: 'year', label: 'รายปี' ,icon: <Schedule /> },
+                { key: 'custom', label: 'กำหนดเอง' , },
               ].map((item) => (
                 <Chip
                   key={item.key}
                   label={item.label}
-                  icon={item.icon}
+                  icon={item.icon || null}
                   onClick={() => {
                     setFilterType(item.key);
-                    if (item.key !== 'custom') {
-                      setSelectedDate(null);
-                    }
+                    if (item.key !== 'custom') setSelectedDate(null);
                   }}
                   color={getFilterChipColor(item.key)}
                   variant={getFilterChipVariant(item.key)}
@@ -206,15 +252,13 @@ const ReportPage = () => {
                     fontSize: '16px',
                     fontWeight: 500,
                     px: 2,
-                    '& .MuiChip-label': {
-                      px: 1,
-                    }
+                    '& .MuiChip-label': { px: 1 },
                   }}
                 />
               ))}
             </Stack>
 
-            {/* Date Picker */}
+            {/* ตัวเลือกวันที่แบบกำหนดเอง */}
             {filterType === 'custom' && (
               <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
                 <Box sx={{ mt: 2 }}>
@@ -227,7 +271,7 @@ const ReportPage = () => {
                       '& .MuiInputBase-root': {
                         height: 56,
                         fontSize: '16px',
-                      }
+                      },
                     }}
                   />
                 </Box>
@@ -236,7 +280,7 @@ const ReportPage = () => {
           </CardContent>
         </Card>
 
-        {/* Summary Cards */}
+        {/* สรุปข้อมูล (Summary Cards) */}
         <Grid container spacing={3} mb={4}>
           {[
             {
@@ -244,28 +288,35 @@ const ReportPage = () => {
               value: summary.total_orders,
               color: theme.colors.primary,
               icon: <Receipt sx={{ fontSize: 32 }} />,
-              format: (v) => v?.toLocaleString('th-TH') || '0'
+              format: (v) => v?.toLocaleString('th-TH') || '0',
             },
             {
               title: 'ยอดขายรวม',
               value: summary.total_sales,
               color: theme.colors.success,
               icon: <TrendingUp sx={{ fontSize: 32 }} />,
-              format: formatCurrency
+              format: formatCurrency,
             },
             {
               title: 'ต้นทุนวัตถุดิบ',
               value: summary.total_cost,
               color: theme.colors.warning,
               icon: <Assessment sx={{ fontSize: 32 }} />,
-              format: formatCurrency
+              format: formatCurrency,
             },
             {
               title: 'กําไรสุทธิ',
-              value: summary.net_revenue,
+              value: netProfit,
               color: theme.colors.success,
               icon: <TrendingUp sx={{ fontSize: 32 }} />,
-              format: formatCurrency
+              format: formatCurrency,
+            },
+            {
+              title: 'รายจ่ายทั้งหมด',
+              value: totalExpense,
+              color: theme.colors.error,
+              icon: <TrendingDown sx={{ fontSize: 32 }} />,
+              format: formatCurrency,
             },
           ].map((item, index) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
@@ -296,29 +347,24 @@ const ReportPage = () => {
                     p: 2,
                   }}
                 >
-                  {/* Icon ด้านบน */}
                   <Box sx={{ color: item.color, mb: 1 }}>{item.icon}</Box>
-
-                  {/* หัวข้อ */}
                   <Typography
                     variant="subtitle2"
                     sx={{
                       fontSize: '16px',
                       fontWeight: 500,
-                      color: item.color, // สีเดียวกับข้อมูล
+                      color: item.color,
                       mb: 0.5,
                     }}
                   >
                     {item.title}
                   </Typography>
-
-                  {/* ค่าข้อมูล */}
                   <Typography
                     variant="h5"
                     sx={{
                       fontWeight: 700,
                       fontSize: '20px',
-                      color: item.color, // สีเดียวกับหัวข้อ
+                      color: item.color,
                     }}
                   >
                     {item.format(item.value)}
@@ -327,107 +373,6 @@ const ReportPage = () => {
               </Card>
             </Grid>
           ))}
-        </Grid>
-
-        <Divider sx={{ my: 4 }} />
-
-        {/* Charts Section */}
-        <Grid container spacing={4}>
-          {/* Sales Chart */}
-          <Grid item xs={12} lg={8}>
-            <Card sx={{ boxShadow: 3, height: '450px' }}>
-              <CardContent sx={{ p: 3, height: '100%' }}>
-                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, fontSize: '18px' }}>
-                  กราฟยอดขาย ({
-                    {
-                      day: 'รายวัน',
-                      week: 'รายสัปดาห์',
-                      month: 'รายเดือน',
-                      year: 'รายปี',
-                      custom: 'ช่วงวันที่กำหนดเอง',
-                    }[filterType]
-                  })
-                </Typography>
-                <ResponsiveContainer width="100%" height={350}>
-                  <LineChart data={salesByDate} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis 
-                      dataKey="period" 
-                      tick={{ fontSize: 14 }}
-                      stroke={theme.colors.text.secondary}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 14 }}
-                      stroke={theme.colors.text.secondary}
-                    />
-                    <Tooltip 
-                      formatter={(v) => [formatCurrency(v), 'ยอดขายรวม']} 
-                      contentStyle={{
-                        backgroundColor: theme.colors.surface,
-                        border: `1px solid ${theme.colors.primary}`,
-                        borderRadius: 8,
-                        fontSize: '14px'
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: '14px' }} />
-                    <Line
-                      type="monotone"
-                      dataKey="total_sales"
-                      name="ยอดขายรวม"
-                      stroke={theme.colors.primary}
-                      strokeWidth={3}
-                      dot={{ r: 6, fill: theme.colors.primary }}
-                      activeDot={{ r: 8, fill: theme.colors.success }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Menu Sales Chart */}
-          <Grid item xs={12} lg={4}>
-            <Card sx={{ boxShadow: 3, height: '450px' }}>
-              <CardContent sx={{ p: 3, height: '100%' }}>
-                <Typography variant="h6" sx={{ mb: 3, fontWeight: 600, fontSize: '18px' }}>
-                  เมนูขายดี ({filterType === 'custom' || filterType === 'day' ? 'วันที่เลือก' : '30 วันล่าสุด'})
-                </Typography>
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={menuSales.slice(0, 8)} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis 
-                      dataKey="menu_name" 
-                      tick={{ fontSize: 12 }}
-                      stroke={theme.colors.text.secondary}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                    />
-                    <YAxis 
-                      tick={{ fontSize: 14 }}
-                      stroke={theme.colors.text.secondary}
-                    />
-                    <Tooltip 
-                      formatter={(v) => [formatCurrency(v), 'ยอดขาย']} 
-                      contentStyle={{
-                        backgroundColor: theme.colors.surface,
-                        border: `1px solid ${theme.colors.success}`,
-                        borderRadius: 8,
-                        fontSize: '14px'
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: '14px' }} />
-                    <Bar 
-                      dataKey="total_sales" 
-                      name="ยอดขาย" 
-                      fill={theme.colors.success}
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </Grid>
         </Grid>
       </Container>
     </Box>

@@ -31,10 +31,10 @@ const drawerWidth = 280;
 // เพิ่มไอคอนให้กับเมนู
 const menuItems = [
   { label: 'จัดการโต๊ะ', path: '/cashier/tables', icon: <TableRestaurant /> },
-  { label: 'เมนูและโปรโมชั่น', path: '/cashier/menu', icon: <Restaurant /> },
   { label: 'ประวัติคำสั่งซื้อ', path: '/cashier/orders', icon: <History /> },
-  { label: 'รายงานยอดขาย', path: '/cashier/reports', icon: <Assessment /> },
+  { label: 'เมนูและโปรโมชั่น', path: '/cashier/menu', icon: <Restaurant /> },
   { label: 'รายจ่าย', path: '/cashier/expensePage', icon: <Receipt /> },
+  { label: 'รายงานยอดขาย', path: '/cashier/reports', icon: <Assessment /> },
   { label: 'สร้าง QR Code', path: '/cashier/qrcode', icon: <QrCode /> },
   { label: 'ตั้งค่า', path: '/cashier/settings', icon: <Settings /> },
 ];
@@ -214,7 +214,7 @@ const CashierLayout = () => {
             display="block"
             sx={{ fontSize: '12px' }}
           >
-            เวอร์ชั่น 1.0.0
+            เวอร์ชั่นวันที่ 08/08/2568
           </Typography>
         </Box>
       </Drawer>

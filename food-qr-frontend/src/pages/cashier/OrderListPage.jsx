@@ -1,4 +1,3 @@
-// src/pages/cashier/OrderListPage.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
@@ -15,9 +14,15 @@ import {
   Grid,
   Container,
   Avatar,
-  IconButton,
-  Tooltip,
-  TextField
+  TextField,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Divider,
+  DialogActions
 } from '@mui/material';
 import {
   Receipt as ReceiptIcon,
@@ -30,7 +35,6 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-
 
 // ธีม Business/Dashboard สำหรับ iPad
 const cashierTheme = createTheme({
@@ -156,11 +160,13 @@ const OrderListPage = () => {
       const items = res.data;
 
       if (Array.isArray(items)) {
+        console.log('First item structure:', items[0]);
+        console.log('All available keys:', Object.keys(items[0] || {}));
         setOrderItems(items);
       } else if (typeof items === 'object') {
-        // บางที PHP อาจ encode array associative แล้วกลายเป็น object
         const values = Object.values(items);
         console.log('Converted to array:', values);
+        console.log('First converted item:', values[0]);
         setOrderItems(values);
       } else {
         setOrderItems([]);
@@ -356,142 +362,222 @@ const OrderListPage = () => {
             </Stack>
           </Paper>
 
-          {/* Orders Grid */}
-          {filteredOrders.length === 0 ? (
-            <Paper sx={{ p: 6, textAlign: 'center' }}>
-              <ReceiptIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                ไม่พบคำสั่งซื้อในช่วงเวลาที่เลือก
-              </Typography>
-            </Paper>
-          ) : (
-            <Grid container spacing={3}>
-              {filteredOrders.map((order) => {
-                const { date, time } = formatDateTime(order.OrderTime);
-                
-                return (
-                  <Grid item xs={12} sm={6} lg={4} key={order.OrderID}>
-                    <Card sx={{ height: '100%' }}>
-                      <CardContent sx={{ p: 3 }}>
-                        {/* Order Header */}
-                        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Avatar sx={{ bgcolor: 'secondary.main', width: 32, height: 32 }}>
-                              <TableIcon fontSize="small" />
-                            </Avatar>
-                            <Typography variant="h6" fontWeight="bold">
-                              โต๊ะ {order.TableID}
-                            </Typography>
-                          </Stack>
-                          <Typography variant="h6" color="success.main" fontWeight="bold">
-                            {formatCurrency(order.TotalAmount)}
-                          </Typography>
-                        </Stack>
+      {/* Orders Table */}
+        {filteredOrders.length === 0 ? (
+          <Paper sx={{ p: 6, textAlign: 'center' }}>
+            <ReceiptIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary">
+              ไม่พบคำสั่งซื้อในช่วงเวลาที่เลือก
+            </Typography>
+          </Paper>
+        ) : (
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '18px' }}>
+                  รายการออเดอร์ ({filteredOrders.length} รายการ)
+                </Typography>
+              </Box>
 
-                        {/* Order Details */}
-                        <Stack spacing={2} mb={3}>
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="body2" color="text.secondary">
-                              วันที่:
-                            </Typography>
-                            <Typography variant="body1" fontWeight="500">
-                              {date}
-                            </Typography>
-                          </Stack>
-                          
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="body2" color="text.secondary">
-                              เวลา:
-                            </Typography>
-                            <Typography variant="body1" fontWeight="500">
-                              {time}
-                            </Typography>
-                          </Stack>
-
-                          <Stack direction="row" justifyContent="space-between" alignItems="center">
-                            <Typography variant="body2" color="text.secondary">
-                              การจ่ายเงิน:
-                            </Typography>
+              <TableContainer component={Paper} sx={{ boxShadow: 1, maxHeight: 600 }}>
+                <Table stickyHeader sx={{ minWidth: 750 }}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: '#f5f5f5' }}>
+                        โต๊ะ
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: '#f5f5f5' }}>
+                        วันที่
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: '#f5f5f5' }}>
+                        เวลา
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: '#f5f5f5' }}>
+                        การจ่ายเงิน
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: '#f5f5f5' }}>
+                        ยอดรวม
+                      </TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600, fontSize: '16px', backgroundColor: '#f5f5f5' }}>
+                        จัดการ
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredOrders.map((order) => {
+                      const { date, time } = formatDateTime(order.OrderTime);
+                      
+                      return (
+                        <TableRow key={order.OrderID} hover sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}>
+                          <TableCell sx={{ fontSize: '14px' }}>
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                              <Avatar sx={{ bgcolor: 'secondary.main', width: 28, height: 28 }}>
+                                <TableIcon fontSize="small" />
+                              </Avatar>
+                              <Typography variant="body1" fontWeight="600">
+                                โต๊ะ {order.TableID}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '14px' }}>
+                            {date}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '14px' }}>
+                            {time}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '14px' }}>
                             <Chip
                               label={order.PaymentMethod || 'ไม่ระบุ'}
                               color={getPaymentMethodColor(order.PaymentMethod)}
-                              size="medium"
+                              size="small"
                               icon={<PaymentIcon />}
+                              sx={{ minWidth: 80 }}
                             />
-                          </Stack>
-                        </Stack>
-
-                        {/* Action Buttons */}
-                        <Stack direction="row" spacing={1}>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            fullWidth
-                            startIcon={<ViewIcon />}
-                            onClick={() => handleViewDetails(order)}
-                            sx={{ flex: 2 }}
-                          >
-                            รายละเอียด
-                          </Button>
-                          <Tooltip title="พิมพ์บิล">
-                            <IconButton
-                              color="secondary"
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontSize: '14px', fontWeight: 600, color: 'success.main' }}>
+                            {formatCurrency(order.TotalAmount)}
+                          </TableCell>
+                          <TableCell align="center" sx={{ fontSize: '14px' }}>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              startIcon={<ViewIcon />}
+                              onClick={() => handleViewDetails(order)}
                               sx={{ 
-                                border: '1px solid',
-                                borderColor: 'secondary.main',
-                                '&:hover': {
-                                  backgroundColor: 'secondary.light',
-                                  color: 'white',
-                                },
+                                minWidth: 100,
+                                height: 32,
+                                fontSize: '12px'
                               }}
                             >
-                              <PrintIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </CardContent>
-                    </Card>
+                              รายละเอียด
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        )}
 
-                    <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="md" >
-                      <DialogTitle variant="h4" color="#ffffff" sx ={{background: '#1976d2',}} >รายละเอียดออเดอร์</DialogTitle>
-                      <DialogContent dividers >
-                        {selectedOrder && (
-                          <Box mb={2}  variant="h5" >
-                            <Typography variant="h6" >หมายเลขโต๊ะ: {selectedOrder.TableID}</Typography>
-                            <Typography variant="h6" >เวลาสั่ง: {formatDateTime(selectedOrder.OrderTime).date} {formatDateTime(selectedOrder.OrderTime).time}</Typography>
-                            <Typography color="success.main" variant="h6" >ราคารวม: {formatCurrency(selectedOrder.TotalAmount)}</Typography>
-                          </Box>
-                        )}
-                        <Typography variant="h6" gutterBottom>รายการอาหาร</Typography>
-                        {orderItems.length === 0 ? (
-                          <Typography>ไม่มีรายการ</Typography>
-                        ) : (
-                          <Grid container spacing={2}>
-                            {orderItems.map((item, index) => (
-                              <Grid item xs={12} key={index}>
-                                <Card variant="outlined">
-                                  <CardContent sx= {{p:3, textAlign: 'center' }}>
-                                    <Typography>เมนู ID: {item.MenuID}</Typography>
-                                    <Typography>จำนวน: {item.Quantity}</Typography>
-                                    <Typography>ราคา: {formatCurrency(item.SubTotal)}</Typography>
-                                    <Typography>หมายเหตุ: {item.Note || '-'}</Typography>
-                                  </CardContent>
-                                </Card>
-                              </Grid>
-                            ))}
-                          </Grid>
-                        )}
-                      </DialogContent>
-                    </Dialog>
-
+        {/* Order Details Dialog */}
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="md">
+          <DialogTitle 
+            variant="h4" 
+            color="#ffffff" 
+            sx={{ background: '#1976d2', textAlign: 'center' }}
+          >
+            รายละเอียดออเดอร์
+          </DialogTitle>
+          <DialogContent dividers>
+            {selectedOrder && (
+              <Box mb={3}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        หมายเลขโต๊ะ
+                      </Typography>
+                      <Typography variant="h6" fontWeight="600">
+                        {selectedOrder.TableID}
+                      </Typography>
+                    </Paper>
                   </Grid>
-                );
-              })}
-            </Grid>
-          )}
+                  <Grid item xs={12} sm={4}>
+                    <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        เวลาสั่ง
+                      </Typography>
+                      <Typography variant="body1" fontWeight="500">
+                        {formatDateTime(selectedOrder.OrderTime).date}
+                      </Typography>
+                      <Typography variant="body1" fontWeight="500">
+                        {formatDateTime(selectedOrder.OrderTime).time}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Paper sx={{ p: 2, textAlign: 'center', backgroundColor: '#e8f5e8' }}>
+                      <Typography variant="subtitle2" color="text.secondary">
+                        ราคารวม
+                      </Typography>
+                      <Typography variant="h6" color="success.main" fontWeight="600">
+                        {formatCurrency(selectedOrder.TotalAmount)}
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </Box>
+            )}
+            
+            <Divider sx={{ my: 2 }} />
+            
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
+              รายการอาหาร
+            </Typography>
+            
+            {orderItems.length === 0 ? (
+              <Paper sx={{ p: 3, textAlign: 'center', backgroundColor: '#f9f9f9' }}>
+                <Typography color="text.secondary">ไม่มีรายการ</Typography>
+              </Paper>
+            ) : (
+              <TableContainer component={Paper} sx={{ boxShadow: 1 }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                      <TableCell sx={{ fontWeight: 600 }}>ชื่อเมนู</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 600 }}>จำนวน</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 600 }}>ราคา</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>หมายเหตุ</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {orderItems.map((item, index) => (
+                      <TableRow key={index} hover>
+                        <TableCell>
+                          {item.MenuName || item.menu_name || item.Name || item.name || item.MenuID || 'ไม่ระบุชื่อเมนู'}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip 
+                            label={item.Quantity || item.quantity || 0} 
+                            size="small" 
+                            color="primary" 
+                            variant="outlined"
+                          />
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 500 }}>
+                          {formatCurrency(item.SubTotal || item.sub_total || item.Price || 0)}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color={item.Note || item.note ? 'text.primary' : 'text.secondary'}>
+                            {item.Note || item.note || '-'}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button 
+              onClick={() => setOpenDialog(false)} 
+              variant="contained" 
+              color="primary"
+              sx={{ minWidth: 100 }}
+            >
+              ปิด
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         </Container>
-      </Box>
-    </ThemeProvider>
+        </Box>
+        </ThemeProvider>
   );
 };
 

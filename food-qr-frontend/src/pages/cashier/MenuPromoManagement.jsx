@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Grid,
-  Paper,
   Button,
   Dialog,
   DialogTitle,
@@ -13,22 +12,14 @@ import {
   TextField,
   Stack,
   IconButton,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Card,
   CardContent,
   CardMedia,
   CardActions,
   Chip,
   Avatar,
-  Divider,
   Tabs,
   Tab,
-  Badge,
   Tooltip,
 } from '@mui/material';
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
@@ -291,6 +282,20 @@ const MenuPromoManagement = () => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const handleEditPromo = (promo) => {
+    setDialogMode('promo');
+    setEditItem(promo);
+    setForm({
+      Name: promo.Name || '',
+      Description: promo.Description || '',
+      DiscountType: promo.DiscountType || 'percent',
+      DiscountValue: promo.DiscountValue || '',
+      StartDate: promo.StartDate || '',
+      EndDate: promo.EndDate || '',
+    });
+    setOpenDialog(true);
   };
 
   const activeMenus = menus.filter(menu => menu.Status === 'active').length;
@@ -683,6 +688,16 @@ const MenuPromoManagement = () => {
                   </CardContent>
 
                   <CardActions sx={{ p: 2, pt: 0, justifyContent: 'flex-end' }}>
+                    <Tooltip title="แก้ไขโปรโมชั่น">
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleEditPromo(promo)}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+
                     <Tooltip title="ลบโปรโมชั่น">
                       <IconButton
                         color="error"
