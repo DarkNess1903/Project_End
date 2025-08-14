@@ -306,7 +306,7 @@ const ExpensePage = () => {
             {/* Filter by Type */}
             <Box mt={3}>
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} sm={6} md={4}>
+                {/* <Grid item xs={12} sm={6} md={4}>
                   <TextField 
                     label="ประเภทรายจ่าย"
                     select
@@ -326,10 +326,10 @@ const ExpensePage = () => {
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </TextField>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} sm={6} md={4}>
                   <Stack direction="row" spacing={1} height="48px">
-                    <Button 
+                    {/* <Button 
                       variant="contained" 
                       startIcon={<Search />}
                       onClick={fetchExpenses}
@@ -341,8 +341,8 @@ const ExpensePage = () => {
                       }}
                     >
                       ค้นหา
-                    </Button>
-                    <Button 
+                    </Button> */}
+                    {/* <Button 
                       variant="outlined" 
                       onClick={clearFilters}
                       sx={{ 
@@ -353,7 +353,7 @@ const ExpensePage = () => {
                       }}
                     >
                       ล้าง
-                    </Button>
+                    </Button> */}
                   </Stack>
                 </Grid>
               </Grid>

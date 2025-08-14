@@ -8,10 +8,10 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import SearchIcon from '@mui/icons-material/Search';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CloseIcon from '@mui/icons-material/Close';
-import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
-import AcUnitIcon from '@mui/icons-material/AcUnit';
-import BuildIcon from '@mui/icons-material/Build';
-import StarIcon from '@mui/icons-material/Star';
+// import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+// import AcUnitIcon from '@mui/icons-material/AcUnit';
+// import BuildIcon from '@mui/icons-material/Build';
+// import StarIcon from '@mui/icons-material/Star';
 
 import { useCart } from '../contexts/CartContext';
 import { Badge } from '@mui/material';
@@ -225,7 +225,7 @@ const MenuPage = () => {
           sx: {
             borderRadius: '20px',
             p: 1,
-            minWidth: '320px'
+            minWidth: '320px' 
           }
         }}
       >
