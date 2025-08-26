@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import {
   Box,
   Typography,
@@ -79,9 +80,26 @@ const PaymentPage = () => {
   const [discountDialog, setDiscountDialog] = useState(false);
   const [manualDiscount, setManualDiscount] = useState('');
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+  const [promotions, setPromotions] = useState([]);
+  const [selectedPromo, setSelectedPromo] = useState('');
 
   // Preset cash amounts for quick selection
   const quickCashAmounts = [100, 200, 500, 1000];
+
+  // โหลดโปรโมชั่นจาก API
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const res = await axios.get('http://localhost/project_END/restaurant-backend/api/promotion/get_promotions.php');
+        if (res.data.success) {
+          setPromotions(res.data.promotions);
+        }
+      } catch (err) {
+        console.error('โหลดโปรโมชั่นล้มเหลว:', err);
+      }
+    };
+    fetchPromotions();
+  }, []);
 
   // โหลดข้อมูลคำสั่งซื้อ
   useEffect(() => {
@@ -171,22 +189,22 @@ const PaymentPage = () => {
 
   // ฟังก์ชันใช้โปรโมชั่น/ลดราคา
   const applyPromotion = async () => {
-    if (!promoCode) {
-      showNotification('กรุณาใส่โค้ดโปรโมชั่น', 'warning');
+    if (!selectedPromo) {
+      showNotification('กรุณาเลือกโปรโมชั่น', 'warning');
       return;
     }
-    
+
     setLoading(true);
     try {
       const res = await axios.post('http://localhost/project_END/restaurant-backend/api/promotion/apply_promo.php', {
         order_id: orderId,
-        promo_code: promoCode,
+        promotion_id: selectedPromo, // <<--- ส่งเป็น ID
       });
+
       if (res.data.success) {
         setDiscount(parseFloat(res.data.discount));
         setFinalTotal(parseFloat(res.data.final_total));
         showNotification('ใช้โปรโมชั่นสำเร็จ', 'success');
-        // Recalculate change if cash amount is entered
         if (customerCash) {
           setChange(customerCash - parseFloat(res.data.final_total));
         }
@@ -257,7 +275,7 @@ const PaymentPage = () => {
             </Typography>
           </Box>
           <Box display="flex" gap={1}>
-            <Chip 
+            {/* <Chip 
               label={formatCurrency(finalTotal)} 
               sx={{ 
                 backgroundColor: 'rgba(255,255,255,0.2)', 
@@ -267,7 +285,7 @@ const PaymentPage = () => {
                 fontWeight: 700,
                 px: 2
               }} 
-            />
+            /> */}
           </Box>
         </Toolbar>
       </AppBar>
@@ -311,11 +329,11 @@ const PaymentPage = () => {
                         }
                         sx={{ ml: 2 }}
                       />
-                      <ListItemSecondaryAction>
+                      {/* <ListItemSecondaryAction>
                         <Typography sx={{ fontWeight: 700, fontSize: '16px', color: theme.colors.primary }}>
                           {formatCurrency(item.sub_total)}
                         </Typography>
-                      </ListItemSecondaryAction>
+                      </ListItemSecondaryAction> */}
                     </ListItem>
                   ))}
                 </List>
@@ -450,7 +468,7 @@ const PaymentPage = () => {
                           '&:hover': { backgroundColor: theme.colors.success }
                         }}
                       >
-                        จ่ายเงินสด
+                        ชำระเงินสด
                       </Button>
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -469,7 +487,7 @@ const PaymentPage = () => {
                           '&:hover': { backgroundColor: theme.colors.primary }
                         }}
                       >
-                        โอนเงิน/บัตร
+                        โอนเงิน/บัตรเครดิต
                       </Button>
                     </Grid>
                   </Grid>
@@ -485,21 +503,31 @@ const PaymentPage = () => {
                       โปรโมชั่นและส่วนลด
                     </Typography>
                   </Box>
-
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={8}>
-                      <TextField
-                        label="โค้ดโปรโมชั่น"
-                        value={promoCode}
-                        onChange={e => setPromoCode(e.target.value)}
-                        fullWidth
-                        sx={{
-                          '& .MuiInputBase-root': {
+                      <FormControl fullWidth>
+                        <InputLabel id="promo-select-label">เลือกโปรโมชั่น</InputLabel>
+                        <Select
+                          labelId="promo-select-label"
+                          value={selectedPromo}
+                          onChange={(e) => setSelectedPromo(e.target.value)}
+                          label="เลือกโปรโมชั่น"
+                          displayEmpty
+                          sx={{
                             height: 56,
                             fontSize: '16px',
-                          }
-                        }}
-                      />
+                          }}
+                        >
+                          <MenuItem disabled value="">
+                            <em>กรุณาเลือกโปรโมชั่น</em>
+                          </MenuItem>
+                          {promotions.map((promo) => (
+                            <MenuItem key={promo.PromotionID} value={promo.PromotionID}>
+                              {promo.Name} ({promo.Description})
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>

@@ -6,18 +6,22 @@ require_once '../../config/db.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['order_id']) || !isset($data['promo_code'])) {
+if (!isset($data['order_id']) || !isset($data['promotion_id'])) {
     echo json_encode(["success" => false, "message" => "ข้อมูลไม่ครบ"]);
     exit;
 }
 
 $order_id = intval($data['order_id']);
-$promo_code = $conn->real_escape_string($data['promo_code']);
+$promotion_id = intval($data['promotion_id']);
 
-// ตรวจสอบโปรโมชั่นที่ใช้ promo_code นี้
-$sql = "SELECT * FROM promotion WHERE Status=1 AND Name=? AND CURDATE() BETWEEN StartDate AND EndDate LIMIT 1";
+// ตรวจสอบโปรโมชั่นจาก PromotionID
+$sql = "SELECT * FROM promotion 
+        WHERE Status = 'active' 
+        AND PromotionID = ? 
+        AND CURDATE() BETWEEN StartDate AND EndDate 
+        LIMIT 1";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $promo_code);
+$stmt->bind_param("i", $promotion_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -32,7 +36,7 @@ if ($promo = $result->fetch_assoc()) {
     $total = floatval($order_data['total']);
 
     // คำนวณส่วนลด
-    if ($promo['DiscountType'] == 'percent') {
+    if ($promo['DiscountType'] === 'percent') {
         $discount = $total * ($promo['DiscountValue'] / 100);
     } else {
         $discount = floatval($promo['DiscountValue']);
@@ -47,9 +51,9 @@ if ($promo = $result->fetch_assoc()) {
         "final_total" => round($final_total, 2),
     ]);
 } else {
-    echo json_encode(["success" => false, "message" => "โค้ดโปรโมชั่นไม่ถูกต้องหรือหมดอายุ"]);
+    echo json_encode(["success" => false, "message" => "โปรโมชั่นไม่ถูกต้องหรือหมดอายุ"]);
 }
 
 $stmt->close();
-$stmt2->close();
+if (isset($stmt2)) $stmt2->close();
 $conn->close();

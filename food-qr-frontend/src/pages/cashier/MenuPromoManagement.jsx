@@ -21,9 +21,16 @@ import {
   Tabs,
   Tab,
   Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Switch
 } from '@mui/material';
 import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
-import { Switch, FormControlLabel } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -36,6 +43,7 @@ import PercentIcon from '@mui/icons-material/Percent';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { Pagination } from '@mui/material';
 
 const MenuPromoManagement = () => {
   const [menus, setMenus] = useState([]);
@@ -45,6 +53,22 @@ const MenuPromoManagement = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMode, setDialogMode] = useState('menu'); // 'menu' หรือ 'promo'
   const [editItem, setEditItem] = useState(null);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 5;
+  const [promoPage, setPromoPage] = useState(1);
+
+  // ภายใน component MenuPromoManagement
+  const [openDescDialog, setOpenDescDialog] = useState(false);
+  const [selectedDesc, setSelectedDesc] = useState('');
+
+  const handleOpenDesc = (desc) => {
+    setSelectedDesc(desc || 'ไม่มีรายละเอียด');
+    setOpenDescDialog(true);
+  };
+
+  const handleCloseDesc = () => {
+    setOpenDescDialog(false);
+};
 
   // ธีมสีแบบเดียวกับ Layout
   const themeColors = {
@@ -402,9 +426,7 @@ const MenuPromoManagement = () => {
         </Tabs>
       </Card>
 
-      {/* Tab Content */}
       {tabValue === 0 && (
-        // เมนูอาหาร Tab
         <Box>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h5" fontWeight="600" color={themeColors.textPrimary}>
@@ -427,151 +449,115 @@ const MenuPromoManagement = () => {
             </Button>
           </Box>
 
-          <Grid container spacing={3}>
-            {menus.map((menu) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={menu.MenuID}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    height: '100%', // ทำให้ card สูงเท่ากัน
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    borderRadius: 3,
-                    border: `1px solid ${themeColors.divider}`,
-                    transition: 'all 0.3s ease-in-out',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-                      borderColor: themeColors.primary,
-                    },
-                  }}
-                >
-                  {/* Menu Image */}
-                  <CardMedia
-                    component="div"
-                    sx={{
-                      height: 200,
-                      bgcolor: themeColors.background,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                    }}
-                  >
-                    {menu.ImageURL ? (
-                      <Box
-                        component="img"
-                        src={`http://localhost/project_END/restaurant-backend/${menu.ImageURL}`}
-                        alt={menu.Name}
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    ) : (
-                      <ImageIcon sx={{ fontSize: 64, color: themeColors.textSecondary }} />
-                    )}
+          {/* ตารางเมนู */}
+          <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>รูป</TableCell>
+                  <TableCell>ชื่อเมนู</TableCell>
+                  <TableCell>คำอธิบาย</TableCell>
+                  <TableCell>ราคา</TableCell>
+                  <TableCell>ต้นทุน</TableCell>
+                  <TableCell>สถานะ</TableCell>
+                  <TableCell align="center">จัดการ</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {menus
+                  .slice((page - 1) * rowsPerPage, page * rowsPerPage) // แสดงแค่หน้าปัจจุบัน
+                  .map((menu) => (
+                  <TableRow key={menu.MenuID}>
+                    <TableCell>
+                      {menu.ImageURL ? (
+                        <Box
+                          component="img"
+                          src={`http://localhost/project_END/restaurant-backend/${menu.ImageURL}`}
+                          alt={menu.Name}
+                          sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1 }}
+                        />
+                      ) : (
+                        <ImageIcon sx={{ fontSize: 40, color: themeColors.textSecondary }} />
+                      )}
+                    </TableCell>
+                    <TableCell>{menu.Name}</TableCell>
+                    <TableCell sx={{ maxWidth: 200 }}>
+                      <Button 
+                        variant="outlined" 
+                        size="small" 
+                        onClick={() => handleOpenDesc(menu.Description)}
+                      >
+                        ดูรายละเอียด
+                      </Button>
+                    </TableCell>
+                    <TableCell>฿{menu.Price}</TableCell>
+                    <TableCell>{menu.Cost ? `฿${menu.Cost}` : '-'}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Chip
+                          icon={menu.Status === 'active' ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                          label={menu.Status === 'active' ? 'เปิดขาย' : 'ปิดขาย'}
+                          color={menu.Status === 'active' ? 'success' : 'default'}
+                          size="small"
+                          sx={{ fontWeight: '600' }}
+                        />
+                        <Switch
+                          checked={menu.Status === 'active'}
+                          onChange={() => handleToggleStatus(menu)}
+                          color="success"
+                          size="small"
+                        />
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Stack direction="row" spacing={1} justifyContent="center">
+                        <Button
+                          size="small"
+                          startIcon={<EditIcon />}
+                          onClick={() => handleEditMenu(menu)}
+                          sx={{ borderRadius: 2 }}
+                        >
+                          แก้ไข
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          startIcon={<DeleteIcon />}
+                          onClick={() => handleDeleteMenu(menu.MenuID)}
+                          sx={{ borderRadius: 2 }}
+                        >
+                          ลบ
+                        </Button>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <Dialog open={openDescDialog} onClose={handleCloseDesc} maxWidth="sm" fullWidth>
+              <DialogTitle>คำอธิบายเมนู</DialogTitle>
+              <DialogContent>
+                <Typography>{selectedDesc}</Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDesc}>ปิด</Button>
+              </DialogActions>
+            </Dialog>
+          </TableContainer>
 
-                    {/* Status Badge */}
-                    <Chip
-                      icon={menu.Status === 'active' ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                      label={menu.Status === 'active' ? 'เปิดขาย' : 'ปิดขาย'}
-                      color={menu.Status === 'active' ? 'success' : 'default'}
-                      size="small"
-                      sx={{
-                        position: 'absolute',
-                        top: 12,
-                        right: 12,
-                        fontWeight: '600',
-                      }}
-                    />
-                  </CardMedia>
-
-                  <CardContent sx={{ p: 2 }}>
-                    {/* Category Chip */}
-                    <Chip
-                      label={CategoryLabel[menu.Category] || menu.Category}
-                      size="small"
-                      sx={{
-                        mb: 1,
-                        bgcolor: CategoryColors[menu.Category] || themeColors.primary,
-                        color: 'white',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                      }}
-                    />
-
-                    <Typography variant="h6" fontWeight="600" gutterBottom noWrap>
-                      {menu.Name}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color={themeColors.textSecondary}
-                      sx={{
-                        minHeight: 40,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {menu.Description || 'ไม่มีรายละเอียด'}
-                    </Typography>
-
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-                      <Box>
-                        <Typography variant="h6" fontWeight="700" color={themeColors.primary}>
-                          ฿{menu.Price}
-                        </Typography>
-                        {menu.Cost && (
-                          <Typography variant="caption" color={themeColors.textSecondary}>
-                            ต้นทุน: ฿{menu.Cost}
-                          </Typography>
-                        )}
-                      </Box>
-
-                      {/* Status Switch */}
-                      <Switch
-                        checked={menu.Status === 'active'}
-                        onChange={() => handleToggleStatus(menu)}
-                        color="success"
-                        size="small"
-                      />
-                    </Box>
-                  </CardContent>
-
-                  <CardActions sx={{ p: 2, pt: 0 }}>
-                    <Button
-                      size="small"
-                      startIcon={<EditIcon />}
-                      onClick={() => handleEditMenu(menu)}
-                      sx={{ mr: 1, borderRadius: 2 }}
-                    >
-                      แก้ไข
-                    </Button>
-                    <Button
-                      size="small"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleDeleteMenu(menu.MenuID)}
-                      sx={{ borderRadius: 2 }}
-                    >
-                      ลบ
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {/* Pagination */}
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={Math.ceil(menus.length / rowsPerPage)}
+              page={page}
+              onChange={(e, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
         </Box>
       )}
 
       {tabValue === 1 && (
-        // โปรโมชั่น Tab
         <Box>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
             <Typography variant="h5" fontWeight="600" color={themeColors.textPrimary}>
@@ -606,112 +592,95 @@ const MenuPromoManagement = () => {
             </Button>
           </Box>
 
-          <Grid container spacing={3}>
-            {promotions.map((promo) => (
-              <Grid item xs={12} sm={6} md={4} key={promo.PromotionID}>
-                <Card
-                  elevation={0}
-                  sx={{
-                    borderRadius: 3,
-                    border: `2px solid ${promo.Status === 'active' ? themeColors.success : themeColors.divider}`,
-                    background: promo.Status === 'active' 
-                      ? 'linear-gradient(135deg, #e8f5e8 0%, #ffffff 100%)'
-                      : themeColors.surface,
-                    transition: 'all 0.3s ease-in-out',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 20px rgba(0,0,0,0.1)',
-                    },
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    {/* Header */}
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <LocalOfferIcon 
-                          sx={{ 
-                            color: promo.Status === 'active' ? themeColors.success : themeColors.textSecondary,
-                            fontSize: 24,
-                          }} 
-                        />
-                        <Typography variant="h6" fontWeight="600">
-                          {promo.Name}
-                        </Typography>
-                      </Box>
-                      
+          {/* ตารางโปรโมชั่น */}
+          <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ชื่อโปรโมชั่น</TableCell>
+                  <TableCell>คำอธิบาย</TableCell>
+                  <TableCell>ส่วนลด</TableCell>
+                  <TableCell>วันที่ใช้งาน</TableCell>
+                  <TableCell>สถานะ</TableCell>
+                  <TableCell align="center">จัดการ</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {promotions
+                  .slice((promoPage - 1) * rowsPerPage, promoPage * rowsPerPage)
+                  .map((promo) => (
+                  <TableRow key={promo.PromotionID}>
+                    <TableCell>{promo.Name}</TableCell>
+                    <TableCell sx={{ maxWidth: 200 }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          setSelectedDesc(promo.Description || 'ไม่มีรายละเอียด');
+                          setOpenDescDialog(true);
+                        }}
+                      >
+                        ดูรายละเอียด
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      {promo.DiscountType === 'percent'
+                        ? `${promo.DiscountValue}%`
+                        : `฿${promo.DiscountValue}`}
+                    </TableCell>
+                    <TableCell>{promo.StartDate} - {promo.EndDate}</TableCell>
+                    <TableCell>
                       <Chip
                         label={promo.Status === 'active' ? 'ใช้งานได้' : 'หมดอายุ'}
                         color={promo.Status === 'active' ? 'success' : 'default'}
                         size="small"
                         sx={{ fontWeight: '600' }}
                       />
-                    </Box>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Stack direction="row" spacing={1} justifyContent="center">
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEditPromo(promo)}
+                          sx={{ borderRadius: 2 }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDeletePromo(promo.PromotionID)}
+                          sx={{ borderRadius: 2 }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-                    {/* Description */}
-                    <Typography 
-                      variant="body2" 
-                      color={themeColors.textSecondary}
-                      sx={{ mb: 2, minHeight: 40 }}
-                    >
-                      {promo.Description || 'ไม่มีรายละเอียด'}
-                    </Typography>
+          {/* Pagination โปรโมชั่น */}
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={Math.ceil(promotions.length / rowsPerPage)}
+              page={promoPage}
+              onChange={(e, value) => setPromoPage(value)}
+              color="primary"
+            />
+          </Box>
 
-                    {/* Discount Info */}
-                    <Box
-                      sx={{
-                        bgcolor: themeColors.primary,
-                        color: 'white',
-                        borderRadius: 2,
-                        p: 2,
-                        textAlign: 'center',
-                        mb: 2,
-                      }}
-                    >
-                      <PercentIcon sx={{ fontSize: 20, mb: 0.5 }} />
-                      <Typography variant="h5" fontWeight="700">
-                        {promo.DiscountType === 'percent'
-                          ? `${promo.DiscountValue}%`
-                          : `฿${promo.DiscountValue}`}
-                      </Typography>
-                      <Typography variant="caption">
-                        {promo.DiscountType === 'percent' ? 'ส่วนลด' : 'ลดเงิน'}
-                      </Typography>
-                    </Box>
-
-                    {/* Date Range */}
-                    <Box display="flex" alignItems="center" gap={1} mb={1}>
-                      <CalendarTodayIcon sx={{ fontSize: 16, color: themeColors.textSecondary }} />
-                      <Typography variant="body2" color={themeColors.textSecondary}>
-                        {promo.StartDate} - {promo.EndDate}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-
-                  <CardActions sx={{ p: 2, pt: 0, justifyContent: 'flex-end' }}>
-                    <Tooltip title="แก้ไขโปรโมชั่น">
-                      <IconButton
-                        color="primary"
-                        onClick={() => handleEditPromo(promo)}
-                        sx={{ borderRadius: 2 }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="ลบโปรโมชั่น">
-                      <IconButton
-                        color="error"
-                        onClick={() => handleDeletePromo(promo.PromotionID)}
-                        sx={{ borderRadius: 2 }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+          {/* Dialog แสดงรายละเอียด */}
+          <Dialog open={openDescDialog} onClose={() => setOpenDescDialog(false)} maxWidth="sm" fullWidth>
+            <DialogTitle>รายละเอียดโปรโมชั่น</DialogTitle>
+            <DialogContent>
+              <Typography>{selectedDesc}</Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenDescDialog(false)}>ปิด</Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       )}
 
@@ -1030,39 +999,6 @@ const MenuPromoManagement = () => {
                   />
                 </Button>
               </Box>
-
-              {/* Preview Info */}
-              {menuForm.name && (
-                <Card elevation={0} sx={{ mt: 2, border: `1px solid ${themeColors.divider}`, borderRadius: 2 }}>
-                  <CardContent sx={{ p: 2 }}>
-                    <Typography variant="subtitle2" color={themeColors.textSecondary} gutterBottom>
-                      ตัวอย่าง
-                    </Typography>
-                    <Typography variant="h6" fontWeight="600" gutterBottom>
-                      {menuForm.name}
-                    </Typography>
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Typography variant="h6" color={themeColors.primary} fontWeight="700">
-                        ฿{menuForm.price || '0'}
-                      </Typography>
-                      <Chip
-                        label={CategoryLabel[menuForm.category]}
-                        size="small"
-                        sx={{
-                          bgcolor: CategoryColors[menuForm.category],
-                          color: 'white',
-                          fontWeight: '600',
-                        }}
-                      />
-                    </Box>
-                    {menuForm.cost && (
-                      <Typography variant="caption" color={themeColors.textSecondary}>
-                        กำไร: ฿{(parseFloat(menuForm.price || 0) - parseFloat(menuForm.cost || 0)).toFixed(2)}
-                      </Typography>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
             </Grid>
           </Grid>
         </DialogContent>

@@ -12,6 +12,13 @@ import {
   AppBar,
   Toolbar,
   IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -58,6 +65,7 @@ const ReportPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
+  const [topMenus, setTopMenus] = useState([]);
   
   const netProfit = summary.total_sales - summary.total_cost - totalExpense;
 
@@ -76,33 +84,41 @@ const ReportPage = () => {
     const today = new Date();
 
     if (filterType === 'custom' && selectedDate) {
-      // กำหนดเอง 1 วัน
       startDate = formatLocalDate(selectedDate);
       endDate = formatLocalDate(selectedDate);
     } else if (filterType === 'day') {
       startDate = formatLocalDate(today);
       endDate = formatLocalDate(today);
     } else if (filterType === 'week') {
-      // เริ่มต้นสัปดาห์ (เช่น วันจันทร์) ถึงวันนี้
-      const dayOfWeek = today.getDay(); // 0=อาทิตย์ ... 6=เสาร์
+      const dayOfWeek = today.getDay();
       const monday = new Date(today);
-      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7)); // หาวันจันทร์ของสัปดาห์นี้
+      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
       startDate = formatLocalDate(monday);
       endDate = formatLocalDate(today);
     } else if (filterType === 'month') {
-      // เดือนนี้ ตั้งแต่วันที่ 1 ถึงวันนี้
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
       startDate = formatLocalDate(firstDay);
       endDate = formatLocalDate(today);
     } else if (filterType === 'year') {
-      // ปีนี้ ตั้งแต่วันที่ 1 ม.ค. ถึงวันนี้
       const firstJan = new Date(today.getFullYear(), 0, 1);
       startDate = formatLocalDate(firstJan);
       endDate = formatLocalDate(today);
     }
 
     fetchExpenses(startDate, endDate);
+    fetchTopMenus(startDate, endDate);
   }, [filterType, selectedDate]);
+
+  const fetchTopMenus = async (start, end) => {
+    try {
+      const res = await axios.get(`${API_BASE}/sales_by_menutop.php`, {
+        params: { start_date: start, end_date: end },
+      });
+      setTopMenus(res.data.data || []);
+    } catch (err) {
+      console.error("Fetch top menus error:", err);
+    }
+  };
 
   const fetchExpenses = async (startDate, endDate) => {
     try {
@@ -375,6 +391,42 @@ const ReportPage = () => {
           ))}
         </Grid>
       </Container>
+
+      {/* Top 5 เมนูขายดี */}
+      <Card sx={{ mb: 3, boxShadow: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
+            เมนูขายดี 5 อันดับ
+          </Typography>
+
+          {topMenus.length === 0 ? (
+            <Typography sx={{ color: '#757575' }}>ไม่มีข้อมูล</Typography>
+          ) : (
+            <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
+              <Table size="small" aria-label="top 5 menu table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center" sx={{ fontWeight: 600 }}>อันดับ</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>ชื่อเมนู</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 600 }}>จำนวนขาย</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>ยอดขาย</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {topMenus.map((item, index) => (
+                    <TableRow key={item.MenuName}>
+                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell>{item.MenuName}</TableCell>
+                      <TableCell align="center">{item.total_qty}</TableCell>
+                      <TableCell align="right">{formatCurrency(item.total_sales)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </CardContent>
+      </Card>
     </Box>
   );
 };
