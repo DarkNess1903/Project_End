@@ -47,11 +47,9 @@ import { Pagination } from '@mui/material';
 
 const MenuPromoManagement = () => {
   const [menus, setMenus] = useState([]);
-  const [promotions, setPromotions] = useState([]);
   const [tabValue, setTabValue] = useState(0);
-
   const [openDialog, setOpenDialog] = useState(false);
-  const [dialogMode, setDialogMode] = useState('menu'); // 'menu' หรือ 'promo'
+  const [dialogMode, setDialogMode] = useState('menu');
   const [editItem, setEditItem] = useState(null);
   const [page, setPage] = useState(1);
   const rowsPerPage = 5;
@@ -68,7 +66,7 @@ const MenuPromoManagement = () => {
 
   const handleCloseDesc = () => {
     setOpenDescDialog(false);
-};
+  };
 
   // ธีมสีแบบเดียวกับ Layout
   const themeColors = {
@@ -125,25 +123,11 @@ const MenuPromoManagement = () => {
   const MENU_UPDATE_API = 'http://localhost/project_END/restaurant-backend/api/menus/update.php';
   const MENU_DELETE_API = 'http://localhost/project_END/restaurant-backend/api/menus/delete.php';
   const MENU_TOGGLE_STATUS_API = 'http://localhost/project_END/restaurant-backend/api/menus/toggle_status.php';
-  const PROMO_API = 'http://localhost/project_END/restaurant-backend/api/promotions/index.php';
-  const PROMO_CREATE_API = 'http://localhost/project_END/restaurant-backend/api/promotions/create.php';
-  const PROMO_UPDATE_API = 'http://localhost/project_END/restaurant-backend/api/promotions/update.php';
-  const PROMO_DELETE_API = 'http://localhost/project_END/restaurant-backend/api/promotions/delete.php';
 
   // โหลดข้อมูล
   useEffect(() => {
     fetchMenus();
-    fetchPromotions();
   }, []);
-
-  const fetchPromotions = async () => {
-    try {
-      const res = await axios.get(PROMO_API);
-      setPromotions(res.data);
-    } catch (error) {
-      console.error('Fetch promotions error:', error);
-    }
-  };
 
   const fetchMenus = async () => {
     try {
@@ -245,62 +229,6 @@ const MenuPromoManagement = () => {
         console.error("Save menu error:", error);
         alert("เกิดข้อผิดพลาดในการบันทึกเมนู");
       }
-    } else if (dialogMode === 'promo') {
-      // เช็คข้อมูลโปรโมชั่น
-      if (!form.Name || !form.DiscountValue || !form.StartDate || !form.EndDate) {
-        alert("กรุณากรอกข้อมูลโปรโมชั่นให้ครบถ้วน");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("Name", form.Name);
-      formData.append("Description", form.Description);
-      formData.append("DiscountType", form.DiscountType);
-      formData.append("DiscountValue", Number(form.DiscountValue));
-      formData.append("StartDate", form.StartDate);
-      formData.append("EndDate", form.EndDate);
-
-      if (editItem) {
-        formData.append("PromotionID", editItem.PromotionID);
-      }
-
-      try {
-        await axios.post(
-          editItem ? PROMO_UPDATE_API : PROMO_CREATE_API,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-        setOpenDialog(false);
-        fetchPromotions();
-        setForm({
-          Name: '',
-          Description: '',
-          DiscountType: 'percent',
-          DiscountValue: '',
-          StartDate: '',
-          EndDate: '',
-        });
-        setEditItem(null);
-      } catch (error) {
-        console.error("Save promo error:", error);
-        alert("เกิดข้อผิดพลาดในการบันทึกโปรโมชั่น");
-      }
-    }
-  };
-
-  const handleDeletePromo = async (id) => {
-    if (!window.confirm('ลบโปรโมชั่นนี้จริงหรือไม่?')) return;
-
-    try {
-      await axios.post(
-        PROMO_DELETE_API,
-        { PromotionID: id },
-        { headers: { "Content-Type": "application/json" } }
-      );
-      fetchPromotions();
-    } catch (error) {
-      console.error('Delete promo error:', error);
-      alert('ลบโปรโมชั่นไม่สำเร็จ');
     }
   };
 
@@ -308,31 +236,16 @@ const MenuPromoManagement = () => {
     setTabValue(newValue);
   };
 
-  const handleEditPromo = (promo) => {
-    setDialogMode('promo');
-    setEditItem(promo);
-    setForm({
-      Name: promo.Name || '',
-      Description: promo.Description || '',
-      DiscountType: promo.DiscountType || 'percent',
-      DiscountValue: promo.DiscountValue || '',
-      StartDate: promo.StartDate || '',
-      EndDate: promo.EndDate || '',
-    });
-    setOpenDialog(true);
-  };
-
   const activeMenus = menus.filter(menu => menu.Status === 'active').length;
-  const activePromos = promotions.filter(promo => promo.Status === 'active').length;
 
   return (
     <Box sx={{ bgcolor: themeColors.background, minHeight: '100vh', p: 3 }}>
       {/* Header Section */}
-      <Card 
-        elevation={0} 
-        sx={{ 
-          mb: 3, 
-          borderRadius: 3, 
+      <Card
+        elevation={0}
+        sx={{
+          mb: 3,
+          borderRadius: 3,
           border: `1px solid ${themeColors.divider}`,
           background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
         }}
@@ -355,14 +268,14 @@ const MenuPromoManagement = () => {
               </Box>
               <Box>
                 <Typography variant="h4" fontWeight="700" color={themeColors.textPrimary}>
-                  จัดการเมนูและโปรโมชั่น
+                  จัดการเมนูอาหาร
                 </Typography>
                 <Typography variant="subtitle1" color={themeColors.textSecondary}>
-                  ระบบจัดการเมนูอาหารและโปรโมชั่นพิเศษ
+                  ระบบจัดการเมนูอาหารทั้งหมดภายในร้านอาหาร
                 </Typography>
               </Box>
             </Box>
-            
+
             {/* Summary Stats */}
             <Grid container spacing={2} sx={{ maxWidth: 400 }}>
               <Grid item xs={6}>
@@ -375,26 +288,16 @@ const MenuPromoManagement = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={6}>
-                <Box textAlign="center">
-                  <Typography variant="h4" fontWeight="700" color={themeColors.success}>
-                    {activePromos}
-                  </Typography>
-                  <Typography variant="body2" color={themeColors.textSecondary}>
-                    โปรโมชั่นใช้งาน
-                  </Typography>
-                </Box>
-              </Grid>
             </Grid>
           </Box>
         </CardContent>
       </Card>
 
       {/* Navigation Tabs */}
-      <Card 
-        elevation={0} 
-        sx={{ 
-          mb: 3, 
+      <Card
+        elevation={0}
+        sx={{
+          mb: 3,
           borderRadius: 3,
           border: `1px solid ${themeColors.divider}`,
         }}
@@ -414,12 +317,6 @@ const MenuPromoManagement = () => {
           <Tab
             icon={<RestaurantIcon />}
             label={`เมนูอาหาร (${menus.length})`}
-            iconPosition="start"
-            sx={{ px: 4 }}
-          />
-          <Tab
-            icon={<LocalOfferIcon />}
-            label={`โปรโมชั่น (${promotions.length})`}
             iconPosition="start"
             sx={{ px: 4 }}
           />
@@ -467,71 +364,71 @@ const MenuPromoManagement = () => {
                 {menus
                   .slice((page - 1) * rowsPerPage, page * rowsPerPage) // แสดงแค่หน้าปัจจุบัน
                   .map((menu) => (
-                  <TableRow key={menu.MenuID}>
-                    <TableCell>
-                      {menu.ImageURL ? (
-                        <Box
-                          component="img"
-                          src={`http://localhost/project_END/restaurant-backend/${menu.ImageURL}`}
-                          alt={menu.Name}
-                          sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1 }}
-                        />
-                      ) : (
-                        <ImageIcon sx={{ fontSize: 40, color: themeColors.textSecondary }} />
-                      )}
-                    </TableCell>
-                    <TableCell>{menu.Name}</TableCell>
-                    <TableCell sx={{ maxWidth: 200 }}>
-                      <Button 
-                        variant="outlined" 
-                        size="small" 
-                        onClick={() => handleOpenDesc(menu.Description)}
-                      >
-                        ดูรายละเอียด
-                      </Button>
-                    </TableCell>
-                    <TableCell>฿{menu.Price}</TableCell>
-                    <TableCell>{menu.Cost ? `฿${menu.Cost}` : '-'}</TableCell>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Chip
-                          icon={menu.Status === 'active' ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                          label={menu.Status === 'active' ? 'เปิดขาย' : 'ปิดขาย'}
-                          color={menu.Status === 'active' ? 'success' : 'default'}
-                          size="small"
-                          sx={{ fontWeight: '600' }}
-                        />
-                        <Switch
-                          checked={menu.Status === 'active'}
-                          onChange={() => handleToggleStatus(menu)}
-                          color="success"
-                          size="small"
-                        />
-                      </Stack>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
+                    <TableRow key={menu.MenuID}>
+                      <TableCell>
+                        {menu.ImageURL ? (
+                          <Box
+                            component="img"
+                            src={`http://localhost/project_END/restaurant-backend/${menu.ImageURL}`}
+                            alt={menu.Name}
+                            sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1 }}
+                          />
+                        ) : (
+                          <ImageIcon sx={{ fontSize: 40, color: themeColors.textSecondary }} />
+                        )}
+                      </TableCell>
+                      <TableCell>{menu.Name}</TableCell>
+                      <TableCell sx={{ maxWidth: 200 }}>
                         <Button
+                          variant="outlined"
                           size="small"
-                          startIcon={<EditIcon />}
-                          onClick={() => handleEditMenu(menu)}
-                          sx={{ borderRadius: 2 }}
+                          onClick={() => handleOpenDesc(menu.Description)}
                         >
-                          แก้ไข
+                          ดูรายละเอียด
                         </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          startIcon={<DeleteIcon />}
-                          onClick={() => handleDeleteMenu(menu.MenuID)}
-                          sx={{ borderRadius: 2 }}
-                        >
-                          ลบ
-                        </Button>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                      <TableCell>฿{menu.Price}</TableCell>
+                      <TableCell>{menu.Cost ? `฿${menu.Cost}` : '-'}</TableCell>
+                      <TableCell>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <Chip
+                            icon={menu.Status === 'active' ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                            label={menu.Status === 'active' ? 'เปิดขาย' : 'ปิดขาย'}
+                            color={menu.Status === 'active' ? 'success' : 'default'}
+                            size="small"
+                            sx={{ fontWeight: '600' }}
+                          />
+                          <Switch
+                            checked={menu.Status === 'active'}
+                            onChange={() => handleToggleStatus(menu)}
+                            color="success"
+                            size="small"
+                          />
+                        </Stack>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Stack direction="row" spacing={1} justifyContent="center">
+                          <Button
+                            size="small"
+                            startIcon={<EditIcon />}
+                            onClick={() => handleEditMenu(menu)}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            แก้ไข
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={() => handleDeleteMenu(menu.MenuID)}
+                            sx={{ borderRadius: 2 }}
+                          >
+                            ลบ
+                          </Button>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
             <Dialog open={openDescDialog} onClose={handleCloseDesc} maxWidth="sm" fullWidth>
@@ -591,228 +488,14 @@ const MenuPromoManagement = () => {
               เพิ่มโปรโมชั่น
             </Button>
           </Box>
-
-          {/* ตารางโปรโมชั่น */}
-          <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ชื่อโปรโมชั่น</TableCell>
-                  <TableCell>คำอธิบาย</TableCell>
-                  <TableCell>ส่วนลด</TableCell>
-                  <TableCell>วันที่ใช้งาน</TableCell>
-                  <TableCell>สถานะ</TableCell>
-                  <TableCell align="center">จัดการ</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {promotions
-                  .slice((promoPage - 1) * rowsPerPage, promoPage * rowsPerPage)
-                  .map((promo) => (
-                  <TableRow key={promo.PromotionID}>
-                    <TableCell>{promo.Name}</TableCell>
-                    <TableCell sx={{ maxWidth: 200 }}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
-                          setSelectedDesc(promo.Description || 'ไม่มีรายละเอียด');
-                          setOpenDescDialog(true);
-                        }}
-                      >
-                        ดูรายละเอียด
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      {promo.DiscountType === 'percent'
-                        ? `${promo.DiscountValue}%`
-                        : `฿${promo.DiscountValue}`}
-                    </TableCell>
-                    <TableCell>{promo.StartDate} - {promo.EndDate}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={promo.Status === 'active' ? 'ใช้งานได้' : 'หมดอายุ'}
-                        color={promo.Status === 'active' ? 'success' : 'default'}
-                        size="small"
-                        sx={{ fontWeight: '600' }}
-                      />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
-                        <IconButton
-                          color="primary"
-                          onClick={() => handleEditPromo(promo)}
-                          sx={{ borderRadius: 2 }}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleDeletePromo(promo.PromotionID)}
-                          sx={{ borderRadius: 2 }}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* Pagination โปรโมชั่น */}
-          <Box display="flex" justifyContent="center" mt={2}>
-            <Pagination
-              count={Math.ceil(promotions.length / rowsPerPage)}
-              page={promoPage}
-              onChange={(e, value) => setPromoPage(value)}
-              color="primary"
-            />
-          </Box>
-
-          {/* Dialog แสดงรายละเอียด */}
-          <Dialog open={openDescDialog} onClose={() => setOpenDescDialog(false)} maxWidth="sm" fullWidth>
-            <DialogTitle>รายละเอียดโปรโมชั่น</DialogTitle>
-            <DialogContent>
-              <Typography>{selectedDesc}</Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenDescDialog(false)}>ปิด</Button>
-            </DialogActions>
-          </Dialog>
         </Box>
       )}
-
-      {/* Dialog สำหรับโปรโมชั่น */}
-      <Dialog 
-        open={openDialog && dialogMode === 'promo'} 
-        onClose={() => setOpenDialog(false)} 
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: { borderRadius: 3 }
-        }}
-      >
-        <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" alignItems="center" gap={2}>
-            <LocalOfferIcon color="primary" sx={{ fontSize: 32 }} />
-            <Typography variant="h5" fontWeight="600">
-              {editItem ? 'แก้ไข' : 'เพิ่ม'}โปรโมชั่น
-            </Typography>
-          </Box>
-        </DialogTitle>
-        
-        <DialogContent sx={{ p: 3 }}>
-          <Stack spacing={3} mt={1}>
-            <TextField 
-              label="ชื่อโปรโมชั่น" 
-              fullWidth 
-              value={form.Name}
-              onChange={(e) => setForm({ ...form, Name: e.target.value })}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                },
-              }}
-            />
-            
-            <TextField 
-              label="รายละเอียด" 
-              fullWidth 
-              multiline 
-              rows={3} 
-              value={form.Description}
-              onChange={(e) => setForm({ ...form, Description: e.target.value })}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                },
-              }}
-            />
-            
-            <FormControl fullWidth>
-              <InputLabel>ประเภทส่วนลด</InputLabel>
-              <Select
-                label="ประเภทส่วนลด"
-                value={form.DiscountType}
-                onChange={(e) => setForm({ ...form, DiscountType: e.target.value })}
-                sx={{ borderRadius: 2 }}
-              >
-                <MenuItem value="percent">เปอร์เซ็นต์ (%)</MenuItem>
-                <MenuItem value="amount">จำนวนเงิน (บาท)</MenuItem>
-              </Select>
-            </FormControl>
-            
-            <TextField 
-              label="มูลค่าส่วนลด" 
-              type="number" 
-              fullWidth 
-              value={form.DiscountValue}
-              onChange={(e) => setForm({ ...form, DiscountValue: e.target.value })}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                },
-              }}
-            />
-            
-            <Box display="flex" gap={2}>
-              <TextField 
-                label="วันที่เริ่ม" 
-                type="date" 
-                fullWidth 
-                InputLabelProps={{ shrink: true }}
-                value={form.StartDate} 
-                onChange={(e) => setForm({ ...form, StartDate: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                  },
-                }}
-              />
-              
-              <TextField 
-                label="วันที่สิ้นสุด" 
-                type="date" 
-                fullWidth 
-                InputLabelProps={{ shrink: true }}
-                value={form.EndDate} 
-                onChange={(e) => setForm({ ...form, EndDate: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                  },
-                }}
-              />
-            </Box>
-          </Stack>
-        </DialogContent>
-        
-        <DialogActions sx={{ p: 3 }}>
-          <Button 
-            onClick={() => setOpenDialog(false)}
-            size="large"
-            sx={{ borderRadius: 2, px: 3 }}
-          >
-            ยกเลิก
-          </Button>
-          <Button 
-            variant="contained" 
-            onClick={handleSave}
-            size="large"
-            sx={{ borderRadius: 2, px: 3 }}
-          >
-            บันทึก
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+      
       {/* Dialog สำหรับเมนู */}
-      <Dialog 
-        open={openDialog && dialogMode === 'menu'} 
-        onClose={() => setOpenDialog(false)} 
-        maxWidth="md" 
+      <Dialog
+        open={openDialog && dialogMode === 'menu'}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="md"
         fullWidth
         PaperProps={{
           sx: { borderRadius: 3 }
@@ -826,7 +509,7 @@ const MenuPromoManagement = () => {
             </Typography>
           </Box>
         </DialogTitle>
-        
+
         <DialogContent sx={{ p: 3 }}>
           <Grid container spacing={3} mt={0.5}>
             {/* Left Column - Form Fields */}
@@ -844,7 +527,7 @@ const MenuPromoManagement = () => {
                     },
                   }}
                 />
-                
+
                 <Box display="flex" gap={2}>
                   <TextField
                     label="ราคาขาย"
@@ -862,7 +545,7 @@ const MenuPromoManagement = () => {
                       },
                     }}
                   />
-                  
+
                   <TextField
                     label="ต้นทุน"
                     type="number"
@@ -981,7 +664,7 @@ const MenuPromoManagement = () => {
                   variant="contained"
                   component="label"
                   startIcon={<ImageIcon />}
-                  sx={{ 
+                  sx={{
                     borderRadius: 2,
                     px: 3,
                     py: 1.5,
@@ -1002,26 +685,26 @@ const MenuPromoManagement = () => {
             </Grid>
           </Grid>
         </DialogContent>
-        
+
         <DialogActions sx={{ p: 3 }}>
-          <Button 
+          <Button
             onClick={() => setOpenDialog(false)}
             size="large"
-            sx={{ 
-              borderRadius: 2, 
+            sx={{
+              borderRadius: 2,
               px: 4,
               fontSize: '16px',
             }}
           >
             ยกเลิก
           </Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={handleSave}
             disabled={!menuForm.name || !menuForm.price}
             size="large"
-            sx={{ 
-              borderRadius: 2, 
+            sx={{
+              borderRadius: 2,
               px: 4,
               fontSize: '16px',
             }}

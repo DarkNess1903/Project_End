@@ -13,8 +13,6 @@ const FeedbackForm = ({ tableName }) => {
   const [ratingCleanliness, setRatingCleanliness] = useState(0);
   const [ratingOverall, setRatingOverall] = useState(0);
   const [comment, setComment] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
 
   // โหลดข้อมูลร้าน
@@ -50,8 +48,6 @@ const FeedbackForm = ({ tableName }) => {
         rating_cleanliness: ratingCleanliness,
         rating_overall: ratingOverall,
         comment,
-        contact_email: contactEmail,
-        contact_phone: contactPhone
       });
 
       if (res.data.success) {
@@ -62,8 +58,6 @@ const FeedbackForm = ({ tableName }) => {
         setRatingCleanliness(0);
         setRatingOverall(0);
         setComment('');
-        setContactEmail('');
-        setContactPhone('');
       } else {
         setNotification({ open: true, message: res.data.message || 'ส่งความคิดเห็นล้มเหลว', severity: 'error' });
       }
@@ -131,21 +125,6 @@ const FeedbackForm = ({ tableName }) => {
           rows={3}
           placeholder="เช่น รสชาติอร่อย บริการดี ฯลฯ"
         />
-
-        <TextField
-          label="อีเมล (ไม่บังคับ)"
-          value={contactEmail}
-          onChange={(e) => setContactEmail(e.target.value)}
-          fullWidth
-        />
-
-        <TextField
-          label="เบอร์โทร (ไม่บังคับ)"
-          value={contactPhone}
-          onChange={(e) => setContactPhone(e.target.value)}
-          fullWidth
-        />
-
         <Button variant="contained" onClick={handleSubmit}>ส่งความคิดเห็น</Button>
       </Stack>
 

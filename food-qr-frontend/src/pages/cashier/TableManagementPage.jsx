@@ -594,6 +594,7 @@ const TableManagementPage = () => {
                 size="large"
                 startIcon={<PaymentIcon />}
                 onClick={() => handleClick(selectedTable.OrderID)}
+                disabled={selectedTable.Status !== 'reserved'}
                 sx={{
                   py: 2,
                   borderRadius: 2,

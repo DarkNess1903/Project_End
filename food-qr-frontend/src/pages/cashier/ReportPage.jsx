@@ -18,8 +18,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
-} from '@mui/material';
+  Paper,
+  Rating,
+  CircularProgress,
+} from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -66,15 +68,18 @@ const ReportPage = () => {
   const [expenses, setExpenses] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
   const [topMenus, setTopMenus] = useState([]);
-  
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const totalCostMenus = menuSales.reduce((sum, item) => sum + item.total_cost, 0);
   const netProfit = summary.total_sales - summary.total_cost - totalExpense;
 
   const formatLocalDate = (date) => {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-};
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
 
   useEffect(() => {
     fetchSalesReport();
@@ -107,6 +112,7 @@ const ReportPage = () => {
 
     fetchExpenses(startDate, endDate);
     fetchTopMenus(startDate, endDate);
+    fetchFeedback(startDate, endDate);
   }, [filterType, selectedDate]);
 
   const fetchTopMenus = async (start, end) => {
@@ -120,6 +126,20 @@ const ReportPage = () => {
     }
   };
 
+  const fetchFeedback = async (startDate, endDate) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/load_feedback.php`, {
+        params: { startDate, endDate },
+      });
+      setFeedbacks(response.data);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchExpenses = async (startDate, endDate) => {
     try {
       const params = {};
@@ -128,9 +148,12 @@ const ReportPage = () => {
 
       const res = await axios.get(`${API_BASE}/sales_by_expenses.php`, { params });
 
-      const total = res.data.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+      // แยกเฉพาะค่าใช้จ่ายอื่น ๆ ไม่รวมต้นทุนเมนู
+      const otherExpenses = res.data.filter(item => item.ExpenseType !== 'menu_cost');
 
-      setExpenses(res.data);
+      const total = otherExpenses.reduce((sum, item) => sum + parseFloat(item.Amount || 0), 0);
+
+      setExpenses(otherExpenses);
       setTotalExpense(total);
     } catch (error) {
       console.error('Error fetching expenses:', error);
@@ -197,7 +220,9 @@ const ReportPage = () => {
       const formatted = res.data.map((item) => ({
         menu_name: item.name,
         total_sales: parseFloat(item.total_sales),
+        total_cost: parseFloat(item.total_cost), // <-- เพิ่มต้นทุนรวมของเมนู
       }));
+
       setMenuSales(formatted);
     } catch (err) {
       console.error('Fetch sales by menu error:', err);
@@ -248,10 +273,10 @@ const ReportPage = () => {
             <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
               {[
                 { key: 'day', label: 'รายวัน', icon: <CalendarToday /> },
-                { key: 'week', label: 'รายสัปดาห์', icon: <DateRange />},
+                { key: 'week', label: 'รายสัปดาห์', icon: <DateRange /> },
                 { key: 'month', label: 'รายเดือน', icon: <CalendarMonth /> },
-                { key: 'year', label: 'รายปี' ,icon: <Schedule /> },
-                { key: 'custom', label: 'กำหนดเอง' , },
+                { key: 'year', label: 'รายปี', icon: <Schedule /> },
+                { key: 'custom', label: 'กำหนดเอง', },
               ].map((item) => (
                 <Chip
                   key={item.key}
@@ -321,17 +346,17 @@ const ReportPage = () => {
               format: formatCurrency,
             },
             {
-              title: 'กําไรสุทธิ',
-              value: netProfit,
-              color: theme.colors.success,
-              icon: <TrendingUp sx={{ fontSize: 32 }} />,
-              format: formatCurrency,
-            },
-            {
-              title: 'รายจ่ายทั้งหมด',
+              title: 'รายจ่ายอื่นๆ',
               value: totalExpense,
               color: theme.colors.error,
               icon: <TrendingDown sx={{ fontSize: 32 }} />,
+              format: formatCurrency,
+            },
+            {
+              title: netProfit >= 0 ? 'กำไรสุทธิ' : 'ขาดทุนสุทธิ',
+              value: Math.abs(netProfit), // แสดงเป็นตัวเลขบวกเสมอ
+              color: netProfit >= 0 ? theme.colors.success : theme.colors.error, // สีเขียวหรือแดง
+              icon: <TrendingUp sx={{ fontSize: 32 }} />,
               format: formatCurrency,
             },
           ].map((item, index) => (
@@ -392,41 +417,110 @@ const ReportPage = () => {
         </Grid>
       </Container>
 
-      {/* Top 5 เมนูขายดี */}
-      <Card sx={{ mb: 3, boxShadow: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
-            เมนูขายดี 5 อันดับ
-          </Typography>
+      <Grid container spacing={3} alignItems="stretch">
+        {/* Left: Top 5 เมนูขายดี */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ mb: 3, boxShadow: 3, height: '100%' }}>
+            <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
+                เมนูขายดี 5 อันดับ
+              </Typography>
 
-          {topMenus.length === 0 ? (
-            <Typography sx={{ color: '#757575' }}>ไม่มีข้อมูล</Typography>
-          ) : (
-            <TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
-              <Table size="small" aria-label="top 5 menu table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center" sx={{ fontWeight: 600 }}>อันดับ</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>ชื่อเมนู</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 600 }}>จำนวนขาย</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 600 }}>ยอดขาย</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {topMenus.map((item, index) => (
-                    <TableRow key={item.MenuName}>
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell>{item.MenuName}</TableCell>
-                      <TableCell align="center">{item.total_qty}</TableCell>
-                      <TableCell align="right">{formatCurrency(item.total_sales)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </CardContent>
-      </Card>
+              <Box sx={{ flex: 1 }}>
+                {topMenus.length === 0 ? (
+                  <Typography sx={{ color: '#757575' }}>ไม่มีข้อมูล</Typography>
+                ) : (
+                  <TableContainer component={Paper} sx={{ boxShadow: 'none', maxHeight: 600 }}>
+                    <Table size="small" stickyHeader aria-label="top 5 menu table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align="center" sx={{ fontWeight: 600 }}>อันดับ</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>ชื่อเมนู</TableCell>
+                          <TableCell align="center" sx={{ fontWeight: 600 }}>จำนวนขาย</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 600 }}>ยอดขาย</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {topMenus.map((item, index) => (
+                          <TableRow key={item.MenuName}>
+                            <TableCell align="center">{index + 1}</TableCell>
+                            <TableCell>{item.MenuName}</TableCell>
+                            <TableCell align="center">{item.total_qty}</TableCell>
+                            <TableCell align="right">{formatCurrency(item.total_sales)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Right: Feedback Summary */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ mb: 3, boxShadow: 3, height: '100%' }}>
+            <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
+                คะแนนเฉลี่ยแต่ละด้าน
+              </Typography>
+
+              <Box sx={{ flex: 1, overflowY: 'auto' }}>
+                {feedbacks.length > 0 ? (
+                  <TableContainer component={Paper} sx={{ mb: 3, boxShadow: 'none' }}>
+                    <Table size="small">
+                      <TableBody>
+                        {['อาหาร', 'บริการ', 'ความสะอาด', 'โดยรวม'].map((aspect) => {
+                          const avg = feedbacks.reduce((sum, fb) => {
+                            switch (aspect) {
+                              case 'อาหาร': return sum + parseFloat(fb.rating_food);
+                              case 'บริการ': return sum + parseFloat(fb.rating_service);
+                              case 'ความสะอาด': return sum + parseFloat(fb.rating_cleanliness);
+                              case 'โดยรวม': return sum + parseFloat(fb.rating_overall);
+                              default: return sum;
+                            }
+                          }, 0) / feedbacks.length;
+
+                          return (
+                            <TableRow key={aspect}>
+                              <TableCell sx={{ fontWeight: 600 }}>{aspect}</TableCell>
+                              <TableCell>
+                                <Rating value={avg} precision={0.1} readOnly size="small" /> ({avg.toFixed(1)})
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Typography sx={{ color: '#757575' }}>ไม่มีข้อมูลคะแนน</Typography>
+                )}
+
+                {/* ข้อความความคิดเห็น */}
+                <Typography variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
+                  ความคิดเห็นลูกค้า
+                </Typography>
+                {feedbacks.length > 0 ? (
+                  <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
+                    {feedbacks.map((fb) => (
+                      <Box key={fb.id} sx={{ mb: 2, p: 2, border: '1px solid #eee', borderRadius: 2 }}>
+                        <Typography sx={{ fontSize: '14px', color: '#555' }}>{fb.comment}</Typography>
+                        <Typography sx={{ fontSize: '12px', color: '#999', mt: 0.5 }}>
+                          วันที่: {fb.feedback_date}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography sx={{ color: '#757575' }}>ไม่มีความคิดเห็นลูกค้า</Typography>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

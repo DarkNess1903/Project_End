@@ -5,7 +5,7 @@ header("Content-Type: application/json; charset=UTF-8");
 require_once '../../config/db.php';
 
 if (!isset($_GET['order_id'])) {
-    echo json_encode(["message" => "Missing order_id"]);
+    echo json_encode(["success" => false, "message" => "Missing order_id"]);
     exit;
 }
 
@@ -32,39 +32,27 @@ while ($row = $result->fetch_assoc()) {
 
     $order_items[] = [
         "order_item_id" => $row['OrderItemID'],
-        "menu_id" => $row['MenuID'],
-        "name" => $row['Name'],
-        "quantity" => intval($row['Quantity']),
-        "price" => round($sub_total / intval($row['Quantity']), 2),
-        "note" => $row['Note'],
-        "sub_total" => round($sub_total, 2),
-        "ImageURL" => $row['ImageURL'],
+        "menu_id"       => $row['MenuID'],
+        "name"          => $row['Name'],
+        "quantity"      => intval($row['Quantity']),
+        "price"         => round($sub_total / max(1, intval($row['Quantity'])), 2),
+        "note"          => $row['Note'],
+        "sub_total"     => round($sub_total, 2),
+        "ImageURL"      => $row['ImageURL'],
     ];
 }
 
-// ตรวจสอบโปรโมชั่น
+// ไม่มีโปรโมชั่น → discount = 0
 $discount = 0;
-$promo_query = "
-    SELECT * FROM promotion
-    WHERE Status = 1
-    AND CURDATE() BETWEEN StartDate AND EndDate
-    LIMIT 1
-";
-$promo_result = $conn->query($promo_query);
-if ($promo_row = $promo_result->fetch_assoc()) {
-    if ($promo_row['DiscountType'] == 'percent') {
-        $discount = $total * ($promo_row['DiscountValue'] / 100);
-    } else {
-        $discount = $promo_row['DiscountValue'];
-    }
-}
+$final_total = $total - $discount;
 
 $response = [
-    "order_id" => $order_id,
-    "items" => $order_items,
-    "total" => round($total, 2),
-    "discount" => round($discount, 2),
-    "final_total" => round($total - $discount, 2)
+    "success"     => true,
+    "order_id"    => $order_id,
+    "items"       => $order_items,
+    "total"       => round($total, 2),
+    "discount"    => round($discount, 2),
+    "final_total" => round($final_total, 2)
 ];
 
 echo json_encode($response);

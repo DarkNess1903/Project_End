@@ -28,16 +28,11 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  ListItemSecondaryAction,
-  Badge,
-  Paper,
 } from '@mui/material';
 import {
   Payment,
   ArrowBack,
   CreditCard,
-  AccountBalance,
-  LocalOffer,
   Calculate,
   Receipt,
   MonetizationOn,
@@ -74,39 +69,23 @@ const PaymentPage = () => {
   const [finalTotal, setFinalTotal] = useState(0);
   const [customerCash, setCustomerCash] = useState('');
   const [change, setChange] = useState(0);
-  const [promoCode, setPromoCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [paymentDialog, setPaymentDialog] = useState({ open: false, type: '' });
   const [discountDialog, setDiscountDialog] = useState(false);
   const [manualDiscount, setManualDiscount] = useState('');
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
-  const [promotions, setPromotions] = useState([]);
-  const [selectedPromo, setSelectedPromo] = useState('');
 
   // Preset cash amounts for quick selection
   const quickCashAmounts = [100, 200, 500, 1000];
-
-  // โหลดโปรโมชั่นจาก API
-  useEffect(() => {
-    const fetchPromotions = async () => {
-      try {
-        const res = await axios.get('http://localhost/project_END/restaurant-backend/api/promotions/get_promotions.php');
-        if (res.data.success) {
-          setPromotions(res.data.promotions);
-        }
-      } catch (err) {
-        console.error('โหลดโปรโมชั่นล้มเหลว:', err);
-      }
-    };
-    fetchPromotions();
-  }, []);
 
   // โหลดข้อมูลคำสั่งซื้อ
   useEffect(() => {
     const fetchOrder = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost/project_END/restaurant-backend/api/orders/read_single_order.php?order_id=${orderId}`);
+        const res = await axios.get(
+          `http://localhost/project_END/restaurant-backend/api/orders/read_single_order.php?order_id=${orderId}`
+        );
         if (!res.data || !res.data.items) {
           console.error('ข้อมูลไม่ครบ:', res.data);
           showNotification('ไม่พบข้อมูลออเดอร์', 'error');
@@ -162,13 +141,13 @@ const PaymentPage = () => {
       const payload = {
         order_id: orderId,
         payment_type: type,
-        amount_paid: finalTotal
+        amount_paid: finalTotal,
       };
 
       const res = await axios.post(
         'http://localhost/project_END/restaurant-backend/api/payments/pay_order.php',
         payload,
-        { headers: { 'Content-Type': 'application/json' } } // ✅ สำคัญ
+        { headers: { 'Content-Type': 'application/json' } }
       );
 
       if (res.data.success) {
@@ -181,38 +160,6 @@ const PaymentPage = () => {
     } catch (error) {
       console.error('ชำระเงินล้มเหลว:', error);
       showNotification('เกิดข้อผิดพลาดในการชำระเงิน', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ฟังก์ชันใช้โปรโมชั่น/ลดราคา
-  const applyPromotion = async () => {
-    if (!selectedPromo) {
-      showNotification('กรุณาเลือกโปรโมชั่น', 'warning');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await axios.post('http://localhost/project_END/restaurant-backend/api/promotion/apply_promo.php', {
-        order_id: orderId,
-        promotion_id: selectedPromo, // <<--- ส่งเป็น ID
-      });
-
-      if (res.data.success) {
-        setDiscount(parseFloat(res.data.discount));
-        setFinalTotal(parseFloat(res.data.final_total));
-        showNotification('ใช้โปรโมชั่นสำเร็จ', 'success');
-        if (customerCash) {
-          setChange(customerCash - parseFloat(res.data.final_total));
-        }
-      } else {
-        showNotification('โปรโมชั่นไม่ถูกต้องหรือหมดอายุ', 'error');
-      }
-    } catch (error) {
-      console.error('ใช้โปรโมชั่นล้มเหลว:', error);
-      showNotification('เกิดข้อผิดพลาดในการใช้โปรโมชั่น', 'error');
     } finally {
       setLoading(false);
     }
@@ -241,12 +188,25 @@ const PaymentPage = () => {
     }
   };
 
-  const formatCurrency = (value) => `฿${Number(value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+  const formatCurrency = (value) =>
+    `฿${Number(value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
 
-  if (loading && orderItems.length === 0) {
+  // แสดงตอนกำลังโหลด
+  if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
         <CircularProgress size={60} sx={{ color: theme.colors.primary }} />
+      </Box>
+    );
+  }
+
+  // ถ้าโหลดเสร็จแต่ไม่มีออเดอร์
+  if (!loading && orderItems.length === 0) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <Typography variant="h6" color="textSecondary">
+          ไม่พบข้อมูลออเดอร์
+        </Typography>
       </Box>
     );
   }
@@ -382,7 +342,10 @@ const PaymentPage = () => {
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <Box>
-                        <Typography variant="body2" sx={{ mb: 1, color: theme.colors.text.secondary }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ mb: 1, color: theme.colors.text.secondary }}
+                        >
                           จำนวนเงินแบบด่วน:
                         </Typography>
                         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -409,19 +372,61 @@ const PaymentPage = () => {
                   </Grid>
 
                   {customerCash && (
-                    <Box mt={3} p={2} sx={{ backgroundColor: theme.colors.background, borderRadius: 2 }}>
-                      <Typography variant="h5" sx={{
-                        fontWeight: 700,
-                        color: change >= 0 ? theme.colors.success : theme.colors.error,
-                        textAlign: 'center'
-                      }}>
+                    <Box mt={3} p={2} sx={{
+                      backgroundColor: theme.colors.background,
+                      borderRadius: 2
+                    }}>
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontWeight: 700,
+                          color: change >= 0 ? theme.colors.success : theme.colors.error,
+                          textAlign: 'center'
+                        }}
+                      >
                         เงินทอน: {change >= 0 ? formatCurrency(change) : 'ไม่เพียงพอ'}
                       </Typography>
                     </Box>
                   )}
+
+                  {/* ปุ่มส่วนลด */}
+                  <Box mt={3} textAlign="right">
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={() => setDiscountDialog(true)}
+                    >
+                      ใส่ส่วนลด
+                    </Button>
+                  </Box>
                 </CardContent>
               </Card>
 
+              {/* Dialog ใส่จำนวนเงินลดราคา */}
+              <Dialog
+                open={discountDialog}
+                onClose={() => setDiscountDialog(false)}
+              >
+                <DialogTitle>ใส่ส่วนลด (บาท)</DialogTitle>
+                <DialogContent>
+                  <TextField
+                    autoFocus
+                    margin="dense"
+                    label="จำนวนเงิน"
+                    type="number"
+                    fullWidth
+                    value={manualDiscount}
+                    onChange={(e) => setManualDiscount(e.target.value)}
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setDiscountDialog(false)}>ยกเลิก</Button>
+                  <Button variant="contained" onClick={applyManualDiscount}>
+                    ยืนยัน
+                  </Button>
+                </DialogActions>
+              </Dialog>
+              
               {/* Payment Methods */}
               <Card sx={{ boxShadow: 3 }}>
                 <CardContent sx={{ p: 3 }}>
@@ -474,101 +479,13 @@ const PaymentPage = () => {
                   </Grid>
                 </CardContent>
               </Card>
-
-              {/* Promotions & Discounts */}
-              <Card sx={{ boxShadow: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={3}>
-                    <LocalOffer sx={{ color: theme.colors.warning, fontSize: 28 }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
-                      โปรโมชั่นและส่วนลด
-                    </Typography>
-                  </Box>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={8}>
-                      <FormControl fullWidth>
-                        <InputLabel id="promo-select-label">เลือกโปรโมชั่น</InputLabel>
-                        <Select
-                          labelId="promo-select-label"
-                          value={selectedPromo}
-                          onChange={(e) => setSelectedPromo(e.target.value)}
-                          label="เลือกโปรโมชั่น"
-                          displayEmpty
-                          renderValue={(selected) => {
-                            if (!selected) {
-                              return <em>กรุณาเลือกโปรโมชั่น</em>;
-                            }
-                            const promo = promotions.find((p) => p.PromotionID === selected);
-                            return promo ? `${promo.Name} (${promo.Description})` : "";
-                          }}
-                          sx={{ height: 56, fontSize: '16px' }}
-                        >
-                          {promotions.map((promo) => (
-                            <MenuItem
-                              key={promo.PromotionID}
-                              value={promo.PromotionID}
-                              sx={{ whiteSpace: 'normal', lineHeight: 1.5 }}
-                            >
-                              {promo.Name} ({promo.Description})
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                      <Stack spacing={1}>
-                        <Button
-                          variant="outlined"
-                          fullWidth
-                          startIcon={<LocalOffer />}
-                          onClick={applyPromotion}
-                          disabled={loading}
-                          sx={{
-                            height: 56,
-                            fontSize: '14px',
-                            borderColor: theme.colors.warning,
-                            color: theme.colors.warning,
-                            '&:hover': {
-                              backgroundColor: theme.colors.warning + '10',
-                              borderColor: theme.colors.warning
-                            }
-                          }}
-                        >
-                          ใช้โปรโมชั่น
-                        </Button>
-                      </Stack>
-                    </Grid>
-                  </Grid>
-
-                  <Box mt={2}>
-                    <Button
-                      variant="outlined"
-                      startIcon={<Discount />}
-                      onClick={() => setDiscountDialog(true)}
-                      disabled={loading}
-                      sx={{
-                        height: 48,
-                        fontSize: '16px',
-                        borderColor: theme.colors.error,
-                        color: theme.colors.error,
-                        '&:hover': {
-                          backgroundColor: theme.colors.error + '10',
-                          borderColor: theme.colors.error
-                        }
-                      }}
-                    >
-                      ลดราคาเพิ่มเติม
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
             </Stack>
           </Grid>
         </Grid>
-      </Container>
+      </Container >
 
       {/* Manual Discount Dialog */}
-      <Dialog
+      <Dialog Dialog
         open={discountDialog}
         onClose={() => setDiscountDialog(false)}
         maxWidth="sm"
@@ -631,10 +548,10 @@ const PaymentPage = () => {
             ใช้ส่วนลด
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog >
 
       {/* Payment Success Dialog */}
-      <Dialog
+      <Dialog Dialog
         open={paymentDialog.open}
         onClose={() => setPaymentDialog({ open: false, type: '' })}
         maxWidth="sm"
@@ -651,10 +568,10 @@ const PaymentPage = () => {
           </Typography>
           <CircularProgress sx={{ color: theme.colors.success }} />
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/* Notification Snackbar */}
-      <Snackbar
+      <Snackbar Snackbar
         open={notification.open}
         autoHideDuration={4000}
         onClose={handleCloseNotification}
@@ -663,8 +580,8 @@ const PaymentPage = () => {
         <Alert onClose={handleCloseNotification} severity={notification.severity}>
           {notification.message}
         </Alert>
-      </Snackbar>
-    </Box>
+      </Snackbar >
+    </Box >
   );
 };
 

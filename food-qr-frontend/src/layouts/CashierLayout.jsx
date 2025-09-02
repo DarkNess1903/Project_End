@@ -32,7 +32,7 @@ const drawerWidth = 280;
 const menuItems = [
   { label: 'จัดการโต๊ะ', path: '/cashier/tables', icon: <TableRestaurant /> },
   { label: 'ประวัติคำสั่งซื้อ', path: '/cashier/orders', icon: <History /> },
-  { label: 'เมนูและโปรโมชั่น', path: '/cashier/menu', icon: <Restaurant /> },
+  { label: 'จัดการเมนูอาหาร', path: '/cashier/menu', icon: <Restaurant /> },
   { label: 'รายจ่าย', path: '/cashier/expensePage', icon: <Receipt /> },
   { label: 'รายงานยอดขาย', path: '/cashier/reports', icon: <Assessment /> },
   { label: 'สร้าง QR Code', path: '/cashier/qrcode', icon: <QrCode /> },
