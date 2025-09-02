@@ -6,10 +6,10 @@ require_once '../../config/db.php';
 $status = $_GET['status'] ?? null;
 
 if ($status) {
-    $stmt = $conn->prepare("SELECT * FROM `Order` WHERE Status = ? ORDER BY OrderTime DESC");
+    $stmt = $conn->prepare("SELECT * FROM `orders` WHERE Status = ? ORDER BY OrderTime DESC");
     $stmt->bind_param("s", $status);
 } else {
-    $stmt = $conn->prepare("SELECT * FROM `Order` ORDER BY OrderTime DESC");
+    $stmt = $conn->prepare("SELECT * FROM `orders` ORDER BY OrderTime DESC");
 }
 
 $stmt->execute();

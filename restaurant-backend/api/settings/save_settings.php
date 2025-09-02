@@ -17,6 +17,9 @@ require_once '../../config/db.php';
 
 // รับค่าจาก form
 $store_name = $_POST['store_name'] ?? '';
+$address = $_POST['address'] ?? '';
+$contact_email = $_POST['contact_email'] ?? '';
+$contact_phone = $_POST['contact_phone'] ?? '';
 $service_policy = $_POST['service_policy'] ?? '';
 $recommended_menu = $_POST['recommended_menu'] ?? '[]';
 
@@ -83,24 +86,31 @@ if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_
 }
 
 // ===== บันทึกข้อมูลด้วย INSERT ON DUPLICATE KEY UPDATE =====
-$sql = "INSERT INTO settings (id, store_name, service_policy, recommended_menu, logo_url, cover_image_url)
-        VALUES (1, ?, ?, ?, ?, ?)
+$sql = "INSERT INTO settings (id, store_name, address, contact_email, contact_phone, service_policy, recommended_menu, logo_url, cover_image_url)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           store_name = VALUES(store_name),
+          address = VALUES(address),
+          contact_email = VALUES(contact_email),
+          contact_phone = VALUES(contact_phone),
           service_policy = VALUES(service_policy),
           recommended_menu = VALUES(recommended_menu),
           logo_url = VALUES(logo_url),
           cover_image_url = VALUES(cover_image_url)";
 
 $stmt = $conn->prepare($sql);
-if (!$stmt) {
-    http_response_code(500);
-    echo json_encode(["success" => false, "message" => "prepare failed: " . $conn->error]);
-    exit;
-}
-
-$stmt->bind_param("sssss", $store_name, $service_policy, $recommended_menu, $logo_url, $cover_image_url);
-
+$stmt = $conn->prepare($sql);
+$stmt->bind_param(
+    "ssssssss",
+    $store_name,
+    $address,
+    $contact_email,
+    $contact_phone,
+    $service_policy,
+    $recommended_menu,
+    $logo_url,
+    $cover_image_url
+);
 $success = $stmt->execute();
 
 if ($success) {

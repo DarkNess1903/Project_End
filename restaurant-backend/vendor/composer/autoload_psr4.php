@@ -6,4 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'chillerlan\\Settings\\' => array($vendorDir . '/chillerlan/php-settings-container/src'),
+    'chillerlan\\QRCode\\' => array($vendorDir . '/chillerlan/php-qrcode/src'),
+    'Mike42\\' => array($vendorDir . '/mike42/escpos-php/src/Mike42'),
 );

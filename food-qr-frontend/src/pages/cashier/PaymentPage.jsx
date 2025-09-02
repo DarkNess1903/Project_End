@@ -90,7 +90,7 @@ const PaymentPage = () => {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const res = await axios.get('http://localhost/project_END/restaurant-backend/api/promotion/get_promotions.php');
+        const res = await axios.get('http://localhost/project_END/restaurant-backend/api/promotions/get_promotions.php');
         if (res.data.success) {
           setPromotions(res.data.promotions);
         }
@@ -147,7 +147,6 @@ const PaymentPage = () => {
     handleCashChange(total);
   };
 
-  // ฟังก์ชันจ่ายเงินจริง
   const handlePayment = async (type) => {
     if (finalTotal <= 0) {
       showNotification('ยอดชำระต้องมากกว่า 0', 'warning');
@@ -163,19 +162,19 @@ const PaymentPage = () => {
       const payload = {
         order_id: orderId,
         payment_type: type,
-        amount_paid: finalTotal,
-        promo_code: promoCode || null,
+        amount_paid: finalTotal
       };
-      
-      const res = await axios.post('http://localhost/project_END/restaurant-backend/api/payments/pay_order.php', payload);
+
+      const res = await axios.post(
+        'http://localhost/project_END/restaurant-backend/api/payments/pay_order.php',
+        payload,
+        { headers: { 'Content-Type': 'application/json' } } // ✅ สำคัญ
+      );
 
       if (res.data.success) {
         setPaymentDialog({ open: true, type: 'success' });
         showNotification('ชำระเงินสำเร็จ', 'success');
-        // Auto redirect after 3 seconds
-        setTimeout(() => {
-          navigate('/cashier/orders');
-        }, 3000);
+        setTimeout(() => navigate('/cashier/orders'), 3000);
       } else {
         showNotification('ชำระเงินไม่สำเร็จ: ' + (res.data.message || ''), 'error');
       }
@@ -253,8 +252,8 @@ const PaymentPage = () => {
   }
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
+    <Box sx={{
+      minHeight: '100vh',
       backgroundColor: theme.colors.background,
       fontFamily: 'Prompt, Roboto, sans-serif'
     }}>
@@ -262,8 +261,8 @@ const PaymentPage = () => {
       <AppBar position="static" sx={{ backgroundColor: theme.colors.success, mb: 3 }}>
         <Toolbar sx={{ justifyContent: 'space-between', minHeight: '80px !important' }}>
           <Box display="flex" alignItems="center" gap={2}>
-            <IconButton 
-              color="inherit" 
+            <IconButton
+              color="inherit"
               size="large"
               onClick={() => navigate('/cashier/orders')}
             >
@@ -273,19 +272,6 @@ const PaymentPage = () => {
             <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: '24px' }}>
               ชำระเงิน Order #{orderId}
             </Typography>
-          </Box>
-          <Box display="flex" gap={1}>
-            {/* <Chip 
-              label={formatCurrency(finalTotal)} 
-              sx={{ 
-                backgroundColor: 'rgba(255,255,255,0.2)', 
-                color: 'white',
-                fontSize: '18px',
-                height: 48,
-                fontWeight: 700,
-                px: 2
-              }} 
-            /> */}
           </Box>
         </Toolbar>
       </AppBar>
@@ -302,7 +288,7 @@ const PaymentPage = () => {
                     รายการอาหาร ({orderItems.length} รายการ)
                   </Typography>
                 </Box>
-                
+
                 <List sx={{ maxHeight: 'calc(100vh - 400px)', overflow: 'auto' }}>
                   {orderItems.map((item, i) => (
                     <ListItem key={i} sx={{ px: 0, py: 1 }}>
@@ -329,16 +315,11 @@ const PaymentPage = () => {
                         }
                         sx={{ ml: 2 }}
                       />
-                      {/* <ListItemSecondaryAction>
-                        <Typography sx={{ fontWeight: 700, fontSize: '16px', color: theme.colors.primary }}>
-                          {formatCurrency(item.sub_total)}
-                        </Typography>
-                      </ListItemSecondaryAction> */}
                     </ListItem>
                   ))}
                 </List>
               </CardContent>
-              
+
               {/* Summary */}
               <Box sx={{ p: 3, backgroundColor: theme.colors.background, borderTop: '1px solid #e0e0e0' }}>
                 <Stack spacing={2}>
@@ -429,8 +410,8 @@ const PaymentPage = () => {
 
                   {customerCash && (
                     <Box mt={3} p={2} sx={{ backgroundColor: theme.colors.background, borderRadius: 2 }}>
-                      <Typography variant="h5" sx={{ 
-                        fontWeight: 700, 
+                      <Typography variant="h5" sx={{
+                        fontWeight: 700,
                         color: change >= 0 ? theme.colors.success : theme.colors.error,
                         textAlign: 'center'
                       }}>
@@ -478,7 +459,7 @@ const PaymentPage = () => {
                         size="large"
                         startIcon={<CreditCard />}
                         disabled={loading}
-                        onClick={() => handlePayment('transfer')}
+                        onClick={() => handlePayment('qr')}
                         sx={{
                           height: 72,
                           fontSize: '18px',
@@ -487,7 +468,7 @@ const PaymentPage = () => {
                           '&:hover': { backgroundColor: theme.colors.primary }
                         }}
                       >
-                        โอนเงิน/บัตรเครดิต
+                        โอนเงินผ่าน Qrcode
                       </Button>
                     </Grid>
                   </Grid>
@@ -513,16 +494,21 @@ const PaymentPage = () => {
                           onChange={(e) => setSelectedPromo(e.target.value)}
                           label="เลือกโปรโมชั่น"
                           displayEmpty
-                          sx={{
-                            height: 56,
-                            fontSize: '16px',
+                          renderValue={(selected) => {
+                            if (!selected) {
+                              return <em>กรุณาเลือกโปรโมชั่น</em>;
+                            }
+                            const promo = promotions.find((p) => p.PromotionID === selected);
+                            return promo ? `${promo.Name} (${promo.Description})` : "";
                           }}
+                          sx={{ height: 56, fontSize: '16px' }}
                         >
-                          <MenuItem disabled value="">
-                            <em>กรุณาเลือกโปรโมชั่น</em>
-                          </MenuItem>
                           {promotions.map((promo) => (
-                            <MenuItem key={promo.PromotionID} value={promo.PromotionID}>
+                            <MenuItem
+                              key={promo.PromotionID}
+                              value={promo.PromotionID}
+                              sx={{ whiteSpace: 'normal', lineHeight: 1.5 }}
+                            >
                               {promo.Name} ({promo.Description})
                             </MenuItem>
                           ))}
@@ -531,20 +517,20 @@ const PaymentPage = () => {
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
-                        <Button 
-                          variant="outlined" 
+                        <Button
+                          variant="outlined"
                           fullWidth
                           startIcon={<LocalOffer />}
-                          onClick={applyPromotion} 
+                          onClick={applyPromotion}
                           disabled={loading}
                           sx={{
                             height: 56,
                             fontSize: '14px',
                             borderColor: theme.colors.warning,
                             color: theme.colors.warning,
-                            '&:hover': { 
+                            '&:hover': {
                               backgroundColor: theme.colors.warning + '10',
-                              borderColor: theme.colors.warning 
+                              borderColor: theme.colors.warning
                             }
                           }}
                         >
@@ -555,19 +541,19 @@ const PaymentPage = () => {
                   </Grid>
 
                   <Box mt={2}>
-                    <Button 
-                      variant="outlined" 
+                    <Button
+                      variant="outlined"
                       startIcon={<Discount />}
-                      onClick={() => setDiscountDialog(true)} 
+                      onClick={() => setDiscountDialog(true)}
                       disabled={loading}
                       sx={{
                         height: 48,
                         fontSize: '16px',
                         borderColor: theme.colors.error,
                         color: theme.colors.error,
-                        '&:hover': { 
+                        '&:hover': {
                           backgroundColor: theme.colors.error + '10',
-                          borderColor: theme.colors.error 
+                          borderColor: theme.colors.error
                         }
                       }}
                     >
@@ -582,15 +568,15 @@ const PaymentPage = () => {
       </Container>
 
       {/* Manual Discount Dialog */}
-      <Dialog 
-        open={discountDialog} 
+      <Dialog
+        open={discountDialog}
         onClose={() => setDiscountDialog(false)}
         maxWidth="sm"
         fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}
       >
-        <DialogTitle sx={{ 
-          backgroundColor: theme.colors.error, 
+        <DialogTitle sx={{
+          backgroundColor: theme.colors.error,
           color: 'white',
           fontSize: '20px',
           fontWeight: 600
@@ -616,15 +602,15 @@ const PaymentPage = () => {
             }}
           />
           <Typography variant="body2" sx={{ mt: 2, color: theme.colors.text.secondary }}>
-            ยอดรวมปัจจุบัน: {formatCurrency(totalPrice)} <br/>
-            ส่วนลดปัจจุบัน: {formatCurrency(discount)} <br/>
+            ยอดรวมปัจจุบัน: {formatCurrency(totalPrice)} <br />
+            ส่วนลดปัจจุบัน: {formatCurrency(discount)} <br />
             ยอดชำระปัจจุบัน: {formatCurrency(finalTotal)}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button 
+          <Button
             onClick={() => setDiscountDialog(false)}
-            sx={{ 
+            sx={{
               height: 48,
               fontSize: '16px',
               minWidth: 100
@@ -632,10 +618,10 @@ const PaymentPage = () => {
           >
             ยกเลิก
           </Button>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={applyManualDiscount}
-            sx={{ 
+            sx={{
               height: 48,
               fontSize: '16px',
               minWidth: 120,
@@ -648,8 +634,8 @@ const PaymentPage = () => {
       </Dialog>
 
       {/* Payment Success Dialog */}
-      <Dialog 
-        open={paymentDialog.open} 
+      <Dialog
+        open={paymentDialog.open}
         onClose={() => setPaymentDialog({ open: false, type: '' })}
         maxWidth="sm"
         fullWidth

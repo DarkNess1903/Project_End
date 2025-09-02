@@ -16,6 +16,7 @@ import MenuDetailPage from './pages/MenuDetailPage';
 import CartPage from './pages/CartPage';
 import QRCodePage from './pages/QRCodePage';
 import BillPage from './pages/BillPage';
+import FeedbackForm from './pages/FeedbackForm';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/menu/:id" element={<MenuDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/bill" element={<BillPage />} />
+          <Route path="/feedback/:orderId" element={<FeedbackForm />} />
 
           {/* ฝั่งพนักงานแคชเชียร์ */}
           <Route path="/cashier" element={<CashierLayout />}>

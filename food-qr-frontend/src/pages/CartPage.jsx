@@ -61,7 +61,7 @@ const CartPage = () => {
 
   const handleOrder = async () => {
     if (items.length === 0) return;
-    
+
     setLoading(true);
     const table = localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0';
     const payload = {
@@ -78,7 +78,7 @@ const CartPage = () => {
         'http://localhost/project_END/restaurant-backend/api/orders/create.php',
         payload
       );
-      
+
       if (res.data.success) {
         setSnackbar({
           open: true,
@@ -150,8 +150,8 @@ const CartPage = () => {
   };
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
+    <Box sx={{
+      minHeight: '100vh',
       backgroundColor: theme.background,
       pb: 2
     }}>
@@ -173,7 +173,7 @@ const CartPage = () => {
                 const table = localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0';
                 navigate(`/?table=${table}`);
               }}
-              sx={{ 
+              sx={{
                 color: 'white',
                 backgroundColor: 'rgba(255,255,255,0.2)',
                 backdropFilter: 'blur(10px)',
@@ -192,7 +192,7 @@ const CartPage = () => {
               </Typography>
             </Box>
           </Box>
-          
+
           {items.length > 0 && (
             <IconButton
               onClick={handleClearCart}
@@ -225,15 +225,15 @@ const CartPage = () => {
               <Typography sx={{ fontSize: '4rem', mb: 2 }}>
                 🛒
               </Typography>
-              <Typography 
-                variant="h5" 
-                fontWeight="600" 
+              <Typography
+                variant="h5"
+                fontWeight="600"
                 sx={{ color: theme.primary, mb: 1 }}
               >
                 ตะกร้าว่างเปล่า
               </Typography>
-              <Typography 
-                variant="body1" 
+              <Typography
+                variant="body1"
                 sx={{ color: theme.text.secondary, mb: 3 }}
               >
                 เลือกเมนูอร่อยๆ จากหน้าหลักกันเถอะ!
@@ -287,13 +287,13 @@ const CartPage = () => {
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }}
                   />
-                  
+
                   {/* รายละเอียดเมนู */}
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography 
-                      variant="h6" 
+                    <Typography
+                      variant="h6"
                       fontWeight="600"
-                      sx={{ 
+                      sx={{
                         color: theme.primary,
                         fontSize: '1.1rem',
                         mb: 0.5
@@ -302,16 +302,17 @@ const CartPage = () => {
                       {item.Name}
                     </Typography>
                     
-                    <Typography 
-                      variant="body1" 
-                      sx={{ 
+                    <Typography
+                      variant="body1"
+                      sx={{
                         color: theme.accent,
                         fontWeight: '600',
                         mb: 1
                       }}
                     >
-                      ฿{item.Price} × {item.quantity} = ฿{(item.Price * item.quantity).toLocaleString()}
+                      ฿{(item.Price * item.quantity).toLocaleString()}
                     </Typography>
+
 
                     {item.note && (
                       <Chip
@@ -331,13 +332,13 @@ const CartPage = () => {
                         }}
                       />
                     )}
-                    
+
                     {/* Controls */}
                     <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
                       {/* Quantity Controls */}
-                      <ButtonGroup 
+                      <ButtonGroup
                         size="small"
-                        sx={{ 
+                        sx={{
                           '& .MuiButton-root': {
                             borderRadius: '8px',
                             borderColor: theme.secondary,
@@ -347,13 +348,13 @@ const CartPage = () => {
                           }
                         }}
                       >
-                        <Button 
+                        <Button
                           onClick={() => handleQuantityChange(item.MenuID, -1)}
                           disabled={item.quantity <= 1}
                         >
                           <RemoveIcon fontSize="small" />
                         </Button>
-                        <Button disabled sx={{ 
+                        <Button disabled sx={{
                           fontWeight: '600',
                           color: `${theme.primary} !important`,
                           borderLeft: `1px solid ${theme.secondary} !important`,
@@ -361,7 +362,7 @@ const CartPage = () => {
                         }}>
                           {item.quantity}
                         </Button>
-                        <Button 
+                        <Button
                           onClick={() => handleQuantityChange(item.MenuID, 1)}
                           disabled={item.quantity >= 99}
                         >
@@ -421,14 +422,14 @@ const CartPage = () => {
               }}
             >
               <CardContent sx={{ p: 3 }}>
-                <Typography 
-                  variant="h6" 
-                  fontWeight="600" 
+                <Typography
+                  variant="h6"
+                  fontWeight="600"
                   sx={{ color: theme.primary, mb: 2 }}
                 >
                   📊 สรุปคำสั่งซื้อ
                 </Typography>
-                
+
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                   <Typography sx={{ color: theme.text.secondary }}>
                     จำนวนรายการ:
@@ -437,17 +438,17 @@ const CartPage = () => {
                     {items.reduce((sum, item) => sum + item.quantity, 0)} รายการ
                   </Typography>
                 </Box>
-                
+
                 <Divider sx={{ my: 2 }} />
-                
+
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                   <Typography variant="h6" fontWeight="700" sx={{ color: theme.primary }}>
                     ยอดรวมทั้งสิ้น:
                   </Typography>
-                  <Typography 
-                    variant="h5" 
-                    fontWeight="700" 
-                    sx={{ 
+                  <Typography
+                    variant="h5"
+                    fontWeight="700"
+                    sx={{
                       color: theme.accent,
                       background: `linear-gradient(45deg, ${theme.accent}, ${theme.warning})`,
                       WebkitBackgroundClip: 'text',
@@ -502,20 +503,20 @@ const CartPage = () => {
       </Box>
 
       {/* Note Edit Dialog */}
-      <Dialog 
-        open={openNoteDialog} 
-        onClose={() => setOpenNoteDialog(false)} 
+      <Dialog
+        open={openNoteDialog}
+        onClose={() => setOpenNoteDialog(false)}
         fullWidth
         maxWidth="sm"
         PaperProps={{
-          sx: { 
+          sx: {
             borderRadius: '20px',
             p: 1
           }
         }}
       >
-        <DialogTitle sx={{ 
-          textAlign: 'center', 
+        <DialogTitle sx={{
+          textAlign: 'center',
           fontWeight: '600',
           fontSize: '1.3rem',
           color: theme.primary
@@ -556,16 +557,16 @@ const CartPage = () => {
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
-          <Button 
+          <Button
             onClick={() => setOpenNoteDialog(false)}
-            sx={{ 
+            sx={{
               borderRadius: '12px',
               color: theme.text.secondary
             }}
           >
             ยกเลิก
           </Button>
-          <Button 
+          <Button
             onClick={handleSaveNote}
             variant="contained"
             sx={{
@@ -587,10 +588,10 @@ const CartPage = () => {
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleSnackbarClose} 
+        <Alert
+          onClose={handleSnackbarClose}
           severity={snackbar.severity}
-          sx={{ 
+          sx={{
             borderRadius: '16px',
             fontWeight: '500',
             '& .MuiAlert-icon': {

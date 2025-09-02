@@ -302,62 +302,6 @@ const ExpensePage = () => {
                 </Button>
               </ButtonGroup>
             </Box>
-
-            {/* Filter by Type */}
-            <Box mt={3}>
-              <Grid container spacing={2} alignItems="center">
-                {/* <Grid item xs={12} sm={6} md={4}>
-                  <TextField 
-                    label="ประเภทรายจ่าย"
-                    select
-                    fullWidth
-                    SelectProps={{ native: true }}
-                    value={filter.type}
-                    onChange={(e) => setFilter({ ...filter, type: e.target.value })}
-                    sx={{
-                      '& .MuiInputBase-root': {
-                        height: 48,
-                        fontSize: '14px',
-                      }
-                    }}
-                  >
-                    <option value="">ทั้งหมด</option>
-                    {expenseTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </TextField>
-                </Grid> */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Stack direction="row" spacing={1} height="48px">
-                    {/* <Button 
-                      variant="contained" 
-                      startIcon={<Search />}
-                      onClick={fetchExpenses}
-                      sx={{ 
-                        height: '100%',
-                        fontSize: '14px',
-                        minWidth: 100,
-                        backgroundColor: theme.colors.primary
-                      }}
-                    >
-                      ค้นหา
-                    </Button> */}
-                    {/* <Button 
-                      variant="outlined" 
-                      onClick={clearFilters}
-                      sx={{ 
-                        height: '100%',
-                        fontSize: '14px',
-                        minWidth: 80,
-                        borderColor: theme.colors.secondary
-                      }}
-                    >
-                      ล้าง
-                    </Button> */}
-                  </Stack>
-                </Grid>
-              </Grid>
-            </Box>
           </CardContent>
         </Card>
 

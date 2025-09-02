@@ -39,7 +39,7 @@ switch ($period) {
 
 // === 1. ดึงยอดขายตามช่วงเวลา ===
 $sql = "SELECT $groupBy AS period, SUM(o.TotalAmount) AS total_sales 
-        FROM `order` o
+        FROM `orders` o
         WHERE $where $dateFilter
         GROUP BY period
         ORDER BY period ASC";
@@ -55,7 +55,7 @@ while ($row = $result->fetch_assoc()) {
 
 // === 2. นับจำนวนออเดอร์ ===
 $orderCountSql = "SELECT COUNT(*) AS total_orders 
-    FROM `order` o 
+    FROM `orders` o 
     WHERE o.Status = 'paid' $dateFilter";
 
 $orderCountResult = $conn->query($orderCountSql);
@@ -70,7 +70,7 @@ $costSql = "SELECT
     SUM(oi.Cost * oi.Quantity) AS total_cost, 
     SUM(oi.SubTotal) AS total_revenue
 FROM OrderItem oi
-JOIN `order` o ON oi.OrderID = o.OrderID
+JOIN `orders` o ON oi.OrderID = o.OrderID
 WHERE o.Status = 'paid' $dateFilter";
 
 $costResult = $conn->query($costSql);

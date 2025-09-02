@@ -83,10 +83,17 @@ const TableQRManagement = () => {
   const fetchTables = async () => {
     try {
       const res = await axios.get(`${API_URL}/index.php`);
-      setTables(res.data);
+      // ตรวจสอบว่าเป็น array หรือ object
+      const tableArray = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.data)
+        ? res.data.data
+        : [];
+      setTables(tableArray);
     } catch (error) {
       console.error('Error fetching tables:', error);
       showNotification('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+      setTables([]);
     }
   };
 

@@ -4,6 +4,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json; charset=utf-8");
 
+// ตอบ OPTIONS request ทันที
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -11,27 +12,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../../config/db.php';
 
+// ตรวจสอบ parameter
 if (!isset($_GET['table'])) {
-  echo json_encode(['exists' => false, 'error' => 'Missing table parameter']);
-  exit;
+    echo json_encode([
+        'exists' => false,
+        'error' => 'Missing table parameter'
+    ]);
+    exit;
 }
 
 $table = intval($_GET['table']);
 
-$query = "SELECT COUNT(*) as count FROM dining WHERE TableNumber = ?";
-$stmt = $conn->prepare($query);
-if (!$stmt) {
-  echo json_encode(['exists' => false, 'error' => 'Prepare statement failed']);
-  exit;
-}
-$stmt->bind_param("i", $table);
-$stmt->execute();
-$result = $stmt->get_result();
-if (!$result) {
-  echo json_encode(['exists' => false, 'error' => 'Query failed']);
-  exit;
-}
-$row = $result->fetch_assoc();
+try {
+    $query = "SELECT 1 FROM dining WHERE TableNumber = ? LIMIT 1";
+    $stmt = $conn->prepare($query);
+    if (!$stmt) throw new Exception("Prepare statement failed: " . $conn->error);
 
-echo json_encode(['exists' => $row['count'] > 0]);
+    $stmt->bind_param("i", $table);
+    $stmt->execute();
+    $stmt->store_result();
+
+    $exists = $stmt->num_rows > 0;
+
+    echo json_encode(['exists' => $exists]);
+
+    $stmt->close();
+    $conn->close();
+} catch (Exception $e) {
+    echo json_encode([
+        'exists' => false,
+        'error' => $e->getMessage()
+    ]);
+}
 ?>

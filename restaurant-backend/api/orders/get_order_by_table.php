@@ -6,7 +6,7 @@ require_once '../../config/db.php';
 
 $table_id = isset($_GET['table_id']) ? intval($_GET['table_id']) : 0;
 
-$sql_order = "SELECT * FROM `order` WHERE TableID = $table_id AND Status = 'pending' ORDER BY OrderID DESC LIMIT 1";
+$sql_order = "SELECT * FROM `orders` WHERE TableID = $table_id AND Status = 'pending' ORDER BY OrderID DESC LIMIT 1";
 $result_order = $conn->query($sql_order);
 
 if ($result_order->num_rows === 0) {

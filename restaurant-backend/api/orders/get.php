@@ -12,7 +12,7 @@ if (!isset($_GET['id'])) {
 $order_id = intval($_GET['id']);
 
 // 1. ดึงข้อมูลคำสั่งซื้อหลัก
-$order_sql = "SELECT OrderID, TableID, OrderTime, TotalAmount, Status FROM `Order` WHERE OrderID = ?";
+$order_sql = "SELECT OrderID, TableID, OrderTime, TotalAmount, Status FROM `orders` WHERE OrderID = ?";
 $stmt = $conn->prepare($order_sql);
 $stmt->bind_param("i", $order_id);
 $stmt->execute();

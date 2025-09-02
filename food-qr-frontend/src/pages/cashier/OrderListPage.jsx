@@ -3,8 +3,6 @@ import axios from 'axios';
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
   Button,
   ToggleButton,
   ToggleButtonGroup,

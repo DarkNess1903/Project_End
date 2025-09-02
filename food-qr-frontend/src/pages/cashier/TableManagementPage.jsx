@@ -57,6 +57,8 @@ const TableManagementPage = () => {
   const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
   const [billDialogOpen, setBillDialogOpen] = useState(false);
   const [billData, setBillData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const canMoveTable = selectedTable?.Status !== 'reserved';
 
   const navigate = useNavigate();
 
@@ -143,9 +145,12 @@ const TableManagementPage = () => {
   const fetchTables = async () => {
     try {
       const res = await axios.get('http://localhost/project_END/restaurant-backend/api/tables/index.php');
-      setTables(res.data);
+      // ตรวจสอบว่ามี key data หรือไม่
+      const tableArray = Array.isArray(res.data) ? res.data : (Array.isArray(res.data.data) ? res.data.data : []);
+      setTables(tableArray);
     } catch (err) {
       console.error(err);
+      setTables([]); // fallback
     }
   };
 
@@ -173,22 +178,67 @@ const TableManagementPage = () => {
   };
 
   const handleMoveTable = async () => {
+    if (!selectedTable?.TableID || !targetTableId) {
+      alert("กรุณาเลือกโต๊ะต้นทางและปลายทาง");
+      return;
+    }
+
+    if (selectedTable.TableID === targetTableId) {
+      alert("ไม่สามารถย้ายไปโต๊ะเดียวกันได้");
+      return;
+    }
+
     try {
-      await axios.post('http://localhost/project_END/restaurant-backend/api/tables/move.php', {
-        fromTableId: selectedTable.TableID,
-        toTableId: targetTableId,
-      });
+      const res = await axios.post(
+        "http://localhost/project_END/restaurant-backend/api/tables/move.php",
+        {
+          fromTableId: selectedTable.TableID,
+          toTableId: targetTableId,
+        }
+      );
+
+      if (res.data.success) {
+        alert(`ย้ายโต๊ะเรียบร้อย! (OrderID: ${res.data.orderId})`);
+      }
+
       setOpenMoveDialog(false);
       setOpenActionDialog(false);
       fetchTables();
     } catch (err) {
-      alert(err?.response?.data?.error || 'เกิดข้อผิดพลาด');
+      alert(err?.response?.data?.details || "เกิดข้อผิดพลาด");
       console.error(err);
     }
   };
 
-  const handleCancelTable = () => {
-    alert(`ยกเลิกโต๊ะ ${selectedTable.TableNumber}`);
+  const handleCancelTable = async () => {
+    if (!selectedTable) return;
+
+    const confirmCancel = window.confirm(
+      `คุณแน่ใจหรือไม่ที่จะยกเลิกโต๊ะ ${selectedTable.TableNumber}? \nออร์เดอร์ทั้งหมดในโต๊ะนี้จะถูกยกเลิก!`
+    );
+    if (!confirmCancel) return;
+
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        "http://localhost/project_END/restaurant-backend/api/tables/cancel.php",
+        { tableId: selectedTable.TableID },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      if (res.data.success) {
+        alert(`ยกเลิกโต๊ะ ${selectedTable.TableNumber} และออร์เดอร์เรียบร้อยแล้ว`);
+        fetchTables();       // รีเฟรชโต๊ะ
+        handleCheckBill();   // รีเฟรชรายการออร์เดอร์
+      } else {
+        alert("ไม่สามารถยกเลิกโต๊ะได้: " + res.data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("เกิดข้อผิดพลาดในการยกเลิกโต๊ะ");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClick = (orderId) => {
@@ -216,7 +266,10 @@ const TableManagementPage = () => {
   };
 
   const handleToggleItemStatus = async (orderItemID, currentStatus) => {
-    const newStatus = currentStatus === "served" ? "cooking" : "served";
+    // ถ้าเป็น served แล้ว ห้ามเปลี่ยน
+    if (currentStatus === "served") return;
+
+    const newStatus = "served"; // เปลี่ยนจาก cooking → served
 
     try {
       const response = await axios.post(
@@ -232,7 +285,7 @@ const TableManagementPage = () => {
 
       if (response.data.success) {
         console.log("อัปเดตสถานะสำเร็จ:", response.data);
-        handleCheckBill();
+        handleCheckBill(); // รีเฟรชรายการ
       } else {
         alert("ไม่สามารถอัปเดตสถานะได้");
       }
@@ -244,11 +297,11 @@ const TableManagementPage = () => {
   return (
     <Box sx={{ bgcolor: themeColors.background, minHeight: '100vh', p: 3 }}>
       {/* Header Section */}
-      <Card 
-        elevation={0} 
-        sx={{ 
-          mb: 3, 
-          borderRadius: 3, 
+      <Card
+        elevation={0}
+        sx={{
+          mb: 3,
+          borderRadius: 3,
           border: `1px solid ${themeColors.divider}`,
           background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
         }}
@@ -278,14 +331,14 @@ const TableManagementPage = () => {
                 </Typography>
               </Box>
             </Box>
-            
+
             <Stack direction="row" spacing={2}>
               <Tooltip title="การเรียกพนักงาน">
-                <IconButton 
-                  color="error" 
+                <IconButton
+                  color="error"
                   onClick={handleOpenNotificationDialog}
-                  sx={{ 
-                    width: 56, 
+                  sx={{
+                    width: 56,
                     height: 56,
                     borderRadius: 2,
                     bgcolor: callNotifications.length > 0 ? '#ffebee' : 'transparent',
@@ -296,13 +349,13 @@ const TableManagementPage = () => {
                   </Badge>
                 </IconButton>
               </Tooltip>
-              
+
               <Tooltip title="รีเฟรชโต๊ะ">
-                <IconButton 
-                  color="primary" 
+                <IconButton
+                  color="primary"
                   onClick={fetchTables}
-                  sx={{ 
-                    width: 56, 
+                  sx={{
+                    width: 56,
                     height: 56,
                     borderRadius: 2,
                     bgcolor: '#e3f2fd',
@@ -317,10 +370,10 @@ const TableManagementPage = () => {
       </Card>
 
       {/* Summary Statistics */}
-      <Card 
-        elevation={0} 
-        sx={{ 
-          mb: 4, 
+      <Card
+        elevation={0}
+        sx={{
+          mb: 4,
           borderRadius: 3,
           border: `1px solid ${themeColors.divider}`,
           background: themeColors.surface,
@@ -330,7 +383,7 @@ const TableManagementPage = () => {
           <Typography variant="h6" fontWeight="600" mb={2} color={themeColors.textPrimary}>
             สรุปสถานะโต๊ะ
           </Typography>
-          
+
           <Grid container spacing={3}>
             <Grid item xs={3}>
               <Box textAlign="center">
@@ -342,7 +395,7 @@ const TableManagementPage = () => {
                 </Typography>
               </Box>
             </Grid>
-            
+
             <Grid item xs={3}>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight="700" color={themeColors.success}>
@@ -353,7 +406,7 @@ const TableManagementPage = () => {
                 </Typography>
               </Box>
             </Grid>
-            
+
             <Grid item xs={3}>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight="700" color={themeColors.warning}>
@@ -364,7 +417,7 @@ const TableManagementPage = () => {
                 </Typography>
               </Box>
             </Grid>
-            
+
             <Grid item xs={3}>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight="700" color={themeColors.primary}>
@@ -402,8 +455,8 @@ const TableManagementPage = () => {
                   } : {},
                 }}
               >
-                <CardContent 
-                  sx={{ 
+                <CardContent
+                  sx={{
                     p: 3,
                     display: 'flex',
                     flexDirection: 'column',
@@ -417,17 +470,17 @@ const TableManagementPage = () => {
                   <Box sx={{ mb: 2 }}>
                     {style.icon || <RadioButtonUncheckedIcon sx={{ fontSize: 48 }} />}
                   </Box>
-                  
+
                   {/* Table Number */}
-                  <Typography 
-                    variant="h5" 
+                  <Typography
+                    variant="h5"
                     fontWeight="700"
                     color={themeColors.textPrimary}
                     sx={{ mb: 1 }}
                   >
                     โต๊ะ {table.TableNumber}
                   </Typography>
-                  
+
                   {/* Status Chip */}
                   <Chip
                     label={statusLabel[table.Status] || table.Status}
@@ -439,7 +492,7 @@ const TableManagementPage = () => {
                       borderRadius: 2,
                     }}
                   />
-                  
+
                   {/* Additional Info for Occupied/Reserved Tables */}
                   {(table.Status === 'occupied' || table.Status === 'reserved') && (
                     <Box sx={{ mt: 1, width: '100%' }}>
@@ -456,8 +509,8 @@ const TableManagementPage = () => {
       </Grid>
 
       {/* Action Dialog */}
-      <Dialog 
-        open={openActionDialog} 
+      <Dialog
+        open={openActionDialog}
         onClose={handleCloseActionDialog}
         maxWidth="sm"
         fullWidth
@@ -490,7 +543,8 @@ const TableManagementPage = () => {
               size="large"
               startIcon={<CancelIcon />}
               onClick={handleCancelTable}
-              sx={{ 
+              disabled={loading || selectedTable?.Status === 'reserved'}
+              sx={{
                 py: 2,
                 borderRadius: 2,
                 fontSize: '16px',
@@ -499,30 +553,31 @@ const TableManagementPage = () => {
             >
               ยกเลิกโต๊ะ
             </Button>
-            
+
             <Button
               variant="outlined"
               color="primary"
               size="large"
               startIcon={<SwapHorizIcon />}
+              disabled={!canMoveTable}
               onClick={handleOpenMoveDialog}
-              sx={{ 
+              sx={{
                 py: 2,
                 borderRadius: 2,
                 fontSize: '16px',
                 fontWeight: '600',
               }}
             >
-              ย้ายเมนู / ย้ายโต๊ะ
+              ย้ายโต๊ะอาหาร
             </Button>
-            
+
             <Button
               variant="contained"
               color="primary"
               size="large"
               startIcon={<ReceiptIcon />}
               onClick={handleCheckBill}
-              sx={{ 
+              sx={{
                 py: 2,
                 borderRadius: 2,
                 fontSize: '16px',
@@ -539,7 +594,7 @@ const TableManagementPage = () => {
                 size="large"
                 startIcon={<PaymentIcon />}
                 onClick={() => handleClick(selectedTable.OrderID)}
-                sx={{ 
+                sx={{
                   py: 2,
                   borderRadius: 2,
                   fontSize: '16px',
@@ -549,12 +604,12 @@ const TableManagementPage = () => {
                 จ่ายเงิน
               </Button>
             ) : (
-              <Button 
-                variant="contained" 
-                color="success" 
+              <Button
+                variant="contained"
+                color="success"
                 size="large"
                 disabled
-                sx={{ 
+                sx={{
                   py: 2,
                   borderRadius: 2,
                   fontSize: '16px',
@@ -565,12 +620,12 @@ const TableManagementPage = () => {
             )}
           </Stack>
         </DialogContent>
-        
+
         <DialogActions sx={{ p: 3 }}>
-          <Button 
+          <Button
             onClick={handleCloseActionDialog}
             size="large"
-            sx={{ 
+            sx={{
               px: 4,
               borderRadius: 2,
               fontSize: '16px',
@@ -582,8 +637,8 @@ const TableManagementPage = () => {
       </Dialog>
 
       {/* Move Table Dialog */}
-      <Dialog 
-        open={openMoveDialog} 
+      <Dialog
+        open={openMoveDialog}
         onClose={handleCloseMoveDialog}
         maxWidth="sm"
         fullWidth
@@ -606,7 +661,7 @@ const TableManagementPage = () => {
               {tables
                 .filter(
                   (t) =>
-                    t.Status === 'empty' && t.TableID !== selectedTable?.TableID
+                    t.Status === 'available' && t.TableID !== selectedTable?.TableID
                 )
                 .map((t) => (
                   <MenuItem key={t.TableID} value={t.TableID}>
@@ -617,7 +672,7 @@ const TableManagementPage = () => {
           </FormControl>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button 
+          <Button
             onClick={handleCloseMoveDialog}
             size="large"
             sx={{ borderRadius: 2 }}
@@ -637,10 +692,10 @@ const TableManagementPage = () => {
       </Dialog>
 
       {/* Staff Call Dialog */}
-      <Dialog 
-        open={notificationDialogOpen} 
-        onClose={handleCloseNotificationDialog} 
-        fullWidth 
+      <Dialog
+        open={notificationDialogOpen}
+        onClose={handleCloseNotificationDialog}
+        fullWidth
         maxWidth="md"
         PaperProps={{
           sx: { borderRadius: 3 }
@@ -719,7 +774,7 @@ const TableManagementPage = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button 
+          <Button
             onClick={handleCloseNotificationDialog}
             size="large"
             sx={{ borderRadius: 2 }}
@@ -730,10 +785,10 @@ const TableManagementPage = () => {
       </Dialog>
 
       {/* Bill Dialog */}
-      <Dialog 
-        open={billDialogOpen} 
-        onClose={() => setBillDialogOpen(false)} 
-        fullWidth 
+      <Dialog
+        open={billDialogOpen}
+        onClose={() => setBillDialogOpen(false)}
+        fullWidth
         maxWidth="lg"
         PaperProps={{
           sx: { borderRadius: 3 }
@@ -801,13 +856,13 @@ const TableManagementPage = () => {
               <Typography variant="h6" fontWeight="600" mb={2}>
                 รายการอาหาร
               </Typography>
-              
+
               <List sx={{ bgcolor: themeColors.surface, borderRadius: 2 }}>
                 {billData.items.map((item, index) => (
-                  <ListItem 
-                    key={item.OrderItemID} 
-                    alignItems="flex-start" 
-                    sx={{ 
+                  <ListItem
+                    key={item.OrderItemID}
+                    alignItems="flex-start"
+                    sx={{
                       mb: 1,
                       borderRadius: 2,
                       '&:hover': {
@@ -845,7 +900,8 @@ const TableManagementPage = () => {
                       color={item.Status === "served" ? "success" : "warning"}
                       size="large"
                       onClick={() => handleToggleItemStatus(item.OrderItemID, item.Status)}
-                      sx={{ 
+                      disabled={item.Status === "served"} // ปุ่ม disable ถ้าเสิร์ฟแล้ว
+                      sx={{
                         borderRadius: 2,
                         minWidth: 140,
                         fontWeight: '600',
@@ -891,10 +947,10 @@ const TableManagementPage = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button 
+          <Button
             onClick={() => setBillDialogOpen(false)}
             size="large"
-            sx={{ 
+            sx={{
               borderRadius: 2,
               px: 4,
             }}

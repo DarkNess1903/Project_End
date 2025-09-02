@@ -5,16 +5,9 @@ import {
   TextField,
   Button,
   Stack,
-  Paper,
-  IconButton,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Chip,
   Dialog,
   DialogTitle,
@@ -28,7 +21,6 @@ import {
   AppBar,
   Toolbar,
   Container,
-  Divider,
   Avatar,
   Badge,
   Snackbar,
@@ -37,7 +29,6 @@ import {
   Fab,
 } from '@mui/material';
 import {
-  Delete,
   PhotoCamera,
   Settings,
   Store,
@@ -85,6 +76,9 @@ const SettingsPage = () => {
   // Dialog เลือกเมนูแนะนำ
   const [openDialog, setOpenDialog] = useState(false);
   const [tempSelectedMenus, setTempSelectedMenus] = useState([]);
+  const [address, setAddress] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
 
   // โหลดเมนูทั้งหมด
   useEffect(() => {
@@ -109,7 +103,11 @@ const SettingsPage = () => {
         if (res.data.success) {
           const s = res.data.settings;
           setShopName(s.store_name || '');
+          setAddress(s.address || '');   
           setTerms(s.service_policy || '');
+          setContactEmail(s.contact_email || '');
+          setContactPhone(s.contact_phone || '');
+
           try {
             setRecommendedMenus(
               s.recommended_menu ? JSON.parse(s.recommended_menu) : []
@@ -205,14 +203,13 @@ const SettingsPage = () => {
     try {
       const formData = new FormData();
       formData.append('store_name', shopName);
+      formData.append('address', address);
+      formData.append('contact_email', contactEmail);
+      formData.append('contact_phone', contactPhone);
       formData.append('service_policy', terms);
       formData.append('recommended_menu', JSON.stringify(recommendedMenus));
-      if (coverImage) {
-        formData.append('cover_image', coverImage);
-      }
-      if (logoImage) {
-        formData.append('logo_image', logoImage);
-      }
+      if (coverImage) formData.append('cover_image', coverImage);
+      if (logoImage) formData.append('logo_image', logoImage);
 
       const res = await axios.post('http://localhost/project_END/restaurant-backend/api/settings/save_settings.php', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -362,46 +359,106 @@ const SettingsPage = () => {
                 </CardContent>
               </Card>
 
-              {/* เงื่อนไขการให้บริการ */}
-              <Card sx={{ boxShadow: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={3}>
-                    <Policy sx={{ color: theme.colors.warning, fontSize: 28 }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
-                      เงื่อนไขการให้บริการ
-                    </Typography>
-                  </Box>
-                  
-                  <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mb: 2 }}>
-                    ลูกค้าจะเห็นข้อความนี้ในหน้าแรกหลังจากสแกน QR Code
-                  </Typography>
-                  
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    inputProps={{ maxLength: 500 }}
-                    placeholder="กรอกเงื่อนไขการให้บริการ เช่น จำกัดเวลาใช้โต๊ะ หรือไม่มีค่าใช้จ่ายขั้นต่ำ"
-                    value={terms}
-                    onChange={(e) => setTerms(e.target.value)}
-                    sx={{
-                      '& .MuiInputBase-root': {
-                        fontSize: '16px',
-                      }
-                    }}
-                  />
-                  <Box display="flex" justifyContent="space-between" mt={1}>
-                    <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
-                      กรอกข้อมูลที่สำคัญสำหรับลูกค้า
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
-                      {terms.length}/500
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Stack>
-          </Grid>
+          {/* ข้อมูลร้านเพิ่มเติม */}
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <Store sx={{ color: theme.colors.primary, fontSize: 28 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                  ข้อมูลร้านเพิ่มเติม
+                </Typography>
+              </Box>
+
+              <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mb: 2 }}>
+                ข้อมูลเหล่านี้จะแสดงบนใบเสร็จและหน้า QR Code
+              </Typography>
+
+              <TextField
+                label="ที่อยู่ร้าน"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                fullWidth
+                multiline
+                rows={2}
+                placeholder="กรอกที่อยู่ร้าน เช่น ถนน ซอย แขวง เขต จังหวัด รหัสไปรษณีย์"
+                inputProps={{ maxLength: 255 }}
+                sx={{ '& .MuiInputBase-root': { fontSize: '16px' }, mb: 1 }}
+              />
+              <Box display="flex" justifyContent="flex-end" mb={2}>
+                <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+                  {address.length}/255
+                </Typography>
+              </Box>
+
+              <TextField
+                label="อีเมลร้าน"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                fullWidth
+                placeholder="example@email.com"
+                inputProps={{ maxLength: 100 }}
+                sx={{ '& .MuiInputBase-root': { fontSize: '16px' }, mb: 1 }}
+              />
+              <Box display="flex" justifyContent="flex-end" mb={2}>
+                <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+                  {contactEmail.length}/100
+                </Typography>
+              </Box>
+
+              <TextField
+                label="เบอร์โทรร้าน"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                fullWidth
+                placeholder="เช่น 0812345678"
+                inputProps={{ maxLength: 20 }}
+                sx={{ '& .MuiInputBase-root': { fontSize: '16px' }, mb: 1 }}
+              />
+              <Box display="flex" justifyContent="flex-end" mb={2}>
+                <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+                  {contactPhone.length}/20
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* เงื่อนไขการให้บริการ */}
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <Policy sx={{ color: theme.colors.warning, fontSize: 28 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                  เงื่อนไขการให้บริการ
+                </Typography>
+              </Box>
+
+              <Typography variant="body2" sx={{ color: theme.colors.text.secondary, mb: 2 }}>
+                ลูกค้าจะเห็นข้อความนี้ในหน้าแรกหลังจากสแกน QR Code
+              </Typography>
+
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                inputProps={{ maxLength: 500 }}
+                placeholder="กรอกเงื่อนไขการให้บริการ เช่น จำกัดเวลาใช้โต๊ะ หรือไม่มีค่าใช้จ่ายขั้นต่ำ"
+                value={terms}
+                onChange={(e) => setTerms(e.target.value)}
+                sx={{ '& .MuiInputBase-root': { fontSize: '16px' } }}
+              />
+              <Box display="flex" justifyContent="space-between" mt={1}>
+                <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+                  กรอกข้อมูลที่สำคัญสำหรับลูกค้า
+                </Typography>
+                <Typography variant="caption" sx={{ color: theme.colors.text.secondary }}>
+                  {terms.length}/500
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+
+        </Stack>
+      </Grid>
 
           {/* ส่วนขวา - ภาพและเมนู */}
           <Grid item xs={12} lg={5}>

@@ -17,7 +17,7 @@ $table_id = $_GET['table_id'] ?? 0;
 $sql = "
   SELECT oi.Quantity, oi.SubTotal, oi.Note, oi.Status, 
          m.Name, m.Price, m.ImageURL
-  FROM `Order` o
+  FROM `orders` o
   JOIN OrderItem oi ON o.OrderID = oi.OrderID
   JOIN Menu m ON oi.MenuID = m.MenuID
   WHERE o.TableID = ? AND o.Status = 'pending'

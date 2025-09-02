@@ -26,7 +26,7 @@ $sql = "SELECT
             SUM(oi.Cost * oi.Quantity) AS total_cost,
             (SUM(oi.SubTotal) - SUM(oi.Cost * oi.Quantity)) AS profit
         FROM orderitem oi
-        JOIN `order` o ON oi.OrderID = o.OrderID
+        JOIN `orders` o ON oi.OrderID = o.OrderID
         JOIN menu m ON oi.MenuID = m.MenuID
         WHERE $where
         GROUP BY m.MenuID, m.Name

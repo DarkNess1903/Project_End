@@ -68,7 +68,7 @@ $table_updated = false;
 
 if ($all_served) {
     // ดึง TableID จาก order
-    $stmt4 = $conn->prepare("SELECT TableID FROM `order` WHERE OrderID = ?");
+    $stmt4 = $conn->prepare("SELECT TableID FROM `orders` WHERE OrderID = ?");
     $stmt4->bind_param("i", $order_id);
     $stmt4->execute();
     $result4 = $stmt4->get_result();

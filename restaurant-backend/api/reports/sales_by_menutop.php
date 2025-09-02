@@ -12,7 +12,7 @@ $sql = "SELECT m.Name AS MenuName,
                SUM(oi.SubTotal) as total_sales
         FROM orderitem oi
         JOIN menu m ON oi.MenuID = m.MenuID
-        JOIN `order` o ON oi.OrderID = o.OrderID
+        JOIN `orders` o ON oi.OrderID = o.OrderID
         WHERE DATE(o.OrderTime) BETWEEN ? AND ?
           AND o.Status = 'paid'
         GROUP BY oi.MenuID

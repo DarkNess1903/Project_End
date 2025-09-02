@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $sql = "SELECT * FROM settings WHERE id=1";
 $result = $conn->query($sql);
 
-$baseUrl = "http://localhost/project_END/restaurant-backend/";  // เพิ่ม base URL ที่ใช้แสดงภาพ
+$baseUrl = "http://localhost/project_END/restaurant-backend/";
 
 if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
@@ -37,6 +37,9 @@ if ($result && $result->num_rows > 0) {
             "logo_url" => $row["logo_url"] ? $baseUrl . $row["logo_url"] : null,
             "cover_image_url" => $row["cover_image_url"] ? $baseUrl . $row["cover_image_url"] : null,
             "store_name" => $row["store_name"] ?? "",
+            "address" => $row["address"] ?? "",
+            "contact_email" => $row["contact_email"] ?? "",
+            "contact_phone" => $row["contact_phone"] ?? "",
             "service_policy" => $row["service_policy"] ?? "",
             "recommended_menu" => $row["recommended_menu"] ?? "[]"
         ]
@@ -47,6 +50,3 @@ if ($result && $result->num_rows > 0) {
         "message" => "ไม่พบการตั้งค่า"
     ]);
 }
-
-$conn->close();
-?>

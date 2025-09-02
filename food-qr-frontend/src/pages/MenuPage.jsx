@@ -84,7 +84,7 @@ const MenuPage = () => {
     }
   }, [query]);
 
-    const categoryButtons = [
+  const categoryButtons = [
     { label: 'ทั้งหมด', category: 'all', icon: '🍽️' },
     { label: 'เมนูแนะนำ', category: 'recommended', icon: '⭐' },
     { label: 'อาหารจานหลัก', category: 'main', icon: '🍖' },
@@ -146,7 +146,7 @@ const MenuPage = () => {
         console.error('โหลด settings ล้มเหลว:', err);
       });
   }, []);
-  
+
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
     if (category === 'all') {
@@ -156,9 +156,9 @@ const MenuPage = () => {
     }
   };
 
- return (
-    <Box sx={{ 
-      minHeight: '100vh', 
+  return (
+    <Box sx={{
+      minHeight: '100vh',
       backgroundColor: theme.background,
       fontFamily: '"Inter", "Helvetica", "Arial", sans-serif'
     }}>
@@ -218,19 +218,19 @@ const MenuPage = () => {
       </Box>
 
       {/* Enhanced Staff Call Dialog */}
-      <Dialog 
-        open={callDialogOpen} 
+      <Dialog
+        open={callDialogOpen}
         onClose={() => setCallDialogOpen(false)}
         PaperProps={{
           sx: {
             borderRadius: '20px',
             p: 1,
-            minWidth: '320px' 
+            minWidth: '320px'
           }
         }}
       >
-        <DialogTitle sx={{ 
-          textAlign: 'center', 
+        <DialogTitle sx={{
+          textAlign: 'center',
           fontWeight: '600',
           fontSize: '1.3rem',
           color: theme.primary
@@ -273,9 +273,9 @@ const MenuPage = () => {
           </Grid>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
-          <Button 
+          <Button
             onClick={() => setCallDialogOpen(false)}
-            sx={{ 
+            sx={{
               borderRadius: '12px',
               px: 4,
               color: theme.text.secondary
@@ -288,11 +288,11 @@ const MenuPage = () => {
 
       {/* Cover Image - Enhanced */}
       {coverImage && (
-        <Box sx={{ 
+        <Box sx={{
           position: 'relative',
-          width: '100%', 
-          height: 200, 
-          overflow: 'hidden', 
+          width: '100%',
+          height: 200,
+          overflow: 'hidden',
           mb: 3,
           mx: 2,
           borderRadius: '20px',
@@ -301,9 +301,9 @@ const MenuPage = () => {
           <img
             src={coverImage}
             alt="cover"
-            style={{ 
-              width: '100%', 
-              height: '100%', 
+            style={{
+              width: '100%',
+              height: '100%',
               objectFit: 'cover',
             }}
           />
@@ -321,10 +321,10 @@ const MenuPage = () => {
       )}
 
       {/* Restaurant Info - Redesigned */}
-      <Box 
-        display="flex" 
-        alignItems="center" 
-        justifyContent="center" 
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
         mb={3}
         sx={{ px: 2 }}
       >
@@ -345,10 +345,10 @@ const MenuPage = () => {
           />
         )}
         <Box textAlign="center">
-          <Typography 
-            variant="h4" 
+          <Typography
+            variant="h4"
             fontWeight="700"
-            sx={{ 
+            sx={{
               color: theme.primary,
               fontSize: '1.8rem',
               mb: 0.5
@@ -363,15 +363,15 @@ const MenuPage = () => {
       <Box sx={{ px: 2, mb: 3 }}>
         <Box display="flex" alignItems="center" mb={2}>
           <RestaurantMenuIcon sx={{ mr: 1, color: theme.secondary }} />
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             fontWeight="600"
             sx={{ color: theme.primary }}
           >
             หมวดหมู่เมนู
           </Typography>
         </Box>
-        
+
         <Box display="flex" gap={1} sx={{ overflowX: 'auto', pb: 1 }}>
           <IconButton
             onClick={() => setSearchOpen(true)}
@@ -384,7 +384,7 @@ const MenuPage = () => {
           >
             <SearchIcon />
           </IconButton>
-          
+
           {categoryButtons.map((item) => (
             <Chip
               key={item.category}
@@ -420,9 +420,9 @@ const MenuPage = () => {
       </Box>
 
       {/* Enhanced Search Dialog */}
-      <Dialog 
-        open={searchOpen} 
-        onClose={() => setSearchOpen(false)} 
+      <Dialog
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
         fullWidth
         PaperProps={{
           sx: { borderRadius: '20px', p: 1 }
@@ -430,7 +430,7 @@ const MenuPage = () => {
       >
         <DialogTitle display="flex" justifyContent="space-between" alignItems="center">
           🔍 ค้นหาเมนู
-          <IconButton 
+          <IconButton
             onClick={() => setSearchOpen(false)}
             sx={{ color: theme.text.secondary }}
           >
@@ -483,8 +483,8 @@ const MenuPage = () => {
 
       {/* Service Policy - Enhanced */}
       {servicePolicy && (
-        <Box 
-          sx={{ 
+        <Box
+          sx={{
             mx: 2,
             mb: 3,
             p: 3,
@@ -494,19 +494,19 @@ const MenuPage = () => {
             boxShadow: '0 2px 12px rgba(0,0,0,0.05)'
           }}
         >
-          <Typography 
-            variant="h6" 
-            display="flex" 
-            alignItems="center" 
+          <Typography
+            variant="h6"
+            display="flex"
+            alignItems="center"
             gutterBottom
             sx={{ color: theme.primary, fontWeight: '600' }}
           >
             <InfoIcon sx={{ mr: 1, color: theme.secondary }} />
             📋 นโยบายร้าน
           </Typography>
-          <Typography 
-            variant="body2" 
-            sx={{ 
+          <Typography
+            variant="body2"
+            sx={{
               color: theme.text.secondary,
               lineHeight: 1.6
             }}
@@ -561,10 +561,10 @@ const MenuPage = () => {
                       </Box>
                     </Box>
                     <CardContent sx={{ p: 2.5 }}>
-                      <Typography 
-                        variant="h6" 
+                      <Typography
+                        variant="h6"
                         gutterBottom
-                        sx={{ 
+                        sx={{
                           fontWeight: '600',
                           color: theme.primary,
                           fontSize: '1.1rem',
@@ -573,9 +573,9 @@ const MenuPage = () => {
                       >
                         {menu.Name}
                       </Typography>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
+                      <Typography
+                        variant="body2"
+                        sx={{
                           color: theme.text.secondary,
                           lineHeight: 1.5,
                           display: '-webkit-box',
@@ -593,8 +593,8 @@ const MenuPage = () => {
             ))
           ) : (
             <Grid item xs={12}>
-              <Box 
-                textAlign="center" 
+              <Box
+                textAlign="center"
                 py={6}
                 sx={{
                   backgroundColor: theme.surface,
@@ -602,26 +602,26 @@ const MenuPage = () => {
                   mx: 1
                 }}
               >
-                <Typography 
-                  sx={{ 
+                <Typography
+                  sx={{
                     fontSize: '3rem',
                     mb: 2
                   }}
                 >
                   🔍
                 </Typography>
-                <Typography 
+                <Typography
                   variant="h6"
-                  sx={{ 
+                  sx={{
                     color: theme.text.secondary,
                     fontWeight: '500'
                   }}
                 >
                   ไม่พบเมนูที่ตรงกับคำค้นหา
                 </Typography>
-                <Typography 
+                <Typography
                   variant="body2"
-                  sx={{ 
+                  sx={{
                     color: theme.text.secondary,
                     mt: 1
                   }}
@@ -654,8 +654,8 @@ const MenuPage = () => {
           zIndex: 1300
         }}
       >
-        <Badge 
-          badgeContent={totalItems} 
+        <Badge
+          badgeContent={totalItems}
           sx={{
             '& .MuiBadge-badge': {
               backgroundColor: theme.accent,

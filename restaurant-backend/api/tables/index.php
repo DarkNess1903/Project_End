@@ -10,10 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Content-Type: application/json; charset=utf-8");
 
 require_once '../../config/db.php';
 
-// ปรับ SQL ให้ดึง OrderID ของคำสั่งซื้อที่ยังไม่จ่าย
 $sql = "
     SELECT 
         d.TableID, 
@@ -22,9 +22,9 @@ $sql = "
         d.Capacity,
         o.OrderID
     FROM dining d
-    LEFT JOIN `order` o 
+    LEFT JOIN `orders` o 
         ON d.TableID = o.TableID 
-        AND o.Status IN ('active', 'pending')  -- เงื่อนไขเฉพาะออร์เดอร์ที่ยังเปิดอยู่
+        AND o.Status IN ('active', 'pending')
     ORDER BY d.TableNumber ASC
 ";
 
@@ -36,10 +36,10 @@ if ($result) {
     while ($row = $result->fetch_assoc()) {
         $tables[] = $row;
     }
-    echo json_encode($tables);
+    echo json_encode(["success" => true, "data" => $tables]);
 } else {
     http_response_code(500);
-    echo json_encode(["error" => "Failed to fetch tables"]);
+    echo json_encode(["success" => false, "error" => "Failed to fetch tables"]);
 }
 
 $conn->close();
