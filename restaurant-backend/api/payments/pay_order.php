@@ -50,8 +50,8 @@ try {
     if ($table_row && isset($table_row['TableID'])) {
         $table_id = $table_row['TableID'];
 
-        // 4️⃣ อัปเดตสถานะโต๊ะ
-        $update_table_sql = "UPDATE dining SET Status='reserved' WHERE TableID=?";
+        // 4️⃣ อัปเดตสถานะโต๊ะเป็น available หลังชำระเงิน
+        $update_table_sql = "UPDATE dining SET Status='available' WHERE TableID=?";
         $update_table_stmt = $conn->prepare($update_table_sql);
         if (!$update_table_stmt) throw new Exception("Prepare failed: " . $conn->error);
         $update_table_stmt->bind_param("i", $table_id);
