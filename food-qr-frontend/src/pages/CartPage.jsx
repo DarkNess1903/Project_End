@@ -63,26 +63,53 @@ const CartPage = () => {
     if (items.length === 0) return;
 
     setLoading(true);
-    const table = localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0';
-    const payload = {
-      table_id: parseInt(table),
-      items: items.map(item => ({
-        menu_id: item.MenuID,
-        quantity: item.quantity,
-        note: item.note || ''
-      }))
-    };
+    const table = parseInt(localStorage.getItem('tableName')?.replace('โต๊ะ ', '') || '0');
 
     try {
-      const res = await axios.post(
-        'http://localhost/project_END/restaurant-backend/api/orders/create.php',
-        payload
+      // 1️⃣ เช็คว่ามี order ค้างอยู่หรือไม่
+      const checkRes = await axios.get(
+        `http://localhost/project_END/restaurant-backend/api/orders/get_order_by_table.php?table_id=${table}`
       );
 
+      let orderId = null;
+      if (checkRes.data.success && checkRes.data.order && checkRes.data.order.Status !== 'paid') {
+        // มี order pending → ใช้ออร์เดอร์เดิม
+        orderId = checkRes.data.order.OrderID;
+      }
+
+      // 2️⃣ เตรียม payload items
+      const payload = {
+        items: items.map(item => ({
+          menu_id: item.MenuID,
+          quantity: item.quantity,
+          note: item.note || ''
+        }))
+      };
+
+      let res;
+
+      if (orderId) {
+        // ✅ มี order อยู่แล้ว → เพิ่มรายการ
+        res = await axios.post(
+          'http://localhost/project_END/restaurant-backend/api/orders/add_items.php',
+          { order_id: orderId, ...payload },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+      } else {
+        // ✅ ยังไม่มี order → สร้างใหม่
+        res = await axios.post(
+          'http://localhost/project_END/restaurant-backend/api/orders/create.php',
+          { table_id: table, ...payload },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        orderId = res.data.order_id; // อัปเดต orderId สำหรับแสดง
+      }
+
+      // 3️⃣ แจ้งผลลัพธ์
       if (res.data.success) {
         setSnackbar({
           open: true,
-          message: `🎉 สั่งอาหารเรียบร้อย! หมายเลขออร์เดอร์: ${res.data.order_id}`,
+          message: `🎉 สั่งอาหารเรียบร้อย! หมายเลขออร์เดอร์: ${orderId}`,
           severity: 'success'
         });
         clearCart();
@@ -90,7 +117,7 @@ const CartPage = () => {
       } else {
         setSnackbar({
           open: true,
-          message: `❌ เกิดข้อผิดพลาด: ${res.data.error || 'ไม่ทราบสาเหตุ'}`,
+          message: `❌ เกิดข้อผิดพลาด: ${res.data.error || res.data.message || 'ไม่ทราบสาเหตุ'}`,
           severity: 'error'
         });
       }
@@ -301,7 +328,7 @@ const CartPage = () => {
                     >
                       {item.Name}
                     </Typography>
-                    
+
                     <Typography
                       variant="body1"
                       sx={{
@@ -310,7 +337,7 @@ const CartPage = () => {
                         mb: 1
                       }}
                     >
-                      ฿{(item.Price * item.quantity).toLocaleString()}
+                      {item.Price.toLocaleString()} × {item.quantity} = ฿{(item.Price * item.quantity).toLocaleString()}
                     </Typography>
 
 
@@ -492,7 +519,20 @@ const CartPage = () => {
                   กำลังส่งคำสั่ง...
                 </Box>
               ) : (
-                <Box display="flex" alignItems="center" gap={1}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  onClick={() => {
+                    const confirmOrder = window.confirm(
+                      "⚠️ คุณแน่ใจที่จะยืนยันคำสั่งซื้อหรือไม่?\nหลังจากยืนยันแล้วจะไม่สามารถแก้ไขเมนูหรือยกเลิกเมนูได้"
+                    );
+                    if (confirmOrder) {
+                      handleOrder(); // เรียกฟังก์ชันสั่งอาหารจริง
+                    }
+                  }}
+                  sx={{ cursor: 'pointer', userSelect: 'none' }}
+                >
                   <CheckCircleIcon />
                   ยืนยันคำสั่งซื้อ
                 </Box>

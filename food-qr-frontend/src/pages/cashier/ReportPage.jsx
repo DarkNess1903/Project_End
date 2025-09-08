@@ -147,11 +147,8 @@ const ReportPage = () => {
       if (endDate) params.end_date = endDate;
 
       const res = await axios.get(`${API_BASE}/sales_by_expenses.php`, { params });
-
-      // แยกเฉพาะค่าใช้จ่ายอื่น ๆ ไม่รวมต้นทุนเมนู
-      const otherExpenses = res.data.filter(item => item.ExpenseType !== 'menu_cost');
-
-      const total = otherExpenses.reduce((sum, item) => sum + parseFloat(item.Amount || 0), 0);
+      const otherExpenses = res.data; // ไม่ต้อง filter เพราะ PHP ส่งเฉพาะค่าใช้จ่ายแล้ว
+      const total = otherExpenses.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
 
       setExpenses(otherExpenses);
       setTotalExpense(total);

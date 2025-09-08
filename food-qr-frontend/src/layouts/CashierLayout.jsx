@@ -20,6 +20,7 @@ import {
   Receipt,
   QrCode,
   Settings,
+  AttachMoney
 } from '@mui/icons-material';
 
 const logoUrl = "/uploads/logo.png";
@@ -30,12 +31,13 @@ const drawerWidth = 280;
 
 // เพิ่มไอคอนให้กับเมนู
 const menuItems = [
-  { label: 'จัดการโต๊ะ', path: '/cashier/tables', icon: <TableRestaurant /> },
+  { label: 'จัดการคำสั่งซื้อ', path: '/cashier/tables', icon: <TableRestaurant /> },
   { label: 'ประวัติคำสั่งซื้อ', path: '/cashier/orders', icon: <History /> },
   { label: 'จัดการเมนูอาหาร', path: '/cashier/menu', icon: <Restaurant /> },
   { label: 'รายจ่าย', path: '/cashier/expensePage', icon: <Receipt /> },
   { label: 'รายงานยอดขาย', path: '/cashier/reports', icon: <Assessment /> },
-  { label: 'สร้าง QR Code', path: '/cashier/qrcode', icon: <QrCode /> },
+  { label: 'อัพโหลดสลิป', path: '/cashier/slipsPage', icon: <AttachMoney /> },
+  { label: 'จัดการโต๊ะ', path: '/cashier/qrcode', icon: <QrCode /> },
   { label: 'ตั้งค่า', path: '/cashier/settings', icon: <Settings /> },
 ];
 
@@ -75,7 +77,7 @@ const CashierLayout = () => {
       >
         {/* Header Space */}
         <Box sx={{ height: 24 }} />
-        
+
         {/* โลโก้ + ชื่อร้าน - ปรับขนาดให้เหมาะกับ iPad */}
         <Box
           sx={{
@@ -101,12 +103,12 @@ const CashierLayout = () => {
               boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             }}
           />
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             fontWeight="700"
             color={themeColors.textPrimary}
             textAlign="center"
-            sx={{ 
+            sx={{
               fontSize: '18px', // ฟอนต์ใหญ่ขึ้น
               lineHeight: 1.3,
               fontFamily: '"Prompt", "Roboto", sans-serif',
@@ -114,7 +116,7 @@ const CashierLayout = () => {
           >
             {storeName || 'My Store'}
           </Typography>
-          
+
           {/* Status Badge */}
           <Chip
             label="ระบบแคชเชียร์"
@@ -146,15 +148,15 @@ const CashierLayout = () => {
                       minHeight: '56px', // ปุ่มสูงขึ้นสำหรับ iPad
                       px: 2,
                       py: 1.5,
-                      backgroundColor: isActive 
-                        ? themeColors.primary 
+                      backgroundColor: isActive
+                        ? themeColors.primary
                         : 'transparent',
-                      color: isActive 
-                        ? 'white' 
+                      color: isActive
+                        ? 'white'
                         : themeColors.textPrimary,
                       '&:hover': {
-                        backgroundColor: isActive 
-                          ? themeColors.primaryLight 
+                        backgroundColor: isActive
+                          ? themeColors.primaryLight
                           : themeColors.background,
                         transform: 'translateY(-1px)',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
@@ -182,7 +184,7 @@ const CashierLayout = () => {
                     >
                       {item.icon}
                     </Box>
-                    
+
                     <ListItemText
                       primary={item.label}
                       primaryTypographyProps={{
@@ -254,7 +256,7 @@ const CashierLayout = () => {
           >
             ระบบจัดการร้านอาหาร
           </Typography>
-          
+
           {/* Status Indicators */}
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Chip

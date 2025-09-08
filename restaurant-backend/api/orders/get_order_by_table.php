@@ -6,24 +6,39 @@ require_once '../../config/db.php';
 
 $table_id = isset($_GET['table_id']) ? intval($_GET['table_id']) : 0;
 
-$sql_order = "SELECT * FROM `orders` WHERE TableID = $table_id AND Status = 'pending' ORDER BY OrderID DESC LIMIT 1";
-$result_order = $conn->query($sql_order);
+if ($table_id <= 0) {
+    echo json_encode(["success" => false, "message" => "table_id ไม่ถูกต้อง"]);
+    exit;
+}
+
+// ✅ ดึงออเดอร์ที่โต๊ะนี้ยังไม่ปิด (ทุกสถานะ ยกเว้น paid)
+$sql_order = "SELECT * FROM `orders` 
+              WHERE TableID = ? AND Status != 'paid' 
+              ORDER BY OrderID DESC 
+              LIMIT 1";
+$stmt = $conn->prepare($sql_order);
+$stmt->bind_param("i", $table_id);
+$stmt->execute();
+$result_order = $stmt->get_result();
 
 if ($result_order->num_rows === 0) {
-    echo json_encode(["success" => false, "message" => "ไม่พบข้อมูลคำสั่งซื้อ"]);
+    echo json_encode(["success" => false, "message" => "ไม่พบคำสั่งซื้อที่ยังไม่ปิดบิล"]);
     exit;
 }
 
 $order = $result_order->fetch_assoc();
 $order_id = $order['OrderID'];
 
-// ดึง Order Items
-$sql_items = "SELECT oi.*, m.Name AS MenuName, m.ImageURL 
+// ✅ ดึงรายการอาหารของบิลนี้
+$sql_items = "SELECT oi.OrderItemID, oi.MenuID, oi.Quantity, oi.SubTotal, oi.Note, oi.Status,
+                     m.Name AS MenuName, m.ImageURL, m.Price
               FROM orderitem oi 
               JOIN menu m ON oi.MenuID = m.MenuID 
-              WHERE oi.OrderID = $order_id";
-
-$result_items = $conn->query($sql_items);
+              WHERE oi.OrderID = ?";
+$stmt_items = $conn->prepare($sql_items);
+$stmt_items->bind_param("i", $order_id);
+$stmt_items->execute();
+$result_items = $stmt_items->get_result();
 
 $items = [];
 while ($row = $result_items->fetch_assoc()) {
@@ -35,5 +50,5 @@ echo json_encode([
     "order" => $order,
     "items" => $items
 ]);
+
 $conn->close();
-?>

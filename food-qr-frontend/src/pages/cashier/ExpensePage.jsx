@@ -302,7 +302,7 @@ const ExpensePage = () => {
                         }
                       }}
                     >
-                      <option value="">เลือกประเภท</option>
+                      <option value=""> </option>
                       {expenseTypes.map(type => (
                         <option key={type} value={type}>{type}</option>
                       ))}

@@ -529,7 +529,7 @@ const TableManagementPage = () => {
                 จัดการโต๊ะ {selectedTable?.TableNumber}
               </Typography>
               <Typography variant="body2" color={themeColors.textSecondary}>
-                เวลาที่สั่ง: {selectedTable?.OrderTime ?? 'ไม่พบข้อมูล'}
+                เวลาที่สั่ง: {billData?.order?.OrderTime ?? 'ไม่พบข้อมูล'}
               </Typography>
             </Box>
           </Box>

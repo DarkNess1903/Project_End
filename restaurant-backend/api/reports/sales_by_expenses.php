@@ -14,14 +14,18 @@ require_once '../../config/db.php';
 $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : null;
 $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : null;
 
-$sql = "SELECT ExpenseDate, Amount, Description FROM expenses";
+// ดึง ExpenseType ด้วย
+$sql = "SELECT ExpenseDate, Amount, Description, ExpenseType FROM expenses";
 
-if ($startDate && $endDate) {
-    $sql .= " WHERE DATE(ExpenseDate) BETWEEN '$startDate' AND '$endDate'";
-} elseif ($startDate) {
-    $sql .= " WHERE ExpenseDate >= '$startDate'";
-} elseif ($endDate) {
-    $sql .= " WHERE ExpenseDate <= '$endDate'";
+$where = [];
+if ($startDate) $where[] = "DATE(ExpenseDate) >= '$startDate'";
+if ($endDate) $where[] = "DATE(ExpenseDate) <= '$endDate'";
+
+// ไม่เอา ExpenseType = 'วัตถุดิบ'
+$where[] = "ExpenseType != 'วัตถุดิบ'";
+
+if ($where) {
+    $sql .= " WHERE " . implode(" AND ", $where);
 }
 
 $sql .= " ORDER BY ExpenseDate DESC";
@@ -36,6 +40,7 @@ if ($result) {
             'expense_date' => $row['ExpenseDate'],
             'amount' => (float) $row['Amount'],
             'description' => $row['Description'],
+            'expense_type' => $row['ExpenseType'],
         ];
     }
     echo json_encode($expenses);
