@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { CartProvider } from './contexts/CartContext';
 
 import CashierLayout from './layouts/CashierLayout';
@@ -19,6 +19,9 @@ import QRCodePage from './pages/QRCodePage';
 import BillPage from './pages/BillPage';
 import FeedbackForm from './pages/FeedbackForm';
 
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
   return (
     <CartProvider>
@@ -31,8 +34,18 @@ function App() {
           <Route path="/bill" element={<BillPage />} />
           <Route path="/feedback/:orderId" element={<FeedbackForm />} />
 
-          {/* ฝั่งพนักงานแคชเชียร์ */}
-          <Route path="/cashier" element={<CashierLayout />}>
+          {/* Login ฝั่งพนักงาน */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* ฝั่งพนักงานแคชเชียร์ (Protected) */}
+          <Route
+            path="/cashier"
+            element={
+              <ProtectedRoute>
+                <CashierLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route path="tables" element={<TableManagementPage />} />
             <Route path="menu" element={<MenuPromoManagement />} />
             <Route path="orders" element={<OrderListPage />} />
@@ -43,6 +56,9 @@ function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="payment/:orderId" element={<PaymentPage />} />
           </Route>
+
+          {/* default redirect */}
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
     </CartProvider>

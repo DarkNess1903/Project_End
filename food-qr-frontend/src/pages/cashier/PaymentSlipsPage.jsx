@@ -23,7 +23,7 @@ const PaymentSlipsPage = () => {
     if (!selectedDate || files.length === 0) return;
     setLoadingUpload(true);
     const formData = new FormData();
-    formData.append('uploaded_by', 'พนักงาน1'); // ตัวอย่าง ใส่ username ของพนักงาน
+    formData.append('uploaded_by', 'พนักงาน');
     files.forEach(file => formData.append('files[]', file));
 
     try {

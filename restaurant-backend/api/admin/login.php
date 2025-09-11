@@ -1,43 +1,41 @@
 <?php
-session_start();
-header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Methods: POST");
+
 require_once '../../config/db.php';
 
-// รับข้อมูล JSON
 $data = json_decode(file_get_contents("php://input"), true);
-$username = $data['user'] ?? '';
+$username = $data['username'] ?? '';
 $password = $data['password'] ?? '';
 
-if (!$username || !$password) {
-    http_response_code(400);
-    echo json_encode(["error" => "Missing user or password"]);
-    exit;
-}
-
-// ดึงข้อมูลแอดมิน
-$stmt = $conn->prepare("SELECT AdminID, password FROM Admin WHERE user = ?");
+$stmt = $conn->prepare("SELECT AdminID, User, Password FROM admin WHERE User = ?");
 $stmt->bind_param("s", $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows === 0) {
-    http_response_code(401);
-    echo json_encode(["error" => "Invalid username"]);
-    exit;
+if ($row = $result->fetch_assoc()) {
+    // ❌ เดิม: password_verify($password, $row['Password'])
+    if ($password === $row['Password']) {
+        // ✅ Login สำเร็จ
+        $token = base64_encode(json_encode([
+            "id" => $row['AdminID'],
+            "user" => $row['User'],
+            "time" => time()
+        ]));
+
+        echo json_encode([
+            "success" => true,
+            "token" => $token,
+            "user" => $row['User']
+        ]);
+    } else {
+        echo json_encode(["success" => false, "message" => "รหัสผ่านไม่ถูกต้อง"]);
+    }
+} else {
+    echo json_encode(["success" => false, "message" => "ไม่พบบัญชีผู้ใช้"]);
 }
-
-$row = $result->fetch_assoc();
-
-// ตรวจสอบรหัสผ่าน (สมมุติว่าใช้ bcrypt hash)
-if ($password !== $row['password']) {
-    http_response_code(401);
-    echo json_encode(["error" => "Invalid password"]);
-    exit;
-}
-
-// Login สำเร็จ – สร้าง session
-$_SESSION['admin_id'] = $row['AdminID'];
-echo json_encode(["success" => true, "admin_id" => $row['AdminID']]);
 
 $stmt->close();
 $conn->close();
+?>
