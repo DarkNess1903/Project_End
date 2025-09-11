@@ -126,7 +126,7 @@ const TableManagementPage = () => {
   useEffect(() => {
     fetchTables();
     fetchStaffCalls();
-    const interval = setInterval(fetchStaffCalls, 5000);
+    const interval = setInterval(fetchStaffCalls, 2000);
     return () => clearInterval(interval);
   }, []);
 
