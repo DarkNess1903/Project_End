@@ -21,6 +21,7 @@ import {
   Paper,
   Rating,
   CircularProgress,
+  Pagination
 } from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -79,6 +80,12 @@ const ReportPage = () => {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const [page, setPage] = useState(1); // หน้าเริ่มต้น = 1
+  const rowsPerPage = 5; // จำนวนความคิดเห็นต่อหน้า
+  const handleChangePage = (event, value) => {
+    setPage(value);
   };
 
   useEffect(() => {
@@ -417,18 +424,18 @@ const ReportPage = () => {
       <Grid container spacing={3} alignItems="stretch">
         {/* Left: Top 5 เมนูขายดี */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ mb: 3, boxShadow: 3, height: '100%' }}>
-            <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
+          <Card sx={{ mb: 3, boxShadow: 3, height: "100%" }}>
+            <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%" }}>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: "18px" }}>
                 เมนูขายดี 5 อันดับ
               </Typography>
 
               <Box sx={{ flex: 1 }}>
                 {topMenus.length === 0 ? (
-                  <Typography sx={{ color: '#757575' }}>ไม่มีข้อมูล</Typography>
+                  <Typography sx={{ color: "#757575" }}>ไม่มีข้อมูล</Typography>
                 ) : (
-                  <TableContainer component={Paper} sx={{ boxShadow: 'none', maxHeight: 600 }}>
-                    <Table size="small" stickyHeader aria-label="top 5 menu table">
+                  <TableContainer component={Paper} sx={{ boxShadow: "none", maxHeight: 600 }}>
+                    <Table size="small" stickyHeader>
                       <TableHead>
                         <TableRow>
                           <TableCell align="center" sx={{ fontWeight: 600 }}>อันดับ</TableCell>
@@ -455,69 +462,101 @@ const ReportPage = () => {
           </Card>
         </Grid>
 
-        {/* Right: Feedback Summary */}
+        {/* Right: Feedback Summary + ความคิดเห็น */}
         <Grid item xs={12} md={6}>
-          <Card sx={{ mb: 3, boxShadow: 3, height: '100%' }}>
-            <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: '18px' }}>
-                คะแนนเฉลี่ยแต่ละด้าน
-              </Typography>
+          <Grid container spacing={3} direction="column" sx={{ height: "100%" }}>
+            {/* คะแนนเฉลี่ยแต่ละด้าน */}
+            <Grid item xs={12}>
+              <Card sx={{ boxShadow: 3 }}>
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: "18px" }}>
+                    คะแนนเฉลี่ยแต่ละด้าน
+                  </Typography>
 
-              <Box sx={{ flex: 1, overflowY: 'auto' }}>
-                {feedbacks.length > 0 ? (
-                  <TableContainer component={Paper} sx={{ mb: 3, boxShadow: 'none' }}>
-                    <Table size="small">
-                      <TableBody>
-                        {['อาหาร', 'บริการ', 'ความสะอาด', 'โดยรวม'].map((aspect) => {
-                          const avg = feedbacks.reduce((sum, fb) => {
-                            switch (aspect) {
-                              case 'อาหาร': return sum + parseFloat(fb.rating_food);
-                              case 'บริการ': return sum + parseFloat(fb.rating_service);
-                              case 'ความสะอาด': return sum + parseFloat(fb.rating_cleanliness);
-                              case 'โดยรวม': return sum + parseFloat(fb.rating_overall);
-                              default: return sum;
-                            }
-                          }, 0) / feedbacks.length;
+                  {feedbacks.length > 0 ? (
+                    <TableContainer component={Paper} sx={{ boxShadow: "none" }}>
+                      <Table size="small">
+                        <TableBody>
+                          {["อาหาร", "บริการ", "ความสะอาด", "โดยรวม"].map((aspect) => {
+                            const avg =
+                              feedbacks.reduce((sum, fb) => {
+                                switch (aspect) {
+                                  case "อาหาร": return sum + parseFloat(fb.rating_food);
+                                  case "บริการ": return sum + parseFloat(fb.rating_service);
+                                  case "ความสะอาด": return sum + parseFloat(fb.rating_cleanliness);
+                                  case "โดยรวม": return sum + parseFloat(fb.rating_overall);
+                                  default: return sum;
+                                }
+                              }, 0) / feedbacks.length;
 
-                          return (
-                            <TableRow key={aspect}>
-                              <TableCell sx={{ fontWeight: 600 }}>{aspect}</TableCell>
-                              <TableCell>
-                                <Rating value={avg} precision={0.1} readOnly size="small" /> ({avg.toFixed(1)})
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  <Typography sx={{ color: '#757575' }}>ไม่มีข้อมูลคะแนน</Typography>
-                )}
+                            return (
+                              <TableRow key={aspect}>
+                                <TableCell sx={{ fontWeight: 600 }}>{aspect}</TableCell>
+                                <TableCell>
+                                  <Rating value={avg} precision={0.1} readOnly size="small" /> ({avg.toFixed(1)})
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  ) : (
+                    <Typography sx={{ color: "#757575" }}>ไม่มีข้อมูลคะแนน</Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
 
-                {/* ข้อความความคิดเห็น */}
-                <Typography variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
-                  ความคิดเห็นลูกค้า
-                </Typography>
-                {feedbacks.length > 0 ? (
-                  <Box sx={{ maxHeight: 300, overflowY: 'auto', pr: 1 }}>
-                    {feedbacks.map((fb) => (
-                      <Box key={fb.id} sx={{ mb: 2, p: 2, border: '1px solid #eee', borderRadius: 2 }}>
-                        <Typography sx={{ fontSize: '14px', color: '#555' }}>{fb.comment}</Typography>
-                        <Typography sx={{ fontSize: '12px', color: '#999', mt: 0.5 }}>
-                          วันที่: {fb.feedback_date}
-                        </Typography>
+            {/* ความคิดเห็นลูกค้า */}
+            <Grid item xs={12} sx={{ flex: 1 }}>
+              <Card sx={{ boxShadow: 3, height: "100%", display: "flex", flexDirection: "column" }}>
+                <CardContent sx={{ p: 3, flex: 1, display: "flex", flexDirection: "column" }}>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, fontSize: "18px" }}>
+                    ความคิดเห็นลูกค้า
+                  </Typography>
+
+                  {feedbacks.length > 0 ? (
+                    <>
+                      {/* รายการความคิดเห็น */}
+                      <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
+                        {feedbacks
+                          .slice((page - 1) * rowsPerPage, page * rowsPerPage)
+                          .map((fb) => (
+                            <Box
+                              key={fb.id}
+                              sx={{ mb: 2, p: 2, border: "1px solid #eee", borderRadius: 2 }}
+                            >
+                              <Typography sx={{ fontSize: "14px", color: "#555" }}>
+                                {fb.comment}
+                              </Typography>
+                              <Typography sx={{ fontSize: "12px", color: "#999", mt: 0.5 }}>
+                                วันที่: {fb.feedback_date}
+                              </Typography>
+                            </Box>
+                          ))}
                       </Box>
-                    ))}
-                  </Box>
-                ) : (
-                  <Typography sx={{ color: '#757575' }}>ไม่มีความคิดเห็นลูกค้า</Typography>
-                )}
-              </Box>
-            </CardContent>
-          </Card>
+
+                      {/* Pagination ไม่ถูกบัง */}
+                      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                        <Pagination
+                          count={Math.ceil(feedbacks.length / rowsPerPage)}
+                          page={page}
+                          onChange={handleChangePage}
+                          color="primary"
+                        />
+                      </Box>
+                    </>
+                  ) : (
+                    <Typography sx={{ color: "#757575" }}>ไม่มีความคิดเห็นลูกค้า</Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
+
     </Box>
   );
 };
