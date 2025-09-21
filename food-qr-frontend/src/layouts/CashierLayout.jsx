@@ -36,7 +36,7 @@ const menuItems = [
   { label: 'จัดการเมนูอาหาร', path: '/cashier/menu', icon: <Restaurant /> },
   { label: 'รายจ่าย', path: '/cashier/expensePage', icon: <Receipt /> },
   { label: 'รายงานยอดขาย', path: '/cashier/reports', icon: <Assessment /> },
-  { label: 'อัพโหลดสลิป', path: '/cashier/slipsPage', icon: <AttachMoney /> },
+  { label: 'อัปโหลดสลิป', path: '/cashier/slipsPage', icon: <AttachMoney /> },
   { label: 'จัดการโต๊ะ', path: '/cashier/qrcode', icon: <QrCode /> },
   { label: 'ตั้งค่า', path: '/cashier/settings', icon: <Settings /> },
 ];
