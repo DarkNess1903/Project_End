@@ -21,6 +21,7 @@ import {
   Card,
   CardContent,
 } from '@mui/material';
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
@@ -40,6 +41,9 @@ const CartPage = () => {
   const [openNoteDialog, setOpenNoteDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const handleAddMore = () => {
+    navigate("/menu"); // เปลี่ยนเส้นทางไปหน้าสั่งอาหาร
+  };
 
   // สี theme เดียวกันกับหน้าอื่นๆ
   const theme = {
@@ -454,7 +458,7 @@ const CartPage = () => {
                   fontWeight="600"
                   sx={{ color: theme.primary, mb: 2 }}
                 >
-                  📊 สรุปคำสั่งซื้อ
+                  สรุปคำสั่งซื้อ
                 </Typography>
 
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
@@ -488,60 +492,86 @@ const CartPage = () => {
               </CardContent>
             </Card>
 
-            {/* Order Button */}
-            <Button
-              variant="contained"
-              fullWidth
-              size="large"
-              onClick={handleOrder}
-              disabled={loading}
-              sx={{
-                py: 2,
-                borderRadius: '16px',
-                fontSize: '1.2rem',
-                fontWeight: '700',
-                background: theme.gradient,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
-                },
-                '&:disabled': {
-                  background: theme.text.light,
-                  color: theme.text.secondary
-                },
-                transition: 'all 0.3s ease'
-              }}
-            >
-              {loading ? (
-                <Box display="flex" alignItems="center" gap={1}>
-                  <CircularProgress size={20} color="inherit" />
-                  กำลังส่งคำสั่ง...
-                </Box>
-              ) : (
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  gap={1}
-                  onClick={() => {
-                    const confirmOrder = window.confirm(
-                      "⚠️ คุณแน่ใจที่จะยืนยันคำสั่งซื้อหรือไม่?\nหลังจากยืนยันแล้วจะไม่สามารถแก้ไขเมนูหรือยกเลิกเมนูได้"
-                    );
-                    if (confirmOrder) {
-                      handleOrder(); // เรียกฟังก์ชันสั่งอาหารจริง
-                    }
-                  }}
-                  sx={{ cursor: 'pointer', userSelect: 'none' }}
-                >
-                  <CheckCircleIcon />
-                  ยืนยันคำสั่งซื้อ
-                </Box>
-              )}
-            </Button>
+            {/* Order Buttons */}
+            <Box display="flex" gap={2}>
+              {/* ปุ่มสั่งอาหารเพิ่มเติม */}
+              <Button
+                variant="outlined"
+                fullWidth
+                size="large"
+                onClick={handleAddMore} // ฟังก์ชันเพิ่มเมนู
+                sx={{
+                  py: 2,
+                  borderRadius: '16px',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  color: theme.primary,
+                  borderColor: theme.primary,
+                  '&:hover': {
+                    background: theme.primary,
+                    color: '#fff',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <AddCircleOutlineIcon />
+                เพิ่มเมนู
+              </Button>
+
+              {/* ปุ่มยืนยันคำสั่งซื้อ */}
+              <Button
+                variant="contained"
+                fullWidth
+                size="large"
+                onClick={handleOrder}
+                disabled={loading}
+                sx={{
+                  py: 2,
+                  borderRadius: '16px',
+                  fontSize: '1.2rem',
+                  fontWeight: '700',
+                  background: theme.gradient,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 12px 32px rgba(0,0,0,0.2)',
+                  },
+                  '&:disabled': {
+                    background: theme.text.light,
+                    color: theme.text.secondary,
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                {loading ? (
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <CircularProgress size={20} color="inherit" />
+                    กำลังส่งคำสั่ง...
+                  </Box>
+                ) : (
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    onClick={() => {
+                      const confirmOrder = window.confirm(
+                        "⚠️ คุณแน่ใจที่จะยืนยันคำสั่งซื้อหรือไม่?\nหลังจากยืนยันแล้วจะไม่สามารถแก้ไขเมนูหรือยกเลิกเมนูได้"
+                      );
+                      if (confirmOrder) {
+                        handleOrder();
+                      }
+                    }}
+                    sx={{ cursor: 'pointer', userSelect: 'none' }}
+                  >
+                    <CheckCircleIcon />
+                    ยืนยันคำสั่งซื้อ
+                  </Box>
+                )}
+              </Button>
+            </Box>
           </>
         )}
       </Box>
-
       {/* Note Edit Dialog */}
       <Dialog
         open={openNoteDialog}

@@ -64,6 +64,10 @@ try {
 
     // 6️⃣ เรียก generate_receipt.php สำหรับพิมพ์ใบเสร็จ
     $receipt_script = realpath(__DIR__ . "/../../generate_receipt.php");
+    if (!$receipt_script) {
+        die("ไม่พบ generate_receipt.php");
+    }
+
     if ($receipt_script && file_exists($receipt_script)) {
         $php_path = PHP_BINARY; // path ของ PHP
         $cmd = "\"$php_path\" \"$receipt_script\" $order_id";

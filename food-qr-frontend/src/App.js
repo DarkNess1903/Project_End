@@ -13,7 +13,6 @@ import ExpensePage from './pages/cashier/ExpensePage';
 import PaymentSlipsPage from './pages/cashier/PaymentSlipsPage';
 
 import MenuPage from './pages/MenuPage';
-import MenuDetailPage from './pages/MenuDetailPage';
 import CartPage from './pages/CartPage';
 import QRCodePage from './pages/QRCodePage';
 import BillPage from './pages/BillPage';
@@ -29,7 +28,6 @@ function App() {
         <Routes>
           {/* ฝั่งลูกค้า */}
           <Route path="/" element={<MenuPage />} />
-          <Route path="/menu/:id" element={<MenuDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/bill" element={<BillPage />} />
           <Route path="/feedback/:orderId" element={<FeedbackForm />} />

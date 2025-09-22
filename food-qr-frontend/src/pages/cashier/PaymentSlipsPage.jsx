@@ -7,6 +7,10 @@ import {
 } from '@mui/material';
 import { AccountBalanceWallet, Add, Close } from '@mui/icons-material';
 import axios from 'axios';
+import { format, parseISO } from 'date-fns';
+import th from 'date-fns/locale/th';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const API_BASE = 'http://localhost/project_END/restaurant-backend/api/payment_slips';
 
@@ -18,8 +22,6 @@ const PaymentSlipsPage = () => {
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [loadingSlips, setLoadingSlips] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
-
-  // สำหรับ Dialog ขยายรูป
   const [openDialog, setOpenDialog] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
 
@@ -124,16 +126,23 @@ const PaymentSlipsPage = () => {
         <Card sx={{ boxShadow: 3 }}>
           <CardContent sx={{ p: 3 }}>
             <Stack spacing={2}>
-              <TextField
-                type="date"
-                label="เลือกวันที่แสดงสลิป"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                InputLabelProps={{ shrink: true }}
-                sx={{ maxWidth: 200 }}
-              />
-              <Typography variant="h6">
-                รายการสลิปวันที่ {selectedDate || '-'}
+              <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
+                <DatePicker
+                  label="เลือกวันที่แสดงสลิป"
+                  value={selectedDate ? parseISO(selectedDate) : null} // แปลง string เป็น Date
+                  onChange={(newValue) => {
+                    setSelectedDate(newValue ? newValue.toISOString().slice(0, 10) : '');
+                  }}
+                  inputFormat="dd-MM-yyyy" // แสดงวัน/เดือน/ปี
+                  renderInput={(params) => <TextField {...params} sx={{ maxWidth: 200 }} />}
+                />
+              </LocalizationProvider>
+
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                รายการสลิปวันที่{' '}
+                {selectedDate
+                  ? format(parseISO(selectedDate), 'dd/MM/yyyy', { locale: th }) // แสดงเป็น DD/MM/YYYY ภาษาไทย
+                  : '-'}
               </Typography>
 
               {loadingSlips ? (

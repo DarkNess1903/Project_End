@@ -220,10 +220,10 @@ const ExpensePage = () => {
             {/* Quick Filter Chips */}
             <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
               {[
-                { key: 'today', label: 'วันนี้', icon: <Today /> },
-                { key: 'week', label: 'สัปดาห์นี้', icon: <DateRange /> },
-                { key: 'month', label: 'เดือนนี้', icon: <CalendarMonth /> },
-                { key: 'year', label: 'ปีนี้', icon: <Schedule /> },
+                { key: 'today', label: 'วัน', icon: <Today /> },
+                { key: 'week', label: 'สัปดาห์', icon: <DateRange /> },
+                { key: 'month', label: 'เดือน', icon: <CalendarMonth /> },
+                { key: 'year', label: 'ปี', icon: <Schedule /> },
                 { key: 'all', label: 'ทั้งหมด', icon: null },
               ].map((item) => (
                 <Chip

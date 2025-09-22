@@ -27,20 +27,31 @@ $order_items = [];
 $total = 0;
 
 while ($row = $result->fetch_assoc()) {
+    $menu_id = intval($row['MenuID']);
+    $quantity = intval($row['Quantity']);
     $sub_total = floatval($row['SubTotal']);
     $total += $sub_total;
 
-    $order_items[] = [
-        "order_item_id" => $row['OrderItemID'],
-        "menu_id"       => $row['MenuID'],
-        "name"          => $row['Name'],
-        "quantity"      => intval($row['Quantity']),
-        "price"         => round($sub_total / max(1, intval($row['Quantity'])), 2),
-        "note"          => $row['Note'],
-        "sub_total"     => round($sub_total, 2),
-        "ImageURL"      => $row['ImageURL'],
-    ];
+    if (isset($order_items[$menu_id])) {
+        // ถ้ามีเมนูนี้แล้ว → เพิ่มจำนวนและรวม SubTotal
+        $order_items[$menu_id]['quantity'] += $quantity;
+        $order_items[$menu_id]['sub_total'] += $sub_total;
+    } else {
+        $order_items[$menu_id] = [
+            "order_item_id" => $row['OrderItemID'], // ใช้ ID ของรายการแรก
+            "menu_id"       => $menu_id,
+            "name"          => $row['Name'],
+            "quantity"      => $quantity,
+            "price"         => round($sub_total / max(1, $quantity), 2),
+            "note"          => $row['Note'], // ถ้ามี note หลายอัน อาจต้องปรับรวม
+            "sub_total"     => round($sub_total, 2),
+            "ImageURL"      => $row['ImageURL'],
+        ];
+    }
 }
+
+// ถ้าอยากได้ array index เริ่มจาก 0
+$order_items = array_values($order_items);
 
 // ไม่มีโปรโมชั่น → discount = 0
 $discount = 0;

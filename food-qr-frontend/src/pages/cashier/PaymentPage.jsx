@@ -165,24 +165,22 @@ const PaymentPage = () => {
     }
   };
 
-  // ฟังก์ชันลดราคาแบบ manual
-  const applyManualDiscount = () => {
-    const discVal = parseFloat(manualDiscount);
-    if (isNaN(discVal) || discVal < 0) {
-      showNotification('กรุณาใส่จำนวนเงินที่ถูกต้อง', 'warning');
+  const applyManualDiscount = (percent) => {
+    const discPercent = percent !== undefined ? percent : parseFloat(manualDiscount);
+    if (isNaN(discPercent) || discPercent < 0 || discPercent > 100) {
+      showNotification('กรุณาใส่เปอร์เซ็นต์ส่วนลด 0-100', 'warning');
       return;
     }
-    const newFinal = totalPrice - discVal;
-    if (newFinal < 0) {
-      showNotification('ส่วนลดมากกว่ายอดรวมไม่ได้', 'warning');
-      return;
-    }
-    setDiscount(discVal);
+
+    const discountAmount = (totalPrice * discPercent) / 100;
+    const newFinal = totalPrice - discountAmount;
+
+    setDiscount(discountAmount);
     setFinalTotal(newFinal);
     setDiscountDialog(false);
     setManualDiscount('');
-    showNotification('ใช้ส่วนลดสำเร็จ', 'success');
-    // Recalculate change if cash amount is entered
+    showNotification(`ใช้ส่วนลด ${discPercent}% สำเร็จ`, 'success');
+
     if (customerCash) {
       setChange(customerCash - newFinal);
     }
@@ -262,6 +260,7 @@ const PaymentPage = () => {
                           <Receipt />
                         </Avatar>
                       </ListItemAvatar>
+
                       <ListItemText
                         primary={
                           <Typography sx={{ fontWeight: 600, fontSize: '16px', mb: 0.5 }}>
@@ -270,7 +269,7 @@ const PaymentPage = () => {
                         }
                         secondary={
                           <Typography sx={{ color: theme.colors.text.secondary, fontSize: '14px' }}>
-                            จำนวน: {item.quantity} | ราคา: {formatCurrency(item.sub_total / item.quantity)}
+                            {formatCurrency(item.price)} x {item.quantity} | รวม: {formatCurrency(item.sub_total)}
                           </Typography>
                         }
                         sx={{ ml: 2 }}
@@ -402,31 +401,6 @@ const PaymentPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Dialog ใส่จำนวนเงินลดราคา */}
-              <Dialog
-                open={discountDialog}
-                onClose={() => setDiscountDialog(false)}
-              >
-                <DialogTitle>ใส่ส่วนลด (บาท)</DialogTitle>
-                <DialogContent>
-                  <TextField
-                    autoFocus
-                    margin="dense"
-                    label="จำนวนเงิน"
-                    type="number"
-                    fullWidth
-                    value={manualDiscount}
-                    onChange={(e) => setManualDiscount(e.target.value)}
-                  />
-                </DialogContent>
-                <DialogActions>
-                  <Button onClick={() => setDiscountDialog(false)}>ยกเลิก</Button>
-                  <Button variant="contained" onClick={applyManualDiscount}>
-                    ยืนยัน
-                  </Button>
-                </DialogActions>
-              </Dialog>
-              
               {/* Payment Methods */}
               <Card sx={{ boxShadow: 3 }}>
                 <CardContent sx={{ p: 3 }}>
@@ -473,7 +447,7 @@ const PaymentPage = () => {
                           '&:hover': { backgroundColor: theme.colors.primary }
                         }}
                       >
-                        โอนเงินผ่าน Qrcode
+                        สแกนจ่ายผ่าน Qrcode
                       </Button>
                     </Grid>
                   </Grid>
@@ -485,27 +459,43 @@ const PaymentPage = () => {
       </Container >
 
       {/* Manual Discount Dialog */}
-      <Dialog Dialog
+      <Dialog
         open={discountDialog}
         onClose={() => setDiscountDialog(false)}
         maxWidth="sm"
         fullWidth
         PaperProps={{ sx: { borderRadius: 3 } }}
       >
-        <DialogTitle sx={{
-          backgroundColor: theme.colors.error,
-          color: 'white',
-          fontSize: '20px',
-          fontWeight: 600
-        }}>
+        <DialogTitle
+          sx={{
+            backgroundColor: theme.colors.error,
+            color: 'white',
+            fontSize: '20px',
+            fontWeight: 600
+          }}
+        >
           <Box display="flex" alignItems="center" gap={1}>
             <Discount />
             ลดราคาเพิ่มเติม
           </Box>
         </DialogTitle>
+
         <DialogContent sx={{ p: 3 }}>
+          {/* ปุ่มลัดส่วนลด */}
+          <Box display="flex" gap={1} mb={2}>
+            {[5, 7, 10].map((p) => (
+              <Button
+                key={p}
+                variant="outlined"
+                onClick={() => applyManualDiscount(p)}
+              >
+                {p}%
+              </Button>
+            ))}
+          </Box>
+
           <TextField
-            label="จำนวนเงินที่ต้องการลด (บาท)"
+            label="ส่วนลด (%)"
             type="number"
             fullWidth
             value={manualDiscount}
@@ -517,38 +507,32 @@ const PaymentPage = () => {
                 fontSize: '16px',
               }
             }}
+            InputProps={{ inputProps: { min: 0, max: 100, step: 0.1 } }}
           />
+
           <Typography variant="body2" sx={{ mt: 2, color: theme.colors.text.secondary }}>
             ยอดรวมปัจจุบัน: {formatCurrency(totalPrice)} <br />
             ส่วนลดปัจจุบัน: {formatCurrency(discount)} <br />
             ยอดชำระปัจจุบัน: {formatCurrency(finalTotal)}
           </Typography>
         </DialogContent>
+
         <DialogActions sx={{ p: 3, gap: 1 }}>
           <Button
             onClick={() => setDiscountDialog(false)}
-            sx={{
-              height: 48,
-              fontSize: '16px',
-              minWidth: 100
-            }}
+            sx={{ height: 48, fontSize: '16px', minWidth: 100 }}
           >
             ยกเลิก
           </Button>
           <Button
             variant="contained"
-            onClick={applyManualDiscount}
-            sx={{
-              height: 48,
-              fontSize: '16px',
-              minWidth: 120,
-              backgroundColor: theme.colors.error
-            }}
+            onClick={() => applyManualDiscount()}
+            sx={{ height: 48, fontSize: '16px', minWidth: 120, backgroundColor: theme.colors.error }}
           >
             ใช้ส่วนลด
           </Button>
         </DialogActions>
-      </Dialog >
+      </Dialog>
 
       {/* Payment Success Dialog */}
       <Dialog Dialog

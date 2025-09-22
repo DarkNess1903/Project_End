@@ -92,19 +92,15 @@ const ReportPage = () => {
     fetchSalesReport();
     fetchMenuSales();
 
-    let startDate, endDate;
     const today = new Date();
+    let startDate, endDate;
 
-    if (filterType === 'custom' && selectedDate) {
-      startDate = formatLocalDate(selectedDate);
-      endDate = formatLocalDate(selectedDate);
-    } else if (filterType === 'day') {
-      startDate = formatLocalDate(today);
-      endDate = formatLocalDate(today);
+    if (filterType === 'day') {
+      startDate = endDate = formatLocalDate(today);
     } else if (filterType === 'week') {
       const dayOfWeek = today.getDay();
       const monday = new Date(today);
-      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7)); // วันจันทร์
       startDate = formatLocalDate(monday);
       endDate = formatLocalDate(today);
     } else if (filterType === 'month') {
@@ -115,12 +111,15 @@ const ReportPage = () => {
       const firstJan = new Date(today.getFullYear(), 0, 1);
       startDate = formatLocalDate(firstJan);
       endDate = formatLocalDate(today);
+    } else if (filterType === 'all') {
+      startDate = null;
+      endDate = null;
     }
 
     fetchExpenses(startDate, endDate);
     fetchTopMenus(startDate, endDate);
     fetchFeedback(startDate, endDate);
-  }, [filterType, selectedDate]);
+  }, [filterType]);
 
   const fetchTopMenus = async (start, end) => {
     try {
@@ -167,32 +166,26 @@ const ReportPage = () => {
   // ดึงข้อมูลรายงานยอดขายตามช่วงเวลา
   const fetchSalesReport = async () => {
     try {
-      let res;
+      let params = {};
 
-      if (filterType === 'custom' && selectedDate) {
-        const date = selectedDate.toISOString().split('T')[0];
-        res = await axios.get(`${API_BASE}/sales_by_date.php`, {
-          params: {
-            period: 'custom',
-            start_date: date,
-            end_date: date,
-          },
-        });
-      } else if (filterType === 'day') {
+      if (filterType === 'day') {
         const today = new Date().toISOString().split('T')[0];
-        res = await axios.get(`${API_BASE}/sales_by_date.php`, {
-          params: {
-            period: 'custom',
-            start_date: today,
-            end_date: today,
-          },
-        });
-      } else {
-        res = await axios.get(`${API_BASE}/sales_by_date.php`, {
-          params: { period: filterType }
-        });
+        params = { period: 'custom', start_date: today, end_date: today };
+      } else if (filterType === 'week') {
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+        params = { period: 'custom', start_date: monday.toISOString().split('T')[0], end_date: today.toISOString().split('T')[0] };
+      } else if (filterType === 'month') {
+        params = { period: 'month' };
+      } else if (filterType === 'year') {
+        params = { period: 'year' };
+      } else if (filterType === 'all') {
+        params = { period: 'all' };
       }
 
+      const res = await axios.get(`${API_BASE}/sales_by_date.php`, { params });
       setSalesByDate(res.data.sales || []);
       setSummary(res.data.summary || {});
     } catch (error) {
@@ -203,28 +196,37 @@ const ReportPage = () => {
   // ดึงข้อมูลยอดขายแยกตามเมนู
   const fetchMenuSales = async () => {
     try {
+      const today = new Date();
       let start, end;
 
-      if (filterType === 'custom' && selectedDate) {
-        start = end = selectedDate.toISOString().split('T')[0];
-      } else if (filterType === 'day') {
-        start = end = new Date().toISOString().split('T')[0];
-      } else {
-        const now = new Date();
-        end = now.toISOString().split('T')[0];
-        const past = new Date();
-        past.setDate(now.getDate() - 30);
-        start = past.toISOString().split('T')[0];
+      if (filterType === 'day') {
+        start = end = today.toISOString().split('T')[0];
+      } else if (filterType === 'week') {
+        const dayOfWeek = today.getDay();
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+        start = monday.toISOString().split('T')[0];
+        end = today.toISOString().split('T')[0];
+      } else if (filterType === 'month') {
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        start = firstDay.toISOString().split('T')[0];
+        end = today.toISOString().split('T')[0];
+      } else if (filterType === 'year') {
+        const firstJan = new Date(today.getFullYear(), 0, 1);
+        start = firstJan.toISOString().split('T')[0];
+        end = today.toISOString().split('T')[0];
+      } else if (filterType === 'all') {
+        start = end = null;
       }
 
       const res = await axios.get(`${API_BASE}/sales_by_menu.php`, {
-        params: { start_date: start, end_date: end },
+        params: start && end ? { start_date: start, end_date: end } : {},
       });
 
       const formatted = res.data.map((item) => ({
         menu_name: item.name,
         total_sales: parseFloat(item.total_sales),
-        total_cost: parseFloat(item.total_cost), // <-- เพิ่มต้นทุนรวมของเมนู
+        total_cost: parseFloat(item.total_cost),
       }));
 
       setMenuSales(formatted);
@@ -280,16 +282,13 @@ const ReportPage = () => {
                 { key: 'week', label: 'รายสัปดาห์', icon: <DateRange /> },
                 { key: 'month', label: 'รายเดือน', icon: <CalendarMonth /> },
                 { key: 'year', label: 'รายปี', icon: <Schedule /> },
-                { key: 'custom', label: 'กำหนดเอง', },
+                { key: 'all', label: 'ทั้งหมด' },
               ].map((item) => (
                 <Chip
                   key={item.key}
                   label={item.label}
                   icon={item.icon || null}
-                  onClick={() => {
-                    setFilterType(item.key);
-                    if (item.key !== 'custom') setSelectedDate(null);
-                  }}
+                  onClick={() => setFilterType(item.key)}
                   color={getFilterChipColor(item.key)}
                   variant={getFilterChipVariant(item.key)}
                   sx={{
@@ -302,26 +301,6 @@ const ReportPage = () => {
                 />
               ))}
             </Stack>
-
-            {/* ตัวเลือกวันที่แบบกำหนดเอง */}
-            {filterType === 'custom' && (
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={thLocale}>
-                <Box sx={{ mt: 2 }}>
-                  <DatePicker
-                    label="เลือกวันที่"
-                    value={selectedDate}
-                    onChange={(newValue) => setSelectedDate(newValue)}
-                    format="yyyy-MM-dd"
-                    sx={{
-                      '& .MuiInputBase-root': {
-                        height: 56,
-                        fontSize: '16px',
-                      },
-                    }}
-                  />
-                </Box>
-              </LocalizationProvider>
-            )}
           </CardContent>
         </Card>
 
@@ -556,7 +535,7 @@ const ReportPage = () => {
           </Grid>
         </Grid>
       </Grid>
-      
+
     </Box>
   );
 };

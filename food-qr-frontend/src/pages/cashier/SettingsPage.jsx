@@ -551,7 +551,7 @@ const SettingsPage = () => {
               </Card>
 
               {/* เมนูแนะนำ */}
-              <Card sx={{ boxShadow: 3 }}>
+              {/* <Card sx={{ boxShadow: 3 }}>
                 <CardContent sx={{ p: 3 }}>
                   <Box display="flex" alignItems="center" justify="space-between" mb={3}>
                     <Box display="flex" alignItems="center" gap={2}>
@@ -618,7 +618,7 @@ const SettingsPage = () => {
                     เลือกเมนูแนะนำ
                   </Button>
                 </CardContent>
-              </Card>
+              </Card> */}
             </Stack>
           </Grid>
         </Grid>

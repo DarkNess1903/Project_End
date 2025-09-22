@@ -34,6 +34,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import thLocale from 'date-fns/locale/th';
 
 // ธีม Business/Dashboard สำหรับ iPad
 const cashierTheme = createTheme({
@@ -135,13 +138,17 @@ const cashierTheme = createTheme({
 const OrderListPage = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [filter, setFilter] = useState('week');
   const [customDate, setCustomDate] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderItems, setOrderItems] = useState([]);
   const [orderPage, setOrderPage] = useState(1);
   const rowsPerPage = 5;
+  const [filter, setFilter] = useState('day'); // default = วัน
+  const today = new Date();
+  const [selectedDay, setSelectedDay] = useState(today);
+  const [selectedMonth, setSelectedMonth] = useState(today);
+  const [selectedYear, setSelectedYear] = useState(today);
 
 
   useEffect(() => {
@@ -198,36 +205,31 @@ const OrderListPage = () => {
   };
 
   const filterOrders = () => {
-    const now = new Date();
-    let filtered = [];
+    let filtered = orders;
 
     filtered = orders.filter(order => {
       const orderDate = new Date(order.OrderTime);
 
-      if (filter === 'today') {
+      if (filter === 'day') {
+        const day = selectedDay || new Date();
         return (
-          orderDate.getDate() === now.getDate() &&
-          orderDate.getMonth() === now.getMonth() &&
-          orderDate.getFullYear() === now.getFullYear()
+          orderDate.getDate() === day.getDate() &&
+          orderDate.getMonth() === day.getMonth() &&
+          orderDate.getFullYear() === day.getFullYear()
         );
-      } else if (filter === 'week') {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(now.getDate() - 7);
-        return orderDate >= oneWeekAgo;
-      } else if (filter === 'month') {
+      }
+
+      if (filter === 'month') {
+        const month = selectedMonth || new Date();
         return (
-          orderDate.getMonth() === now.getMonth() &&
-          orderDate.getFullYear() === now.getFullYear()
+          orderDate.getMonth() === month.getMonth() &&
+          orderDate.getFullYear() === month.getFullYear()
         );
-      } else if (filter === 'year') {
-        return orderDate.getFullYear() === now.getFullYear();
-      } else if (filter === 'custom' && customDate) {
-        const selectedDate = new Date(customDate);
-        return (
-          orderDate.getDate() === selectedDate.getDate() &&
-          orderDate.getMonth() === selectedDate.getMonth() &&
-          orderDate.getFullYear() === selectedDate.getFullYear()
-        );
+      }
+
+      if (filter === 'year') {
+        const year = selectedYear || new Date();
+        return orderDate.getFullYear() === year.getFullYear();
       }
 
       return true;
@@ -262,6 +264,17 @@ const OrderListPage = () => {
     }).format(amount);
   };
 
+  const paymentMethodMap = {
+    cash: 'ชำระเงินสด',
+    qr: 'สแกนจ่าย',
+    credit: 'บัตรเครดิต',
+    bank: 'โอนธนาคาร',
+  };
+
+  const getPaymentMethodLabel = (method) => {
+    return paymentMethodMap[method] || 'ไม่ระบุ';
+  };
+
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
     return {
@@ -276,6 +289,7 @@ const OrderListPage = () => {
       }),
     };
   };
+
 
   return (
     <ThemeProvider theme={cashierTheme}>
@@ -316,21 +330,51 @@ const OrderListPage = () => {
                 },
               }}
             >
-              <ToggleButton value="today">วันนี้</ToggleButton>
-              <ToggleButton value="week">สัปดาห์นี้</ToggleButton>
-              <ToggleButton value="month">เดือนนี้</ToggleButton>
-              <ToggleButton value="year">ปีนี้</ToggleButton>
-              <ToggleButton value="custom">กำหนดเอง</ToggleButton>
+              <ToggleButton value="day">วัน</ToggleButton>
+              <ToggleButton value="month">เดือน</ToggleButton>
+              <ToggleButton value="year">ปี</ToggleButton>
             </ToggleButtonGroup>
-            {filter === 'custom' && (
-              <TextField
-                type="date"
-                value={customDate}
-                onChange={(e) => setCustomDate(e.target.value)}
-                sx={{ mt: 2 }}
-                fullWidth
-              />
-            )}
+
+            {/* Date / Month / Year Picker */}
+            <LocalizationProvider dateAdapter={AdapterDateFns} locale={thLocale}>
+              {/* เลือกวัน */}
+              {filter === 'day' && (
+                <DatePicker
+                  label="เลือกวัน"
+                  value={selectedDay || new Date()}
+                  onChange={(newValue) => setSelectedDay(newValue)}
+                  inputFormat="dd/MM/yyyy"  // รูปแบบไทย
+                  mask="__/__/____"          // ให้พิมพ์ได้ตรง format
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              )}
+
+              {/* เลือกเดือน */}
+              {filter === 'month' && (
+                <DatePicker
+                  views={['year', 'month']}
+                  label="เลือกเดือน"
+                  value={selectedMonth || new Date()} // ถ้ายังไม่เลือก → แสดงเดือนปัจจุบัน
+                  onChange={(newValue) => setSelectedMonth(newValue)}
+                  inputFormat="MM/yyyy"
+                  mask="__/____"
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              )}
+
+              {/* เลือกปี */}
+              {filter === 'year' && (
+                <DatePicker
+                  views={['year']}
+                  label="เลือกปี"
+                  value={selectedYear || new Date()} // ถ้ายังไม่เลือก → แสดงปีปัจจุบัน
+                  onChange={(newValue) => setSelectedYear(newValue)}
+                  inputFormat="yyyy"
+                  mask="____"
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                />
+              )}
+            </LocalizationProvider>
 
             {/* Summary Stats */}
             <Stack direction="row" spacing={3} mt={3}>
@@ -397,7 +441,7 @@ const OrderListPage = () => {
                           <TableCell>{time}</TableCell>
                           <TableCell>
                             <Chip
-                              label={order.PaymentMethod || 'ไม่ระบุ'}
+                              label={getPaymentMethodLabel(order.PaymentMethod)}
                               color={getPaymentMethodColor(order.PaymentMethod)}
                               size="small"
                               icon={<PaymentIcon />}
