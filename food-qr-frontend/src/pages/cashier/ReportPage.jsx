@@ -21,7 +21,8 @@ import {
   Paper,
   Rating,
   CircularProgress,
-  Pagination
+  Pagination,
+  TextField
 } from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -71,6 +72,9 @@ const ReportPage = () => {
   const [topMenus, setTopMenus] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDay, setSelectedDay] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedYear, setSelectedYear] = useState(new Date());
 
   const totalCostMenus = menuSales.reduce((sum, item) => sum + item.total_cost, 0);
   const netProfit = summary.total_sales - summary.total_cost - totalExpense;
@@ -89,37 +93,37 @@ const ReportPage = () => {
   };
 
   useEffect(() => {
-    fetchSalesReport();
-    fetchMenuSales();
-
-    const today = new Date();
     let startDate, endDate;
 
-    if (filterType === 'day') {
-      startDate = endDate = formatLocalDate(today);
+    if (filterType === 'day' && selectedDay) {
+      startDate = endDate = selectedDay.toISOString().split('T')[0];
     } else if (filterType === 'week') {
+      const today = new Date();
       const dayOfWeek = today.getDay();
       const monday = new Date(today);
-      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7)); // วันจันทร์
-      startDate = formatLocalDate(monday);
-      endDate = formatLocalDate(today);
-    } else if (filterType === 'month') {
-      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-      startDate = formatLocalDate(firstDay);
-      endDate = formatLocalDate(today);
-    } else if (filterType === 'year') {
-      const firstJan = new Date(today.getFullYear(), 0, 1);
-      startDate = formatLocalDate(firstJan);
-      endDate = formatLocalDate(today);
+      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+      startDate = monday.toISOString().split('T')[0];
+      endDate = new Date().toISOString().split('T')[0];
+    } else if (filterType === 'month' && selectedMonth) {
+      const firstDay = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
+      const lastDay = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0);
+      startDate = firstDay.toISOString().split('T')[0];
+      endDate = lastDay.toISOString().split('T')[0];
+    } else if (filterType === 'year' && selectedYear) {
+      const firstJan = new Date(selectedYear.getFullYear(), 0, 1);
+      const lastDec = new Date(selectedYear.getFullYear(), 11, 31);
+      startDate = firstJan.toISOString().split('T')[0];
+      endDate = lastDec.toISOString().split('T')[0];
     } else if (filterType === 'all') {
-      startDate = null;
-      endDate = null;
+      startDate = endDate = null;
     }
 
+    fetchSalesReport(startDate, endDate);
+    fetchMenuSales(startDate, endDate);
     fetchExpenses(startDate, endDate);
     fetchTopMenus(startDate, endDate);
     fetchFeedback(startDate, endDate);
-  }, [filterType]);
+  }, [filterType, selectedDay, selectedMonth, selectedYear]);
 
   const fetchTopMenus = async (start, end) => {
     try {
@@ -164,27 +168,9 @@ const ReportPage = () => {
   };
 
   // ดึงข้อมูลรายงานยอดขายตามช่วงเวลา
-  const fetchSalesReport = async () => {
+  const fetchSalesReport = async (startDate, endDate) => {
     try {
-      let params = {};
-
-      if (filterType === 'day') {
-        const today = new Date().toISOString().split('T')[0];
-        params = { period: 'custom', start_date: today, end_date: today };
-      } else if (filterType === 'week') {
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-        const monday = new Date(today);
-        monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-        params = { period: 'custom', start_date: monday.toISOString().split('T')[0], end_date: today.toISOString().split('T')[0] };
-      } else if (filterType === 'month') {
-        params = { period: 'month' };
-      } else if (filterType === 'year') {
-        params = { period: 'year' };
-      } else if (filterType === 'all') {
-        params = { period: 'all' };
-      }
-
+      const params = startDate && endDate ? { period: 'custom', start_date: startDate, end_date: endDate } : { period: filterType };
       const res = await axios.get(`${API_BASE}/sales_by_date.php`, { params });
       setSalesByDate(res.data.sales || []);
       setSummary(res.data.summary || {});
@@ -201,12 +187,6 @@ const ReportPage = () => {
 
       if (filterType === 'day') {
         start = end = today.toISOString().split('T')[0];
-      } else if (filterType === 'week') {
-        const dayOfWeek = today.getDay();
-        const monday = new Date(today);
-        monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-        start = monday.toISOString().split('T')[0];
-        end = today.toISOString().split('T')[0];
       } else if (filterType === 'month') {
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
         start = firstDay.toISOString().split('T')[0];
@@ -279,7 +259,6 @@ const ReportPage = () => {
             <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
               {[
                 { key: 'day', label: 'รายวัน', icon: <CalendarToday /> },
-                { key: 'week', label: 'รายสัปดาห์', icon: <DateRange /> },
                 { key: 'month', label: 'รายเดือน', icon: <CalendarMonth /> },
                 { key: 'year', label: 'รายปี', icon: <Schedule /> },
                 { key: 'all', label: 'ทั้งหมด' },
@@ -300,6 +279,40 @@ const ReportPage = () => {
                   }}
                 />
               ))}
+
+              <LocalizationProvider dateAdapter={AdapterDateFns} locale={thLocale}>
+                {filterType === 'day' && (
+                  <DatePicker
+                    label="เลือกวัน"
+                    value={selectedDay}
+                    onChange={(newValue) => setSelectedDay(newValue)}
+                    inputFormat="dd/MM/yyyy"
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mt: 2 }} />}
+                  />
+                )}
+
+                {filterType === 'month' && (
+                  <DatePicker
+                    views={['year', 'month']}
+                    label="เลือกเดือน"
+                    value={selectedMonth}
+                    onChange={(newValue) => setSelectedMonth(newValue)}
+                    inputFormat="MM/yyyy"
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mt: 2 }} />}
+                  />
+                )}
+
+                {filterType === 'year' && (
+                  <DatePicker
+                    views={['year']}
+                    label="เลือกปี"
+                    value={selectedYear}
+                    onChange={(newValue) => setSelectedYear(newValue)}
+                    inputFormat="yyyy"
+                    renderInput={(params) => <TextField {...params} fullWidth sx={{ mt: 2 }} />}
+                  />
+                )}
+              </LocalizationProvider>
             </Stack>
           </CardContent>
         </Card>
@@ -535,7 +548,6 @@ const ReportPage = () => {
           </Grid>
         </Grid>
       </Grid>
-
     </Box>
   );
 };

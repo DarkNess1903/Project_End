@@ -44,6 +44,11 @@ import {
 } from '@mui/icons-material';
 import { format, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { th } from 'date-fns/locale';
+
 // Custom theme colors for iPad cashier (consistent with ReportPage)
 const theme = {
   colors: {
@@ -69,14 +74,18 @@ const ExpensePage = () => {
     ExpenseType: '',
     ExpenseDate: format(new Date(), 'yyyy-MM-dd'),
   });
-  const [filter, setFilter] = useState({
-    startDate: '',
-    endDate: '',
-    type: '',
-    quickFilter: '', // เพิ่ม state สำหรับ quick filter
-  });
+
+  const [filter, setFilter] = useState("day"); // day | month | year
+  const [selectedDay, setSelectedDay] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedYear, setSelectedYear] = useState(new Date());
+
   const [showAddForm, setShowAddForm] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+
+  const handleFilterChange = (event, newFilter) => {
+    if (newFilter !== null) setFilter(newFilter);
+  };
 
   const expenseTypes = [
     'วัตถุดิบ',
@@ -90,41 +99,6 @@ const ExpensePage = () => {
     'ซ่อมแซม',
     'อื่นๆ'
   ];
-
-  // ฟังก์ชันสำหรับ quick date filters
-  const handleQuickFilter = (period) => {
-    const now = new Date();
-    let startDate, endDate;
-
-    switch (period) {
-      case 'today':
-        startDate = startOfDay(now);
-        endDate = endOfDay(now);
-        break;
-      case 'week':
-        startDate = startOfWeek(now, { weekStartsOn: 1 }); // เริ่มต้นที่วันจันทร์
-        endDate = endOfWeek(now, { weekStartsOn: 1 });
-        break;
-      case 'month':
-        startDate = startOfMonth(now);
-        endDate = endOfMonth(now);
-        break;
-      case 'year':
-        startDate = startOfYear(now);
-        endDate = endOfYear(now);
-        break;
-      default:
-        startDate = '';
-        endDate = '';
-    }
-
-    setFilter({
-      ...filter,
-      startDate: startDate ? format(startDate, 'yyyy-MM-dd') : '',
-      endDate: endDate ? format(endDate, 'yyyy-MM-dd') : '',
-      quickFilter: period
-    });
-  };
 
   const fetchExpenses = async () => {
     try {
@@ -188,6 +162,38 @@ const ExpensePage = () => {
   const total = expenses.reduce((sum, exp) => sum + parseFloat(exp.Amount || 0), 0);
   const formatCurrency = (value) => `฿${Number(value || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
 
+  // ฟังก์ชันกรองรายการตามช่วงเวลา
+  const filteredExpenses = expenses.filter((exp) => {
+    const expenseDate = new Date(exp.ExpenseDate);
+
+    if (filter === "day" && selectedDay) {
+      return (
+        expenseDate.getFullYear() === selectedDay.getFullYear() &&
+        expenseDate.getMonth() === selectedDay.getMonth() &&
+        expenseDate.getDate() === selectedDay.getDate()
+      );
+    }
+
+    if (filter === "month" && selectedMonth) {
+      return (
+        expenseDate.getFullYear() === selectedMonth.getFullYear() &&
+        expenseDate.getMonth() === selectedMonth.getMonth()
+      );
+    }
+
+    if (filter === "year" && selectedYear) {
+      return expenseDate.getFullYear() === selectedYear.getFullYear();
+    }
+
+    return true; // ถ้าไม่ได้เลือก filter
+  });
+
+  // คำนวณยอดรวมจากรายการที่กรองแล้ว
+  const totalFiltered = filteredExpenses.reduce(
+    (sum, exp) => sum + parseFloat(exp.Amount || 0),
+    0
+  );
+
   return (
     <Box sx={{
       minHeight: '100vh',
@@ -217,31 +223,82 @@ const ExpensePage = () => {
               </Typography>
             </Box>
 
-            {/* Quick Filter Chips */}
-            <Stack direction="row" spacing={2} mb={3} flexWrap="wrap" useFlexGap>
-              {[
-                { key: 'today', label: 'รายวัน', icon: <Today /> },
-                { key: 'week', label: 'รายสัปดาห์', icon: <DateRange /> },
-                { key: 'month', label: 'รายเดือน', icon: <CalendarMonth /> },
-                { key: 'year', label: 'รายปี', icon: <Schedule /> },
-                { key: 'all', label: 'ทั้งหมด', icon: null },
-              ].map((item) => (
-                <Chip
-                  key={item.key}
-                  label={item.label}
-                  icon={item.icon || null}
-                  onClick={() => handleQuickFilter(item.key === 'all' ? '' : item.key)}
-                  color={filter.quickFilter === item.key || (item.key === 'all' && !filter.quickFilter) ? 'primary' : 'default'}
-                  variant={filter.quickFilter === item.key || (item.key === 'all' && !filter.quickFilter) ? 'filled' : 'outlined'}
-                  sx={{
-                    height: 48,
-                    fontSize: '16px',
+            <Stack spacing={3}>
+              {/* Filter Buttons */}
+              <ToggleButtonGroup
+                value={filter}
+                exclusive
+                onChange={handleFilterChange}
+                sx={{
+                  '& .MuiToggleButton-root': {
+                    px: 3,
+                    py: 1.5,
+                    fontSize: '1rem',
                     fontWeight: 500,
-                    px: 2,
-                    '& .MuiChip-label': { px: 1 },
-                  }}
-                />
-              ))}
+                    minWidth: 120,
+                    border: '2px solid',
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
+                    '&.Mui-selected': {
+                      backgroundColor: 'primary.main',
+                      color: 'white',
+                      '&:hover': { backgroundColor: 'primary.dark' },
+                    },
+                    '&:hover': { backgroundColor: 'primary.light', color: 'white' },
+                  },
+                }}
+              >
+                <ToggleButton value="day">วัน</ToggleButton>
+                <ToggleButton value="month">เดือน</ToggleButton>
+                <ToggleButton value="year">ปี</ToggleButton>
+
+                {/* Date / Month / Year Picker */}
+                <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
+                  {/* เลือกวัน */}
+                  {filter === "day" && (
+                    <DatePicker
+                      label="เลือกวัน"
+                      value={selectedDay}
+                      onChange={(newValue) => setSelectedDay(newValue)}
+                      inputFormat="dd/MM/yyyy"
+                      mask="__/__/____"
+                      renderInput={(params) => <TextField
+                        {...params}
+                        fullWidth
+                        value={selectedDay ? format(selectedDay, 'dd/MM/yyyy') : ''}
+                        onChange={() => { }}
+                      />
+                      }
+                    />
+                  )}
+
+                  {/* เลือกเดือน */}
+                  {filter === "month" && (
+                    <DatePicker
+                      views={['year', 'month']}
+                      label="เลือกเดือน"
+                      value={selectedMonth}
+                      onChange={(newValue) => setSelectedMonth(newValue)}
+                      inputFormat="MM/yyyy"
+                      mask="__/____"
+                      renderInput={(params) => <TextField {...params} fullWidth />}
+                    />
+                  )}
+
+                  {/* เลือกปี */}
+                  {filter === "year" && (
+                    <DatePicker
+                      views={['year']}
+                      label="เลือกปี"
+                      value={selectedYear}
+                      onChange={(newValue) => setSelectedYear(newValue)}
+                      inputFormat="yyyy"
+                      mask="____"
+                      renderInput={(params) => <TextField {...params} fullWidth />}
+                    />
+                  )}
+                </LocalizationProvider>
+              </ToggleButtonGroup>
             </Stack>
           </CardContent>
         </Card>
@@ -395,7 +452,7 @@ const ExpensePage = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {expenses.length === 0 ? (
+                  {filteredExpenses.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={4} align="center" sx={{ py: 4, color: theme.colors.text.secondary }}>
                         <Typography variant="body1">
@@ -404,7 +461,7 @@ const ExpensePage = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    expenses.map((exp) => (
+                    filteredExpenses.map((exp) => (
                       <TableRow key={exp.ExpenseID} hover>
                         <TableCell sx={{ fontSize: '14px' }}>
                           {format(new Date(exp.ExpenseDate), 'dd/MM/yyyy')}
@@ -427,13 +484,13 @@ const ExpensePage = () => {
                       </TableRow>
                     ))
                   )}
-                  {expenses.length > 0 && (
+                  {filteredExpenses.length > 0 && (
                     <TableRow sx={{ backgroundColor: theme.colors.background }}>
                       <TableCell colSpan={3} align="right" sx={{ fontWeight: 700, fontSize: '18px' }}>
                         รวมทั้งหมด
                       </TableCell>
                       <TableCell align="right" sx={{ fontWeight: 700, fontSize: '18px', color: theme.colors.error }}>
-                        {formatCurrency(total)}
+                        {formatCurrency(totalFiltered)}
                       </TableCell>
                     </TableRow>
                   )}
