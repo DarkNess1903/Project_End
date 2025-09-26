@@ -114,6 +114,19 @@ const PaymentSlipsPage = () => {
                 >
                   {loadingUpload ? 'กำลังอัปโหลด...' : 'อัปโหลดสลิป'}
                 </Button>
+
+                <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
+                  <DatePicker
+                    label="เลือกวันที่แสดงสลิป"
+                    value={selectedDate ? parseISO(selectedDate) : null}
+                    onChange={(newValue) => {
+                      setSelectedDate(newValue ? format(newValue, "yyyy-MM-dd") : "");
+                    }}
+                    inputFormat="dd-MM-yyyy"
+                    renderInput={(params) => <TextField {...params} sx={{ maxWidth: 200 }} />}
+                  />
+                </LocalizationProvider>
+
               </Stack>
               {files.length > 0 && (
                 <Typography variant="body2">ไฟล์ที่เลือก: {files.map(f => f.name).join(', ')}</Typography>
@@ -126,24 +139,13 @@ const PaymentSlipsPage = () => {
         <Card sx={{ boxShadow: 3 }}>
           <CardContent sx={{ p: 3 }}>
             <Stack spacing={2}>
-              <LocalizationProvider dateAdapter={AdapterDateFns} locale={th}>
-                <DatePicker
-                  label="เลือกวันที่แสดงสลิป"
-                  value={selectedDate ? parseISO(selectedDate) : null} // แปลง string เป็น Date
-                  onChange={(newValue) => {
-                    setSelectedDate(newValue ? newValue.toISOString().slice(0, 10) : '');
-                  }}
-                  inputFormat="dd-MM-yyyy" // แสดงวัน/เดือน/ปี
-                  renderInput={(params) => <TextField {...params} sx={{ maxWidth: 200 }} />}
-                />
-              </LocalizationProvider>
 
-              <Typography variant="h6" sx={{ mt: 2 }}>
+              {/* <Typography variant="h6" sx={{ mt: 2 }}>
                 รายการสลิปวันที่{' '}
                 {selectedDate
                   ? format(parseISO(selectedDate), 'dd/MM/yyyy', { locale: th }) // แสดงเป็น DD/MM/YYYY ภาษาไทย
                   : '-'}
-              </Typography>
+              </Typography> */}
 
               {loadingSlips ? (
                 <Typography>กำลังโหลดสลิป...</Typography>

@@ -14,7 +14,7 @@ import {
   DialogActions,
   ButtonGroup,
   Chip,
-  Divider,
+  Divider,  
   Snackbar,
   Alert,
   CircularProgress,
@@ -85,7 +85,7 @@ const CartPage = () => {
       const payload = {
         items: items.map(item => ({
           menu_id: item.MenuID,
-          quantity: item.quantity,
+          quantity: Number(item.quantity), // ให้แน่ใจว่าเป็น number
           note: item.note || ''
         }))
       };
@@ -561,6 +561,7 @@ const CartPage = () => {
                         handleOrder();
                       }
                     }}
+                    disabled={loading || items.length === 0}
                     sx={{ cursor: 'pointer', userSelect: 'none' }}
                   >
                     <CheckCircleIcon />

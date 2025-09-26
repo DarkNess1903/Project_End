@@ -35,6 +35,7 @@ $conn->begin_transaction();
 
 try {
     $print_items = [];
+    $total_add = 0;
 
     foreach ($items as $item) {
         $menu_id = intval($item['menu_id']);
@@ -43,7 +44,6 @@ try {
 
         // ดึงข้อมูลเมนู
         $menuQuery = $conn->prepare("SELECT Name, Price, Cost FROM Menu WHERE MenuID = ?");
-        if (!$menuQuery) throw new Exception($conn->error);
         $menuQuery->bind_param("i", $menu_id);
         $menuQuery->execute();
         $result = $menuQuery->get_result();
@@ -54,7 +54,36 @@ try {
 
         $price = floatval($menu['Price']);
         $cost = floatval($menu['Cost']);
-        $subtotal = $price * $quantity;
+
+        // 🔍 เช็คว่าเมนูนี้มีอยู่ในออร์เดอร์แล้วหรือไม่
+        $check = $conn->prepare("SELECT OrderItemID, Quantity FROM OrderItem WHERE OrderID = ? AND MenuID = ?");
+        $check->bind_param("ii", $order_id, $menu_id);
+        $check->execute();
+        $resCheck = $check->get_result();
+        $exists = $resCheck->fetch_assoc();
+        $check->close();
+
+        if ($exists) {
+            // ถ้ามีแล้ว → update จำนวนและ SubTotal
+            $newQty = $exists['Quantity'] + $quantity;
+            $newSubtotal = $price * $newQty;
+
+            $update = $conn->prepare("UPDATE OrderItem SET Quantity = ?, SubTotal = ? WHERE OrderItemID = ?");
+            $update->bind_param("idi", $newQty, $newSubtotal, $exists['OrderItemID']);
+            $update->execute();
+            $update->close();
+
+            $subtotal = $price * $quantity; // ส่วนนี้เพิ่มเข้าราคารวม order
+        } else {
+            // ถ้าไม่มี → insert ใหม่
+            $subtotal = $price * $quantity;
+
+            $stmt = $conn->prepare("INSERT INTO OrderItem (OrderID, MenuID, Quantity, SubTotal, Cost, Note) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("iiidss", $order_id, $menu_id, $quantity, $subtotal, $cost, $note);
+            $stmt->execute();
+            $stmt->close();
+        }
+
         $total_add += $subtotal;
 
         $print_items[] = [
@@ -63,38 +92,22 @@ try {
             "note" => $note,
             "cost" => $cost
         ];
-
-        // เพิ่ม OrderItem
-        $stmt = $conn->prepare("INSERT INTO OrderItem (OrderID, MenuID, Quantity, SubTotal, Cost, Note) VALUES (?, ?, ?, ?, ?, ?)");
-        if (!$stmt) throw new Exception($conn->error);
-        $stmt->bind_param("iiidss", $order_id, $menu_id, $quantity, $subtotal, $cost, $note);
-        $stmt->execute();
-        $stmt->close();
     }
 
     // อัปเดตราคารวม order
     $stmt_total = $conn->prepare("UPDATE `orders` SET TotalAmount = TotalAmount + ? WHERE OrderID = ?");
-    if (!$stmt_total) throw new Exception($conn->error);
     $stmt_total->bind_param("di", $total_add, $order_id);
     $stmt_total->execute();
     $stmt_total->close();
 
     $conn->commit();
 
-    // สร้าง PDF ใบสั่งครัว
-    $receiptFile = generateKitchenReceiptPDF($order_id, $print_items, 0);
-
-    // พิมพ์จริงเข้าครัว (ถ้าต้องการเปิดใช้งานให้เอาคอมเมนต์ออก)
-    // printKitchenReceipt($order_id, $print_items, 0);
-
     echo json_encode([
         "success" => true,
         "order_id" => $order_id,
         "added_amount" => $total_add,
-        "pdf" => $receiptFile,
         "message" => "เพิ่มรายการอาหารเรียบร้อย"
     ]);
-
 } catch (Exception $e) {
     $conn->rollback();
     http_response_code(500);
@@ -146,7 +159,8 @@ function generateKitchenReceiptPDF($order_id, $items, $table_id, $width_mm = 58)
 // ======================
 // ฟังก์ชันพิมพ์จริงเข้าครัว (option)
 // ======================
-function printKitchenReceipt($order_id, $items, $table_id) {
+function printKitchenReceipt($order_id, $items, $table_id)
+{
     $printer_ip = "192.168.1.100"; // ใส่ IP เครื่องพิมพ์ครัว
     $printer_port = 9100;
 
@@ -158,7 +172,7 @@ function printKitchenReceipt($order_id, $items, $table_id) {
 
     fwrite($fp, "***** ใบสั่งครัว *****\n");
     fwrite($fp, "Order ID: $order_id\n");
-    fwrite($fp, date("Y-m-d H:i:s")."\n");
+    fwrite($fp, date("Y-m-d H:i:s") . "\n");
     fwrite($fp, "---------------------------\n");
 
     foreach ($items as $item) {

@@ -195,8 +195,6 @@ const ReportPage = () => {
         const firstJan = new Date(today.getFullYear(), 0, 1);
         start = firstJan.toISOString().split('T')[0];
         end = today.toISOString().split('T')[0];
-      } else if (filterType === 'all') {
-        start = end = null;
       }
 
       const res = await axios.get(`${API_BASE}/sales_by_menu.php`, {
@@ -261,7 +259,6 @@ const ReportPage = () => {
                 { key: 'day', label: 'รายวัน', icon: <CalendarToday /> },
                 { key: 'month', label: 'รายเดือน', icon: <CalendarMonth /> },
                 { key: 'year', label: 'รายปี', icon: <Schedule /> },
-                { key: 'all', label: 'ทั้งหมด' },
               ].map((item) => (
                 <Chip
                   key={item.key}

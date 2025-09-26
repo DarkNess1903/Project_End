@@ -290,7 +290,6 @@ const OrderListPage = () => {
     };
   };
 
-
   return (
     <ThemeProvider theme={cashierTheme}>
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default', py: 3 }}>
@@ -377,7 +376,7 @@ const OrderListPage = () => {
             </LocalizationProvider>
 
             {/* Summary Stats */}
-            <Stack direction="row" spacing={3} mt={3}>
+            <Stack direction="row" spacing={3} mt={3} flexWrap="wrap">
               <Box>
                 <Typography variant="body2" color="text.secondary">
                   จำนวนออเดอร์
@@ -386,9 +385,10 @@ const OrderListPage = () => {
                   {filteredOrders.length} รายการ
                 </Typography>
               </Box>
+
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  ยอดรวม
+                  ยอดรวมทั้งหมด
                 </Typography>
                 <Typography variant="h6" color="success.main" fontWeight="bold">
                   {formatCurrency(
@@ -396,6 +396,24 @@ const OrderListPage = () => {
                   )}
                 </Typography>
               </Box>
+
+              {/* แสดงยอดตามประเภทการชำระเงิน */}
+              {Object.entries(
+                filteredOrders.reduce((acc, order) => {
+                  const method = getPaymentMethodLabel(order.PaymentMethod);
+                  acc[method] = (acc[method] || 0) + Number(order.TotalAmount);
+                  return acc;
+                }, {})
+              ).map(([method, total]) => (
+                <Box key={method}>
+                  <Typography variant="body2" color="text.secondary">
+                    {method}
+                  </Typography>
+                  <Typography variant="h6" color="secondary.main" fontWeight="bold">
+                    {formatCurrency(total)}
+                  </Typography>
+                </Box>
+              ))}
             </Stack>
           </Paper>
 
