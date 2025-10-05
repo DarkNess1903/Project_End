@@ -74,6 +74,11 @@ const PaymentPage = () => {
   const [discountDialog, setDiscountDialog] = useState(false);
   const [manualDiscount, setManualDiscount] = useState('');
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   // Preset cash amounts for quick selection
   const quickCashAmounts = [100, 200, 500, 1000];
@@ -208,6 +213,34 @@ const PaymentPage = () => {
       </Box>
     );
   }
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  const handlePrintReceipt = (orderId) => {
+    if (!orderId) return;
+
+    try {
+      // เปิด PDF ใบเสร็จในแท็บใหม่
+      const url = `http://localhost/project_END/restaurant-backend/generate_receipt.php?order_id=${orderId}`;
+      window.open(url, "_blank");
+
+      // แจ้งเตือนบนหน้าจอ
+      setSnackbar({
+        open: true,
+        message: `📄 พิมพ์ใบเสร็จสำหรับ Order #${orderId} แล้ว`,
+        severity: "success",
+      });
+    } catch (err) {
+      console.error(err);
+      setSnackbar({
+        open: true,
+        message: "❌ เกิดข้อผิดพลาดในการพิมพ์ใบเสร็จ",
+        severity: "error",
+      });
+    }
+  };
 
   return (
     <Box sx={{
@@ -388,15 +421,38 @@ const PaymentPage = () => {
                     </Box>
                   )}
 
-                  {/* ปุ่มส่วนลด */}
-                  <Box mt={3} textAlign="right">
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => setDiscountDialog(true)}
-                    >
-                      ใส่ส่วนลด
-                    </Button>
+                  {/* ปุ่มส่วนลด + ปุ่มพิมพ์ใบเสร็จ */}
+                  <Box mt={3}>
+                    <Stack direction="row" spacing={2} justifyContent="flex-end">
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => setDiscountDialog(true)}
+                      >
+                        ใส่ส่วนลด
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<Receipt />}
+                        onClick={() => handlePrintReceipt(orderId)}
+                        disabled={!orderId}
+                      >
+                        พิมพ์ใบเสร็จ
+                      </Button>
+
+                      <Snackbar
+                        open={snackbar.open}
+                        autoHideDuration={3000}
+                        onClose={handleCloseSnackbar}
+                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                      >
+                        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+                          {snackbar.message}
+                        </Alert>
+                      </Snackbar>
+                    </Stack>
                   </Box>
                 </CardContent>
               </Card>

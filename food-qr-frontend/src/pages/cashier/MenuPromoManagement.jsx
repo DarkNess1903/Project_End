@@ -362,7 +362,7 @@ const MenuPromoManagement = () => {
               </TableHead>
               <TableBody>
                 {menus
-                  .slice((page - 1) * rowsPerPage, page * rowsPerPage) // แสดงแค่หน้าปัจจุบัน
+                  .slice((page - 1) * rowsPerPage, page * rowsPerPage)
                   .map((menu) => (
                     <TableRow key={menu.MenuID}>
                       <TableCell>
@@ -387,8 +387,8 @@ const MenuPromoManagement = () => {
                           ดูรายละเอียด
                         </Button>
                       </TableCell>
-                      <TableCell>฿{menu.Price}</TableCell>
-                      <TableCell>{menu.Cost ? `฿${menu.Cost}` : '-'}</TableCell>
+                      <TableCell align="right">฿{menu.Price}</TableCell>
+                      <TableCell align="right">{menu.Cost ? `฿${menu.Cost}` : '-'}</TableCell>
                       <TableCell>
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <Chip
@@ -490,7 +490,7 @@ const MenuPromoManagement = () => {
           </Box>
         </Box>
       )}
-      
+
       {/* Dialog สำหรับเมนู */}
       <Dialog
         open={openDialog && dialogMode === 'menu'}
