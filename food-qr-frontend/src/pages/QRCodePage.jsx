@@ -313,7 +313,7 @@ const TableQRManagement = () => {
                     </Box>
 
                     {/* Status Chip */}
-                    <Chip 
+                    {/* <Chip 
                       icon={statusInfo.icon}
                       label={statusInfo.label}
                       sx={{ 
@@ -324,7 +324,7 @@ const TableQRManagement = () => {
                         fontSize: '14px',
                         height: 32
                       }}
-                    />
+                    /> */}
 
                     {/* QR Code */}
                     <Box 

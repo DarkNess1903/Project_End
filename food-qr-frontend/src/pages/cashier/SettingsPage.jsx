@@ -257,7 +257,7 @@ const SettingsPage = () => {
           <Box display="flex" alignItems="center" gap={2}>
             <Settings sx={{ fontSize: 32 }} />
             <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: '24px' }}>
-              ตั้งค่าร้านอาหาร - แคชเชียร์
+              ตั้งค่าร้านอาหาร
             </Typography>
           </Box>
           <Box display="flex" gap={1}>

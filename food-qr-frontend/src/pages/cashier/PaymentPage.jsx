@@ -267,252 +267,298 @@ const PaymentPage = () => {
         </Toolbar>
       </AppBar>
 
-      <Container maxWidth="xl" sx={{ px: 3 }}>
-        <Grid container spacing={4}>
-          {/* ซ้าย: รายการอาหาร */}
-          <Grid item xs={12} lg={5}>
-            <Card sx={{ boxShadow: 3, height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
-              <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                <Box display="flex" alignItems="center" gap={2} mb={3}>
-                  <Receipt sx={{ color: theme.colors.primary, fontSize: 28 }} />
-                  <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
-                    รายการอาหาร ({orderItems.length} รายการ)
+      <Container
+        maxWidth="xl"
+        sx={{
+          px: 3,
+          py: 2,
+          height: 'calc(100vh - 100px)',
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' }, // มือถือ = แนวตั้ง, จอใหญ่ = ซ้ายขวา
+          gap: 3,
+        }}
+      >
+        {/* ซ้าย: รายการอาหาร */}
+        <Box
+          sx={{
+            flex: { xs: '1 1 auto', md: '0 0 45%' },
+            maxWidth: { md: '45%' },
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+          }}
+        >
+          <Card
+            sx={{
+              boxShadow: 3,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {/* รายการอาหาร scroll ได้ */}
+            <CardContent
+              sx={{
+                flexGrow: 1,
+                p: 3,
+                overflowY: 'auto',
+              }}
+            >
+              <Box display="flex" alignItems="center" gap={2} mb={3}>
+                <Receipt sx={{ color: theme.colors.primary, fontSize: 28 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                  รายการอาหาร ({orderItems.length})
+                </Typography>
+              </Box>
+
+              <List sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {orderItems.map((item, i) => (
+                  <ListItem key={i} sx={{ px: 0, py: 1 }}>
+                    <ListItemAvatar>
+                      <Avatar
+                        variant="rounded"
+                        src={
+                          item.ImageURL
+                            ? `http://localhost/project_END/restaurant-backend/${item.ImageURL}`
+                            : undefined
+                        }
+                        alt={item.name}
+                        sx={{
+                          width: 64,
+                          height: 64,
+                          border: `2px solid ${theme.colors.primary}`,
+                        }}
+                      >
+                        <Receipt />
+                      </Avatar>
+                    </ListItemAvatar>
+
+                    <ListItemText
+                      primary={
+                        <Typography sx={{ fontWeight: 600, fontSize: '16px', mb: 0.5 }}>
+                          {item.name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Typography sx={{ color: theme.colors.text.secondary, fontSize: '14px' }}>
+                          {formatCurrency(item.price)} x {item.quantity} | รวม: {formatCurrency(item.sub_total)}
+                        </Typography>
+                      }
+                      sx={{ ml: 2 }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+
+            {/* 🔥 สรุปยอดอยู่ล่าง Card */}
+            <Box
+              sx={{
+                p: 3,
+                backgroundColor: theme.colors.background,
+                borderTop: '1px solid #e0e0e0',
+                mt: 'auto',
+              }}
+            >
+              <Stack spacing={2}>
+                <Box display="flex" justifyContent="space-between">
+                  <Typography sx={{ fontSize: '16px' }}>ราคารวม:</Typography>
+                  <Typography sx={{ fontSize: '16px', fontWeight: 600 }}>
+                    {formatCurrency(totalPrice)}
                   </Typography>
                 </Box>
 
-                <List sx={{ maxHeight: 'calc(100vh - 400px)', overflow: 'auto' }}>
-                  {orderItems.map((item, i) => (
-                    <ListItem key={i} sx={{ px: 0, py: 1 }}>
-                      <ListItemAvatar>
-                        <Avatar
-                          variant="rounded"
-                          src={item.ImageURL ? `http://localhost/project_END/restaurant-backend/${item.ImageURL}` : undefined}
-                          alt={item.name}
-                          sx={{ width: 64, height: 64, border: `2px solid ${theme.colors.primary}` }}
-                        >
-                          <Receipt />
-                        </Avatar>
-                      </ListItemAvatar>
-
-                      <ListItemText
-                        primary={
-                          <Typography sx={{ fontWeight: 600, fontSize: '16px', mb: 0.5 }}>
-                            {item.name}
-                          </Typography>
-                        }
-                        secondary={
-                          <Typography sx={{ color: theme.colors.text.secondary, fontSize: '14px' }}>
-                            {formatCurrency(item.price)} x {item.quantity} | รวม: {formatCurrency(item.sub_total)}
-                          </Typography>
-                        }
-                        sx={{ ml: 2 }}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
-
-              {/* Summary */}
-              <Box sx={{ p: 3, backgroundColor: theme.colors.background, borderTop: '1px solid #e0e0e0' }}>
-                <Stack spacing={2}>
+                {discount > 0 && (
                   <Box display="flex" justifyContent="space-between">
-                    <Typography sx={{ fontSize: '16px' }}>ราคารวม:</Typography>
-                    <Typography sx={{ fontSize: '16px', fontWeight: 600 }}>
-                      {formatCurrency(totalPrice)}
+                    <Typography sx={{ fontSize: '16px', color: theme.colors.success }}>ส่วนลด:</Typography>
+                    <Typography sx={{ fontSize: '16px', fontWeight: 600, color: theme.colors.success }}>
+                      -{formatCurrency(discount)}
                     </Typography>
                   </Box>
-                  {discount > 0 && (
-                    <Box display="flex" justifyContent="space-between">
-                      <Typography sx={{ fontSize: '16px', color: theme.colors.success }}>ส่วนลด:</Typography>
-                      <Typography sx={{ fontSize: '16px', fontWeight: 600, color: theme.colors.success }}>
-                        -{formatCurrency(discount)}
-                      </Typography>
-                    </Box>
-                  )}
-                  <Divider />
-                  <Box display="flex" justifyContent="space-between">
-                    <Typography sx={{ fontSize: '20px', fontWeight: 700, color: theme.colors.error }}>
-                      ยอดชำระสุทธิ:
-                    </Typography>
-                    <Typography sx={{ fontSize: '24px', fontWeight: 700, color: theme.colors.error }}>
-                      {formatCurrency(finalTotal)}
-                    </Typography>
-                  </Box>
-                </Stack>
+                )}
+
+                <Divider />
+
+                <Box display="flex" justifyContent="space-between">
+                  <Typography sx={{ fontSize: '20px', fontWeight: 700, color: theme.colors.error }}>
+                    ยอดชำระสุทธิ:
+                  </Typography>
+                  <Typography sx={{ fontSize: '24px', fontWeight: 700, color: theme.colors.error }}>
+                    {formatCurrency(finalTotal)}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+          </Card>
+        </Box>
+
+        {/* ขวา: การชำระเงิน */}
+        <Box
+          sx={{
+            flex: { xs: '1 1 auto', md: '0 0 55%' },
+            maxWidth: { md: '55%' },
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+            height: '100%',
+            overflowY: 'auto',
+          }}
+        >
+          {/* คำนวณเงินทอน */}
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" gap={2} mb={3}>
+                <Calculate sx={{ color: theme.colors.warning, fontSize: 28 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                  คำนวณเงินทอน
+                </Typography>
               </Box>
-            </Card>
-          </Grid>
 
-          {/* ขวา: การชำระเงิน */}
-          <Grid item xs={12} lg={7}>
-            <Stack spacing={3}>
-              {/* Payment Calculator */}
-              <Card sx={{ boxShadow: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={3}>
-                    <Calculate sx={{ color: theme.colors.warning, fontSize: 28 }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
-                      คำนวณเงินทอน
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="จำนวนเงินที่ลูกค้าจ่าย (บาท)"
+                    type="number"
+                    fullWidth
+                    value={customerCash}
+                    onChange={(e) => handleCashChange(e.target.value)}
+                    sx={{
+                      '& .MuiInputBase-root': {
+                        height: 64,
+                        fontSize: '18px',
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme.colors.text.secondary }}>
+                      จำนวนเงินแบบด่วน:
                     </Typography>
-                  </Box>
-
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        label="จำนวนเงินที่ลูกค้าจ่าย (บาท)"
-                        type="number"
-                        fullWidth
-                        value={customerCash}
-                        onChange={(e) => handleCashChange(e.target.value)}
-                        sx={{
-                          '& .MuiInputBase-root': {
-                            height: 64,
-                            fontSize: '18px',
-                          }
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Box>
-                        <Typography
-                          variant="body2"
-                          sx={{ mb: 1, color: theme.colors.text.secondary }}
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      {quickCashAmounts.map((amount) => (
+                        <Button
+                          key={amount}
+                          variant="outlined"
+                          size="small"
+                          onClick={() => handleQuickCash(amount)}
+                          sx={{
+                            minWidth: 70,
+                            height: 40,
+                            fontSize: '14px',
+                            borderColor: theme.colors.primary,
+                            color: theme.colors.primary,
+                          }}
                         >
-                          จำนวนเงินแบบด่วน:
-                        </Typography>
-                        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                          {quickCashAmounts.map(amount => (
-                            <Button
-                              key={amount}
-                              variant="outlined"
-                              size="small"
-                              onClick={() => handleQuickCash(amount)}
-                              sx={{
-                                minWidth: 70,
-                                height: 40,
-                                fontSize: '14px',
-                                borderColor: theme.colors.primary,
-                                color: theme.colors.primary
-                              }}
-                            >
-                              {amount}฿
-                            </Button>
-                          ))}
-                        </Stack>
-                      </Box>
-                    </Grid>
-                  </Grid>
-
-                  {customerCash && (
-                    <Box mt={3} p={2} sx={{
-                      backgroundColor: theme.colors.background,
-                      borderRadius: 2
-                    }}>
-                      <Typography
-                        variant="h5"
-                        sx={{
-                          fontWeight: 700,
-                          color: change >= 0 ? theme.colors.success : theme.colors.error,
-                          textAlign: 'center'
-                        }}
-                      >
-                        เงินทอน: {change >= 0 ? formatCurrency(change) : 'ไม่เพียงพอ'}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* ปุ่มส่วนลด + ปุ่มพิมพ์ใบเสร็จ */}
-                  <Box mt={3}>
-                    <Stack direction="row" spacing={2} justifyContent="flex-end">
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => setDiscountDialog(true)}
-                      >
-                        ใส่ส่วนลด
-                      </Button>
-
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        startIcon={<Receipt />}
-                        onClick={() => handlePrintReceipt(orderId)}
-                        disabled={!orderId}
-                      >
-                        พิมพ์ใบเสร็จ
-                      </Button>
-
-                      <Snackbar
-                        open={snackbar.open}
-                        autoHideDuration={3000}
-                        onClose={handleCloseSnackbar}
-                        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                      >
-                        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-                          {snackbar.message}
-                        </Alert>
-                      </Snackbar>
+                          {amount}฿
+                        </Button>
+                      ))}
                     </Stack>
                   </Box>
-                </CardContent>
-              </Card>
+                </Grid>
+              </Grid>
 
-              {/* Payment Methods */}
-              <Card sx={{ boxShadow: 3 }}>
-                <CardContent sx={{ p: 3 }}>
-                  <Box display="flex" alignItems="center" gap={2} mb={3}>
-                    <MonetizationOn sx={{ color: theme.colors.success, fontSize: 28 }} />
-                    <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
-                      วิธีการชำระเงิน
-                    </Typography>
-                  </Box>
+              {customerCash && (
+                <Box mt={3} p={2} sx={{ backgroundColor: theme.colors.background, borderRadius: 2 }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 700,
+                      color: change >= 0 ? theme.colors.success : theme.colors.error,
+                      textAlign: 'center',
+                    }}
+                  >
+                    เงินทอน: {change >= 0 ? formatCurrency(change) : 'ไม่เพียงพอ'}
+                  </Typography>
+                </Box>
+              )}
 
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        size="large"
-                        startIcon={<MonetizationOn />}
-                        disabled={loading}
-                        onClick={() => handlePayment('cash')}
-                        sx={{
-                          height: 72,
-                          fontSize: '18px',
-                          fontWeight: 600,
-                          backgroundColor: theme.colors.success,
-                          '&:hover': { backgroundColor: theme.colors.success }
-                        }}
-                      >
-                        ชำระเงินสด
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        size="large"
-                        startIcon={<CreditCard />}
-                        disabled={loading}
-                        onClick={() => handlePayment('qr')}
-                        sx={{
-                          height: 72,
-                          fontSize: '18px',
-                          fontWeight: 600,
-                          backgroundColor: theme.colors.primary,
-                          '&:hover': { backgroundColor: theme.colors.primary }
-                        }}
-                      >
-                        สแกนจ่ายผ่าน Qrcode
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Stack>
-          </Grid>
-        </Grid>
-      </Container >
+              {/* ปุ่มส่วนลด + ปุ่มพิมพ์ใบเสร็จ */}
+              <Box mt={3}>
+                <Stack direction="row" spacing={2} justifyContent="flex-end">
+                  <Button variant="contained" color="secondary" onClick={() => setDiscountDialog(true)}>
+                    ใส่ส่วนลด
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<Receipt />}
+                    onClick={() => handlePrintReceipt(orderId)}
+                    disabled={!orderId}
+                  >
+                    พิมพ์ใบเสร็จ
+                  </Button>
+                </Stack>
+
+                <Snackbar
+                  open={snackbar.open}
+                  autoHideDuration={3000}
+                  onClose={handleCloseSnackbar}
+                  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                >
+                  <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                  </Alert>
+                </Snackbar>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* วิธีการชำระเงิน */}
+          <Card sx={{ boxShadow: 3 }}>
+            <CardContent sx={{ p: 3 }}>
+              <Box display="flex" alignItems="center" gap={2} mb={3}>
+                <MonetizationOn sx={{ color: theme.colors.success, fontSize: 28 }} />
+                <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '20px' }}>
+                  วิธีการชำระเงิน
+                </Typography>
+              </Box>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    startIcon={<MonetizationOn />}
+                    disabled={loading}
+                    onClick={() => handlePayment('cash')}
+                    sx={{
+                      height: 72,
+                      fontSize: '18px',
+                      fontWeight: 600,
+                      backgroundColor: theme.colors.success,
+                      '&:hover': { backgroundColor: theme.colors.success },
+                    }}
+                  >
+                    ชำระเงินสด
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    startIcon={<CreditCard />}
+                    disabled={loading}
+                    onClick={() => handlePayment('qr')}
+                    sx={{
+                      height: 72,
+                      fontSize: '18px',
+                      fontWeight: 600,
+                      backgroundColor: theme.colors.primary,
+                      '&:hover': { backgroundColor: theme.colors.primary },
+                    }}
+                  >
+                    สแกนจ่ายผ่าน Qrcode
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Box>
+      </Container>
 
       {/* Manual Discount Dialog */}
       <Dialog

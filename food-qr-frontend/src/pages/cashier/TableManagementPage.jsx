@@ -529,7 +529,7 @@ const TableManagementPage = () => {
                 จัดการโต๊ะ {selectedTable?.TableNumber}
               </Typography>
               <Typography variant="body2" color={themeColors.textSecondary}>
-                เวลาที่สั่ง: {billData?.order?.OrderTime ?? 'ไม่พบข้อมูล'}
+                เวลาที่สั่ง: {billData?.order?.OrderTime ?? '12:00'}
               </Typography>
             </Box>
           </Box>
@@ -537,7 +537,7 @@ const TableManagementPage = () => {
 
         <DialogContent dividers sx={{ p: 3 }}>
           <Stack spacing={2}>
-            <Button
+            {/* <Button
               variant="outlined"
               color="error"
               size="large"
@@ -552,7 +552,7 @@ const TableManagementPage = () => {
               }}
             >
               ยกเลิกโต๊ะ
-            </Button>
+            </Button> */}
 
             <Button
               variant="outlined"

@@ -235,13 +235,13 @@ const ReportPage = () => {
           <Box display="flex" alignItems="center" gap={2}>
             <Assessment sx={{ fontSize: 32 }} />
             <Typography variant="h4" component="h1" sx={{ fontWeight: 600, fontSize: '24px' }}>
-              รายงานยอดขาย - แคชเชียร์
+              รายงานยอดขาย
             </Typography>
           </Box>
           <Box display="flex" gap={1}>
-            <IconButton color="inherit" size="large">
+            {/* <IconButton color="inherit" size="large">
               <Print sx={{ fontSize: 28 }} />
-            </IconButton>
+            </IconButton> */}
           </Box>
         </Toolbar>
       </AppBar>

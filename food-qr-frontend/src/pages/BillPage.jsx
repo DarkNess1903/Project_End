@@ -203,7 +203,7 @@ const BillPage = () => {
                     fontSize: '1.1rem'
                   }}
                 >
-                  ใบเสร็จ
+                  บิลรายการอาหาร
                 </Typography>
                 <Typography 
                   variant="body2" 

@@ -93,12 +93,12 @@ const MenuPage = () => {
   }, [location.search]);
 
   const categoryButtons = [
-    { label: 'ทั้งหมด', category: 'all'},
+    { label: 'ทั้งหมด', category: 'all' },
     // { label: 'เมนูแนะนำ', category: 'recommended', icon: '⭐' },
-    { label: 'อาหารจานหลัก', category: 'main'},
+    { label: 'อาหารจานหลัก', category: 'main' },
     { label: 'อาหารว่าง', category: 'appetizer' },
-    { label: 'ของหวาน', category: 'dessert'},
-    { label: 'เครื่องดื่ม', category: 'drink'},
+    { label: 'ของหวาน', category: 'dessert' },
+    { label: 'เครื่องดื่ม', category: 'drink' },
   ];
 
   const tableName = localStorage.getItem('tableName') || 'ไม่ระบุ';
@@ -368,7 +368,7 @@ const MenuPage = () => {
               {/* Note */}
               <Box mb={3}>
                 <Typography variant="h6" fontWeight={600} sx={{ color: theme.primary, mb: 2 }}>
-                   หมายเหตุพิเศษ
+                  หมายเหตุพิเศษ
                 </Typography>
                 <TextField
                   multiline
@@ -415,25 +415,29 @@ const MenuPage = () => {
       <Dialog
         open={callDialogOpen}
         onClose={() => setCallDialogOpen(false)}
-        PaperProps={{ sx: { borderRadius: '20px', p: 1, minWidth: 320 } }}
+        PaperProps={{ sx: { borderRadius: '20px', p: 2, minWidth: 320 } }}
       >
         <DialogTitle sx={{ textAlign: 'center', fontWeight: 600, fontSize: '1.3rem', color: theme.primary }}>
           🔔 เรียกพนักงาน
         </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
+        <DialogContent sx={{ p: 6 }}>
+          <Grid container spacing={2}>
             {[
               { label: 'ขออุปกรณ์', type: 'ขออุปกรณ์', icon: '🍴', color: theme.secondary },
               { label: 'เครื่องปรุง', type: 'ขอเครื่องปรุง', icon: '🧂', color: theme.success },
               { label: 'ชำระเงิน', type: 'ชำระเงิน', icon: '💳', color: theme.accent },
               { label: 'อื่นๆ', type: 'อื่นๆ', icon: '💬', color: theme.warning },
             ].map((item) => (
-              <Grid item xs={6} key={item.type}>
+              <Grid item xs={6} key={item.type} sx={{ display: 'flex' }}>
                 <Button
                   fullWidth
                   variant="outlined"
                   onClick={() => sendStaffCall(item.type)}
                   sx={{
+                    height: '100px',
+                    width : '100px',
+                    py: 2, 
+                    aspectRatio: '1 / 1',
                     borderRadius: '16px',
                     py: 2,
                     borderColor: item.color,
@@ -558,7 +562,6 @@ const MenuPage = () => {
         <DialogContent>
           <TextField
             fullWidth
-            label="พิมพ์ชื่อเมนูที่ต้องการ..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             autoFocus
