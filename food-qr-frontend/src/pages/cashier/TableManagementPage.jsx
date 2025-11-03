@@ -324,7 +324,7 @@ const TableManagementPage = () => {
               </Box>
               <Box>
                 <Typography variant="h4" fontWeight="700" color={themeColors.textPrimary}>
-                  จัดการโต๊ะ
+                  จัดการคำสั่งซื้อ
                 </Typography>
                 <Typography variant="subtitle1" color={themeColors.textSecondary}>
                   ระบบจัดการโต๊ะและออเดอร์
